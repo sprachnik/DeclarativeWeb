@@ -10,11 +10,17 @@ export default async (request, context) => {
     })
   }
 
-  // Get API key from environment variable.
-  // Named RENDERJS_CLAUDE_KEY (not ANTHROPIC_API_KEY) because Netlify's
-  // built-in AI integration auto-injects ANTHROPIC_API_KEY as a JWT for
-  // its AI Gateway proxy, which overrides anything set in .env.
-  const apiKey = process.env.RENDERJS_CLAUDE_KEY
+  // Prefer a key supplied by the browser (user pasted their own key into the
+  // chat UI); fall back to the server-side env var for shared/deployed use.
+  //
+  // Server env var is named RENDERJS_CLAUDE_KEY (not ANTHROPIC_API_KEY) because
+  // Netlify's built-in AI integration auto-injects ANTHROPIC_API_KEY as a JWT
+  // for its AI Gateway proxy, which overrides anything set in .env.
+  //
+  // The user-supplied key is never logged and never persisted server-side;
+  // it is forwarded straight to Anthropic on the same request.
+  const userKey = request.headers.get('x-user-anthropic-key')
+  const apiKey = userKey || process.env.RENDERJS_CLAUDE_KEY
   if (!apiKey) {
     return new Response(JSON.stringify({ error: 'API key not configured' }), {
       status: 500,

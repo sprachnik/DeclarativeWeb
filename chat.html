@@ -795,10 +795,24 @@
 
       <h4>API Setup</h4>
       <p class="api-key-hint">
-        Add <code>ANTHROPIC_API_KEY</code> as an environment variable in your
+        <strong>Option A &mdash; Server-side (recommended for shared deployments):</strong>
+        Add <code>RENDERJS_CLAUDE_KEY</code> as an environment variable in your
         <a href="https://app.netlify.com/" target="_blank">Netlify dashboard</a>
         (Site settings &rarr; Environment variables).
       </p>
+      <p class="api-key-hint">
+        <strong>Option B &mdash; Bring your own key:</strong>
+        Paste an Anthropic API key below. It is sent with each request as a
+        header and forwarded straight to Anthropic. It is <em>not</em> logged
+        anywhere and is stored only in this browser's <code>localStorage</code>
+        on your device &mdash; clear it any time with the button below.
+      </p>
+      <div style="display: flex; gap: 0.5rem; align-items: stretch; margin: 0.5rem 0 0.25rem;">
+        <input type="password" id="user-api-key-input" placeholder="sk-ant-..." autocomplete="off" spellcheck="false" style="flex: 1; margin: 0;">
+        <button onclick="saveUserApiKey()" style="margin: 0; white-space: nowrap;">Save</button>
+        <button onclick="clearUserApiKey()" class="outline" style="margin: 0; white-space: nowrap;">Clear</button>
+      </div>
+      <p id="user-api-key-status" style="font-size: 0.75rem; color: var(--text-muted); margin: 0.25rem 0 0;"></p>
 
       <h4>How It Works</h4>
       <ol style="font-size: 0.85rem; line-height: 1.6;">
@@ -1602,10 +1616,46 @@ When CURRENT BLOCKS provided, return ONLY changed blocks:
     })
 
     // Info Modal functions
+    const USER_KEY_STORAGE = 'user-anthropic-key'
+
+    function getUserApiKey() {
+      return localStorage.getItem(USER_KEY_STORAGE) || ''
+    }
+
+    function refreshUserApiKeyStatus() {
+      const status = document.getElementById('user-api-key-status')
+      const input = document.getElementById('user-api-key-input')
+      const stored = getUserApiKey()
+      if (stored) {
+        input.value = stored
+        status.textContent = 'Using your own key (saved in this browser only).'
+      } else {
+        input.value = ''
+        status.textContent = 'No personal key saved — requests will use the server key if configured.'
+      }
+    }
+
+    function saveUserApiKey() {
+      const input = document.getElementById('user-api-key-input')
+      const value = input.value.trim()
+      if (!value) {
+        clearUserApiKey()
+        return
+      }
+      localStorage.setItem(USER_KEY_STORAGE, value)
+      refreshUserApiKeyStatus()
+    }
+
+    function clearUserApiKey() {
+      localStorage.removeItem(USER_KEY_STORAGE)
+      refreshUserApiKeyStatus()
+    }
+
     function openApiModal() {
       document.getElementById('api-modal').classList.remove('hidden')
       // Populate system prompt display
       document.getElementById('system-prompt-display').textContent = SYSTEM_PROMPT
+      refreshUserApiKeyStatus()
       if (window.lucide) lucide.createIcons()
     }
 
@@ -1751,11 +1801,13 @@ When CURRENT BLOCKS provided, return ONLY changed blocks:
         stream: true
       }
 
+      const headers = { 'content-type': 'application/json' }
+      const userKey = getUserApiKey()
+      if (userKey) headers['x-user-anthropic-key'] = userKey
+
       const response = await fetch(url, {
         method: 'POST',
-        headers: {
-          'content-type': 'application/json'
-        },
+        headers,
         body: JSON.stringify(body)
       })
 
