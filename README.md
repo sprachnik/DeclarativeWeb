@@ -1,8 +1,10 @@
 # DeclarativeWeb
 
-**A minimal, LLM-friendly JavaScript library for rendering websites from a single JSON schema.**
+> ☕ **Enjoying this project?** [Buy me a coffee](https://buymeacoffee.com/Jamesstalleymoores) — it keeps the lights on and the commits flowing.
 
-Zero build step. Pure HTML + JS. Perfect for static sites, documentation, landing pages, and prototypes.
+**Build entire websites from a single JSON file.** No build step. No framework lock-in. No npm rabbit hole.
+
+DeclarativeWeb is a tiny, LLM-friendly JavaScript library that turns one JSON schema into a fully reactive, fully themed site. Drop the script in a page, write some JSON, ship. Designed from the ground up to be editable by humans *and* AI agents — perfect for static sites, documentation, landing pages, prototypes, and anywhere you want maximum velocity with minimum ceremony.
 
 **📖 New to DeclarativeWeb?** Read the complete guides:
 - **[What is this?](./PROJECT_OVERVIEW.md)** - Vision and philosophy
@@ -676,12 +678,6 @@ Found a bug? Have a feature request?
 ## License
 
 [PolyForm Noncommercial 1.0.0](./LICENSE) — free for noncommercial use with attribution. For commercial use, please get in touch.
-
-## Support
-
-If DeclarativeWeb is useful to you, you can support its development:
-
-☕ **[Buy me a coffee](https://buymeacoffee.com/Jamesstalleymoores)**
 
 ## Credits
 
