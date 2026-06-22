@@ -44,7 +44,7 @@ async function build() {
   for (const file of sourceFiles) {
     const filePath = path.join(__dirname, file);
     if (fs.existsSync(filePath)) {
-      const content = fs.readFileSync(filePath, 'utf8');
+      const content = fs.readFileSync(filePath, 'utf8').replace(/\r\n/g, '\n');
       combined += `\n// === ${file} ===\n${content}\n`;
       console.log(`  ✓ Added ${file}`);
     } else {
