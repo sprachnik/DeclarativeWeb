@@ -5,6 +5,46 @@
   command = "npm run build"
   publish = "."
 
+# Cache strategy
+#
+# The bundle dist/declarativeweb.min.js, the showcase JSON pages, and the
+# CSS/HTML are NOT fingerprinted — their filenames don't change between
+# deploys. If we set a long max-age the browser would serve stale bundle
+# code after a redeploy. Instead we set max-age=0 + must-revalidate so the
+# browser sends a cheap conditional GET each pageview and Netlify replies
+# with 304 Not Modified whenever the file is unchanged. Bandwidth cost is
+# negligible for a small site; redeploys take effect on the next pageview.
+
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/dist/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/*.json"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/pages/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
 # Pretty URLs - removes .html extension
 [build.processing]
   skip_processing = false
