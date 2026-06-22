@@ -122,7 +122,7 @@
     },
     {
       "type": "html",
-      "html": "<div style=\"background: var(--code-bg); padding: 3rem 2rem; border-radius: 0.5rem; text-align: center; margin: 2rem 0;\"><h2>Ready to Explore?</h2><p style=\"color: var(--text-muted); margin-bottom: 1.5rem;\">Check out the interactive demos to see all features in action</p><div style=\"display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;\"><a href=\"/demos\" role=\"button\" data-route>Interactive Demos</a><a href=\"/demo.html\" role=\"button\" class=\"outline\">Live Editor</a></div></div>"
+      "html": "<div style=\"background: var(--code-bg); padding: 3rem 2rem; border-radius: 0.5rem; text-align: center; margin: 2rem 0;\"><h2>Ready to Explore?</h2><p style=\"color: var(--text-muted); margin-bottom: 1.5rem;\">Check out the interactive demos to see all features in action</p><div style=\"display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;\"><a href=\"/demos\" role=\"button\" data-route>Interactive Demos</a><a href=\"/demo.html\" role=\"button\" class=\"outline\">Live Editor</a><a href=\"https://github.com/sprachnik/DeclarativeWeb\" role=\"button\" class=\"outline\" target=\"_blank\" rel=\"noopener\">View on GitHub</a></div></div>"
     }
   ]
 }
