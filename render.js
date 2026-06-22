@@ -201,6 +201,13 @@ const Render = (() => {
           ${action.label || ''}
         </a></li>`
       }
+      if (action.type === 'coffee-modal') {
+        const url = action.url || 'https://buymeacoffee.com/jamesstalleymoores'
+        const label = action.label || 'Buy me a coffee'
+        return `<li><button class="coffee-toggle outline" onclick="Render.showCoffeeModal(${JSON.stringify(url)})" aria-label="${label}" title="${label}">
+          <i data-lucide="${action.icon || 'coffee'}"></i>
+        </button></li>`
+      }
       return ''
     }).join('')
 
@@ -1633,6 +1640,38 @@ const Render = (() => {
     setTheme(current === 'dark' ? 'light' : 'dark')
   }
 
+  const showCoffeeModal = (url) => {
+    const href = url || 'https://buymeacoffee.com/jamesstalleymoores'
+    let modal = document.getElementById('dw-coffee-modal')
+    if (!modal) {
+      modal = document.createElement('dialog')
+      modal.id = 'dw-coffee-modal'
+      modal.className = 'modal-dialog dw-coffee-modal'
+      modal.innerHTML = `
+        <article>
+          <header>
+            <button class="close" data-coffee-close aria-label="Close">✕</button>
+            <h2>Enjoying this?</h2>
+          </header>
+          <p>This is a personal side project — free to use, no ads, no tracking. If it's saved you time, you can buy me a coffee. Either way, thanks for visiting.</p>
+          <footer>
+            <a href="${href}" target="_blank" rel="noopener" role="button" data-coffee-link>Buy me a coffee</a>
+            <button class="secondary" data-coffee-close>No thanks</button>
+          </footer>
+        </article>
+      `
+      modal.addEventListener('click', (e) => {
+        if (e.target.matches('[data-coffee-close]') || e.target === modal) modal.close()
+      })
+      document.body.appendChild(modal)
+    } else {
+      const link = modal.querySelector('[data-coffee-link]')
+      if (link) link.href = href
+    }
+    if (typeof modal.showModal === 'function') modal.showModal()
+    else modal.setAttribute('open', '')
+  }
+
   // Apply custom theme
   const applyCustomTheme = () => {
     const theme = site.theme || {}
@@ -2356,6 +2395,7 @@ const Render = (() => {
       await render()
     },
     toggleTheme,
+    showCoffeeModal,
     showError: showErrorModal,
     get state() { return state },
     get errors() { return errors },

@@ -153,6 +153,28 @@
                     "default": false
                   }
                 }
+              },
+              {
+                "type": "object",
+                "description": "Buy-me-a-coffee modal button — opens a small modal with a soft pitch and outbound link",
+                "required": ["type"],
+                "properties": {
+                  "type": {
+                    "const": "coffee-modal"
+                  },
+                  "url": {
+                    "type": "string",
+                    "description": "Buy Me a Coffee URL (defaults to the maintainer's)"
+                  },
+                  "label": {
+                    "type": "string",
+                    "description": "Aria-label / tooltip (default: \"Buy me a coffee\")"
+                  },
+                  "icon": {
+                    "type": "string",
+                    "description": "Lucide icon name (default: \"coffee\")"
+                  }
+                }
               }
             ]
           }

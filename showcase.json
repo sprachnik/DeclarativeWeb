@@ -56,6 +56,24 @@
     ],
     "actions": [
       {
+        "type": "link",
+        "label": "",
+        "url": "https://github.com/sprachnik/DeclarativeWeb",
+        "icon": "github",
+        "external": true
+      },
+      {
+        "type": "link",
+        "label": "",
+        "url": "https://www.linkedin.com/in/jamesmoores/",
+        "icon": "linkedin",
+        "external": true
+      },
+      {
+        "type": "coffee-modal",
+        "url": "https://buymeacoffee.com/jamesstalleymoores"
+      },
+      {
         "type": "theme-toggle"
       }
     ]
