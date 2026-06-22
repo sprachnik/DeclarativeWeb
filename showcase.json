@@ -27,31 +27,38 @@
     "links": [
       {
         "label": "Home",
-        "path": "/"
+        "path": "/",
+        "icon": "home"
       },
       {
         "label": "Why DeclarativeWeb?",
-        "path": "/why"
+        "path": "/why",
+        "icon": "sparkles"
       },
       {
         "label": "Interactive Demos",
-        "path": "/demos"
+        "path": "/demos",
+        "icon": "play-circle"
       },
       {
         "label": "Docs",
-        "path": "/docs"
+        "path": "/docs",
+        "icon": "book-open"
       },
       {
         "label": "LLM Prompt",
-        "path": "/llm-prompt"
+        "path": "/llm-prompt",
+        "icon": "message-square"
       },
       {
         "label": "Streaming LLM",
-        "path": "/streaming-llm"
+        "path": "/streaming-llm",
+        "icon": "radio"
       },
       {
         "label": "Live Editors",
-        "path": "/live-editors"
+        "path": "/live-editors",
+        "icon": "code"
       }
     ],
     "actions": [

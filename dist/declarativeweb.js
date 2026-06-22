@@ -3126,14 +3126,11 @@ const Render = (() => {
       <nav class="site-nav" data-nav-layout="horizontal">
         <div class="container nav-container">
           ${logoHtml}
-          <ul class="nav-links desktop-only">
-            ${linksHtml}
-          </ul>
           <div class="nav-right">
             <ul class="nav-actions">
               ${actionsHtml}
             </ul>
-            <details class="dropdown mobile-only">
+            <details class="dropdown">
               <summary role="button" class="outline" aria-label="Menu">
                 <i data-lucide="menu"></i>
               </summary>

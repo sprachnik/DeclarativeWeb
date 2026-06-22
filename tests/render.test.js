@@ -860,7 +860,7 @@ describe('Render.js Framework', () => {
       expect(dropdown.hasAttribute('open')).toBe(false);
     });
 
-    test('should render both desktop and mobile menus', async () => {
+    test('should render nav-actions and a dropdown menu', async () => {
       const data = {
         site: { title: 'Test' },
         nav: {
@@ -873,11 +873,13 @@ describe('Render.js Framework', () => {
 
       await Render.init({ data, target: '#app' });
 
-      const desktopLinks = document.querySelector('.nav-links.desktop-only');
-      const mobileDropdown = document.querySelector('.dropdown.mobile-only');
+      const navActions = document.querySelector('.nav-actions');
+      const dropdown = document.querySelector('.dropdown');
+      const dropdownLink = dropdown && dropdown.querySelector('a');
 
-      expect(desktopLinks).toBeTruthy();
-      expect(mobileDropdown).toBeTruthy();
+      expect(navActions).toBeTruthy();
+      expect(dropdown).toBeTruthy();
+      expect(dropdownLink).toBeTruthy();
     });
   });
 
