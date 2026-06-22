@@ -1,0 +1,202 @@
+{
+  "path": "/why",
+  "meta": {
+    "title": "Why DeclarativeWeb?",
+    "description": "Discover why declarative JSON beats traditional web development"
+  },
+  "content": [
+    {
+      "type": "hero",
+      "headline": "Why DeclarativeWeb?",
+      "subhead": "Stop writing boilerplate. Start describing what you want."
+    },
+    {
+      "type": "markdown",
+      "content": "## The Problem with Traditional Web Development\n\nBuilding websites traditionally means juggling **HTML**, **CSS**, **JavaScript**, build tools, bundlers, transpilers, and a dozen config files. Want to add a button? Write HTML, add event listeners, manage state, update the DOM manually.\n\n**It's exhausting.** And it's even worse for AI assistants trying to help you."
+    },
+    {
+      "type": "section",
+      "title": "🎯 Declarative vs Imperative",
+      "subtitle": "Tell the computer WHAT you want, not HOW to do it",
+      "columns": 2,
+      "resources": [
+        {
+          "title": "❌ Traditional Way",
+          "description": "Write HTML structure, add CSS classes, write JavaScript handlers, manage DOM updates, handle state synchronization, debug event listeners...",
+          "icon": "frown",
+          "tags": [
+            "painful"
+          ]
+        },
+        {
+          "title": "✅ DeclarativeWeb Way",
+          "description": "Describe your button in JSON. Done. State updates automatically. No event listener bugs. No DOM manipulation.",
+          "icon": "smile",
+          "tags": [
+            "simple"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "title": "Adding an Interactive Counter: Traditional Way",
+      "language": "html",
+      "description": "~30 lines of code across 3 languages",
+      "code": "<!-- HTML -->\n<div id=\"counter-app\">\n  <h3>Counter: <span id=\"count\">0</span></h3>\n  <button id=\"inc-btn\">Increment</button>\n  <button id=\"dec-btn\">Decrement</button>\n  <button id=\"reset-btn\">Reset</button>\n</div>\n\n<script>\n  let count = 0;\n  const countEl = document.getElementById('count');\n  const incBtn = document.getElementById('inc-btn');\n  const decBtn = document.getElementById('dec-btn');\n  const resetBtn = document.getElementById('reset-btn');\n  \n  function updateDisplay() {\n    countEl.textContent = count;\n  }\n  \n  incBtn.addEventListener('click', () => { count++; updateDisplay(); });\n  decBtn.addEventListener('click', () => { count--; updateDisplay(); });\n  resetBtn.addEventListener('click', () => { count = 0; updateDisplay(); });\n</script>"
+    },
+    {
+      "type": "code",
+      "title": "Adding an Interactive Counter: DeclarativeWeb Way",
+      "language": "json",
+      "description": "~15 lines of pure JSON. No JavaScript to write.",
+      "code": "{\n  \"state\": { \"counter\": 0 },\n  \"content\": [\n    {\n      \"type\": \"markdown\",\n      \"content\": \"## Counter: {{state.counter}}\"\n    },\n    { \"type\": \"button\", \"label\": \"Increment\", \"action\": \"Render.state.counter++\" },\n    { \"type\": \"button\", \"label\": \"Decrement\", \"action\": \"Render.state.counter--\" },\n    { \"type\": \"button\", \"label\": \"Reset\", \"action\": \"Render.state.counter = 0\" }\n  ]\n}"
+    },
+    {
+      "type": "markdown",
+      "content": "---\n\n## 🤖 Built for the AI Era\n\nLLMs are great at generating structured data. They're terrible at writing bug-free JavaScript with proper DOM manipulation, event handling, and state management.\n\n**DeclarativeWeb plays to AI's strengths:**"
+    },
+    {
+      "type": "section",
+      "columns": 3,
+      "resources": [
+        {
+          "title": "JSON is Native",
+          "description": "LLMs think in structured data. JSON is their natural language. No syntax errors, no missing semicolons.",
+          "icon": "file-json",
+          "tags": [
+            "AI-native"
+          ]
+        },
+        {
+          "title": "Predictable Output",
+          "description": "Same input = same output. No runtime surprises. Easy to validate, easy to fix.",
+          "icon": "check-circle",
+          "tags": [
+            "reliable"
+          ]
+        },
+        {
+          "title": "Self-Documenting",
+          "description": "The JSON IS the documentation. No hunting through files to understand what's happening.",
+          "icon": "book-open",
+          "tags": [
+            "clear"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "markdown",
+      "content": "### Real Talk: Ask an LLM to Build You a Website\n\n| What You Ask | Traditional Output | DeclarativeWeb Output |\n|--------------|-------------------|------------------|\n| \"Add a hero section\" | 50+ lines of HTML/CSS | 5 lines of JSON |\n| \"Make it interactive\" | Buggy JS, missing handlers | Add `action` property |\n| \"Change the layout\" | Rewrite CSS, break things | Change `columns: 3` |\n| \"Add a data table\" | Manual DOM creation | `type: \"table\"`, done |\n| \"Fetch from API\" | Callback hell, error handling | One function, auto-updates |"
+    },
+    {
+      "type": "markdown",
+      "content": "---\n\n## 🏆 X vs Y: The Showdown"
+    },
+    {
+      "type": "html",
+      "html": "<div class='grid' style='gap: 2rem; margin: 2rem 0;'><article style='border-left: 4px solid var(--pico-del-color);'><header><strong>😰 Without DeclarativeWeb</strong></header><ul><li>Install Node.js</li><li>Set up npm/yarn</li><li>Configure webpack/vite/parcel</li><li>Install React/Vue/Svelte</li><li>Learn JSX/templates</li><li>Set up state management</li><li>Write components</li><li>Debug build errors</li><li>Deploy with CI/CD</li></ul><footer style='color: var(--pico-del-color);'>⏱️ Hours to first deploy</footer></article><article style='border-left: 4px solid var(--pico-ins-color);'><header><strong>😎 With DeclarativeWeb</strong></header><ul><li>Create index.html</li><li>Add script tags</li><li>Write site.json</li><li>Open in browser</li><li>Done.</li></ul><footer style='color: var(--pico-ins-color);'>⏱️ Minutes to first deploy</footer></article></div>"
+    },
+    {
+      "type": "section",
+      "title": "Feature Comparison",
+      "columns": 2,
+      "resources": [
+        {
+          "title": "Zero Build Step",
+          "description": "No webpack. No Vite. No npm install. Just open the HTML file. Your grandma could deploy this.",
+          "icon": "zap",
+          "tags": [
+            "simple"
+          ]
+        },
+        {
+          "title": "Reactive by Default",
+          "description": "Change state → UI updates. Automatically. No useEffect, no watchers, no subscriptions.",
+          "icon": "refresh-cw",
+          "tags": [
+            "reactive"
+          ]
+        },
+        {
+          "title": "One File to Rule Them All",
+          "description": "Your entire site config in one JSON file. No hunting through 47 component files.",
+          "icon": "file",
+          "tags": [
+            "organized"
+          ]
+        },
+        {
+          "title": "LLM-Native Architecture",
+          "description": "Designed from day one for AI agents. Clean schema, predictable structure, easy to generate.",
+          "icon": "brain",
+          "tags": [
+            "AI-ready"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "markdown",
+      "content": "---\n\n## 🎪 Fun Comparisons"
+    },
+    {
+      "type": "table",
+      "caption": "The Great Web Dev Showdown",
+      "striped": true,
+      "data": [
+        [
+          "Task",
+          "React",
+          "DeclarativeWeb",
+          "Winner"
+        ],
+        [
+          "Hello World",
+          "npx create-react-app (2 min)",
+          "Write JSON (10 sec)",
+          "🏆 DeclarativeWeb"
+        ],
+        [
+          "Add a button",
+          "Component + useState + handler",
+          "{ type: button }",
+          "🏆 DeclarativeWeb"
+        ],
+        [
+          "Fetch API data",
+          "useEffect + loading state + error handling",
+          "One async function",
+          "🏆 DeclarativeWeb"
+        ],
+        [
+          "Change theme",
+          "Context + Provider + Consumer + CSS",
+          "state.colorTheme = 'purple'",
+          "🏆 DeclarativeWeb"
+        ],
+        [
+          "Complex animations",
+          "CSS + JS + libraries",
+          "Use CSS/libraries",
+          "🤝 Tie"
+        ],
+        [
+          "Massive enterprise app",
+          "Structured architecture",
+          "Keep it simple",
+          "🤝 Depends"
+        ]
+      ]
+    },
+    {
+      "type": "markdown",
+      "content": "### The Honest Truth\n\nDeclarativeWeb isn't trying to replace React for building the next Facebook. It's for:\n\n- ✅ **Landing pages** that need to ship yesterday\n- ✅ **Prototypes** that prove concepts fast\n- ✅ **Documentation sites** that just work\n- ✅ **AI-generated content** that doesn't break\n- ✅ **Simple apps** that don't need 200 dependencies\n- ✅ **Developers** who are tired of JavaScript fatigue"
+    },
+    {
+      "type": "html",
+      "html": "<div style='background: linear-gradient(135deg, var(--pico-primary-focus), var(--pico-secondary-focus)); padding: 3rem 2rem; border-radius: 1rem; text-align: center; margin: 3rem 0;'><h2 style='margin-top: 0;'>Ready to Try It?</h2><p style='margin-bottom: 1.5rem; opacity: 0.9;'>Stop configuring. Start building.</p><div style='display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;'><a href='/demos' role='button' data-route>See Demos</a><a href='demo.html' role='button' class='outline'>Open Live Editor</a></div></div>"
+    }
+  ]
+}

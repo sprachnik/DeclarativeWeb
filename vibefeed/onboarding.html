@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to VibeFeed!</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.colors.min.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="../dist/declarativeweb.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: var(--pico-background-color);
+    }
+
+    .welcome-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    .welcome-title {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .welcome-subtitle {
+      font-size: 1.25rem;
+      color: var(--pico-muted-color);
+      margin-bottom: 3rem;
+      line-height: 1.6;
+    }
+
+    .demo-vibe-card {
+      background: var(--pico-card-background-color);
+      border: 1px solid var(--pico-muted-border-color);
+      border-radius: 1rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .demo-vibe-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .demo-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .demo-author-info {
+      text-align: left;
+    }
+
+    .demo-author-name {
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .demo-author-username {
+      color: var(--pico-muted-color);
+      font-size: 0.9rem;
+    }
+
+    .demo-vibe-content {
+      margin: 1.5rem 0;
+    }
+
+    .create-vibe-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 2.5rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 3rem;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .create-vibe-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+      color: white;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .create-vibe-btn {
+      animation: float 3s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="welcome-container">
+    <h1 class="welcome-title">Welcome to VibeFeed! 🎉</h1>
+    <p class="welcome-subtitle">
+      Create and share interactive content like quizzes, animations, recipes, and more - all powered by AI in seconds!
+    </p>
+
+    <div class="demo-vibe-card">
+      <div class="demo-vibe-header">
+        <div class="demo-avatar">✨</div>
+        <div class="demo-author-info">
+          <div class="demo-author-name">Ella Bella</div>
+          <div class="demo-author-username">@ellabella • VibeFeed Guide</div>
+        </div>
+      </div>
+
+      <div class="demo-vibe-content" id="demo-content"></div>
+
+      <a href="create" class="create-vibe-btn">
+        🐱 Create Your First Vibe!
+      </a>
+    </div>
+  </div>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/onboarding.js"></script>
+</body>
+</html>

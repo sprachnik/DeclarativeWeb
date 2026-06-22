@@ -1,0 +1,150 @@
+{
+  "$schema": "../schema.json",
+  "site": {
+    "title": "EduFlow",
+    "description": "Simple and powerful course management for schools",
+    "defaultTheme": "light",
+    "state": {
+      "enrolledSchools": 1200
+    }
+  },
+  "nav": {
+    "layout": "horizontal",
+    "logo": {
+      "text": "EduFlow",
+      "icon": "book"
+    },
+    "links": [
+      { "label": "Features", "path": "/" },
+      { "label": "Pricing", "path": "/pricing" }
+    ],
+    "actions": [
+      { "type": "theme-toggle" },
+      {
+        "type": "link",
+        "label": "Get Started",
+        "path": "/signup",
+        "icon": "arrow-right"
+      }
+    ]
+  },
+  "footer": {
+    "text": "© {{year()}} EduFlow. Built for educators.",
+    "links": [
+      { "label": "Privacy", "path": "/privacy" },
+      { "label": "Terms", "path": "/terms" }
+    ]
+  },
+  "functions": {
+    "year": "() => new Date().getFullYear()"
+  },
+  "pages": [
+    {
+      "path": "/",
+      "meta": {
+        "title": "Home",
+        "description": "Simple course management for schools"
+      },
+      "content": [
+        {
+          "type": "hero",
+          "headline": "Course Management Made Simple",
+          "subhead": "Everything your school needs to manage courses, track student progress, and communicate with parents. All in one beautiful platform.",
+          "cta": {
+            "label": "Start Free Trial",
+            "path": "/signup"
+          },
+          "secondaryCta": {
+            "label": "Schedule Demo",
+            "path": "/demo",
+            "icon": "calendar"
+          }
+        },
+        {
+          "type": "section",
+          "id": "features",
+          "title": "Everything You Need",
+          "columns": 3,
+          "resources": [
+            {
+              "title": "Course Builder",
+              "description": "Create and organize courses with our intuitive drag-and-drop interface. Add lessons, assignments, and resources in minutes.",
+              "icon": "layers",
+              "tags": ["easy setup"]
+            },
+            {
+              "title": "Student Portal",
+              "description": "Students access everything in one place: course materials, grades, schedules, and communication with teachers.",
+              "icon": "user",
+              "tags": ["self-service"]
+            },
+            {
+              "title": "Parent Dashboard",
+              "description": "Keep parents informed with real-time updates on attendance, grades, and upcoming assignments.",
+              "icon": "users",
+              "tags": ["transparency"]
+            },
+            {
+              "title": "Grade Management",
+              "description": "Automated grade calculations, weighted categories, and custom rubrics. Export transcripts with one click.",
+              "icon": "bar-chart",
+              "tags": ["automated"]
+            },
+            {
+              "title": "Attendance Tracking",
+              "description": "Take attendance on any device. Generate reports and send notifications to parents automatically.",
+              "icon": "check-circle",
+              "tags": ["mobile friendly"]
+            },
+            {
+              "title": "Communication Hub",
+              "description": "Send announcements, schedule parent-teacher conferences, and message individual students or groups.",
+              "icon": "message-circle",
+              "tags": ["engagement"]
+            }
+          ]
+        },
+        {
+          "type": "markdown",
+          "content": "## Trusted by 1,200+ Schools\n\n*\"EduFlow transformed how we manage our curriculum. What used to take hours now takes minutes.\"* — Principal, Lincoln High School\n\n*\"Parents love the transparency. They can see their child's progress anytime, anywhere.\"* — Teacher, Riverside Academy\n\n*\"Setup was incredibly simple. We were up and running in less than a day.\"* — IT Director, Oakwood District"
+        },
+        {
+          "type": "html",
+          "html": "<div style=\"background: var(--code-bg); padding: 3rem 2rem; border-radius: 0.5rem; text-align: center;\"><h2>Ready to Transform Your School?</h2><p style=\"color: var(--text-muted); margin-bottom: 1.5rem;\">Start your 30-day free trial. No credit card required.</p><a href=\"/signup\" role=\"button\">Get Started Free</a></div>"
+        }
+      ]
+    },
+    {
+      "path": "/pricing",
+      "meta": {
+        "title": "Pricing"
+      },
+      "content": [
+        {
+          "type": "hero",
+          "headline": "Simple, Transparent Pricing",
+          "subhead": "Pay per student. No hidden fees. Cancel anytime."
+        },
+        {
+          "type": "section",
+          "id": "plans",
+          "columns": 2,
+          "resources": [
+            {
+              "title": "Small School",
+              "description": "Perfect for schools with up to 500 students. Includes all core features, unlimited teachers, and email support.",
+              "icon": "home",
+              "tags": ["$2/student/month"]
+            },
+            {
+              "title": "Large School",
+              "description": "For schools with 500+ students. Everything in Small School plus priority support, custom integrations, and training.",
+              "icon": "building",
+              "tags": ["$1.50/student/month"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

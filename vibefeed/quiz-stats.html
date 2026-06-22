@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Stats - VibeFeed</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.colors.min.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/frappe-charts@1.6.2/dist/frappe-charts.min.iife.js"></script>
+  <style>
+    body {
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--pico-muted-color);
+      text-decoration: none;
+      margin-bottom: 1.5rem;
+      font-size: 0.875rem;
+    }
+
+    .back-link:hover {
+      color: var(--pico-color);
+    }
+
+    .stats-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .stats-header h1 {
+      margin-bottom: 0.5rem;
+    }
+
+    .stats-overview {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--pico-card-background-color);
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: var(--pico-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      color: var(--pico-muted-color);
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .leaderboard {
+      background: var(--pico-card-background-color);
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .leaderboard h2 {
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .leaderboard-item {
+      display: grid;
+      grid-template-columns: 40px 1fr auto auto;
+      gap: 1rem;
+      align-items: center;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-bottom: 0.5rem;
+      background: var(--pico-background-color);
+    }
+
+    .leaderboard-rank {
+      font-size: 1.5rem;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .rank-1 { color: #FFD700; } /* Gold */
+    .rank-2 { color: #C0C0C0; } /* Silver */
+    .rank-3 { color: #CD7F32; } /* Bronze */
+
+    .leaderboard-user {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .leaderboard-username {
+      font-weight: 600;
+    }
+
+    .leaderboard-date {
+      font-size: 0.75rem;
+      color: var(--pico-muted-color);
+    }
+
+    .leaderboard-score {
+      font-size: 1.25rem;
+      font-weight: bold;
+    }
+
+    .leaderboard-percentage {
+      background: var(--pico-primary);
+      color: var(--pico-primary-inverse);
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .chart-section {
+      background: var(--pico-card-background-color);
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .chart-section h2 {
+      margin-bottom: 1rem;
+    }
+
+    #score-chart {
+      min-height: 300px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: var(--pico-muted-color);
+    }
+
+    .error {
+      text-align: center;
+      padding: 2rem;
+      background: var(--pico-del-background-color);
+      color: var(--pico-del-color);
+      border-radius: 0.5rem;
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 3rem;
+      color: var(--pico-muted-color);
+    }
+
+    .no-data i {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="#" onclick="history.back(); return false;" class="back-link">
+      <i data-lucide="arrow-left" style="width: 1rem; height: 1rem;"></i>
+      Back to Quiz
+    </a>
+
+    <div id="content"></div>
+  </div>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/quiz-stats.js"></script>
+</body>
+</html>

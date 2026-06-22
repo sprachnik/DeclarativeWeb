@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Streaming Component Playground - Render.js</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <!-- Pico CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.colors.min.css">
+
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .demo-container {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .editor-panel {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: 33%;
+      min-width: 33%;
+      max-width: 80%;
+      border-right: 1px solid var(--pico-muted-border-color);
+      background: var(--pico-card-background-color);
+      transition: width 0.3s ease;
+    }
+
+    .editor-panel.collapsed {
+      width: 0;
+      min-width: 0;
+      border-right: none;
+    }
+
+    .editor-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--pico-muted-border-color);
+      background: var(--pico-background-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .editor-header h2 {
+      margin: 0;
+      font-size: 1.125rem;
+    }
+
+    .editor-actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .editor-actions button {
+      padding: 0.375rem 0.75rem;
+      font-size: 0.875rem;
+      margin: 0;
+    }
+
+    .theme-toggle-btn {
+      padding: 0.5rem;
+      min-width: auto;
+      width: 2.5rem;
+      height: 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .theme-toggle-btn [data-lucide] {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    .code-editor {
+      flex: 1;
+      padding: 1.5rem;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .code-editor textarea {
+      flex: 1;
+      width: 100%;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 0.875rem;
+      line-height: 1.6;
+      padding: 1rem;
+      border: 1px solid var(--pico-muted-border-color);
+      border-radius: 0.5rem;
+      background: var(--pico-card-background-color);
+      color: var(--pico-color);
+      resize: none;
+      tab-size: 2;
+      overflow-y: auto;
+    }
+
+    .code-editor textarea:focus {
+      outline: 2px solid var(--pico-primary);
+      outline-offset: -2px;
+    }
+
+    .resize-handle {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 5px;
+      height: 100%;
+      background: transparent;
+      cursor: col-resize;
+      z-index: 10;
+      transition: background 0.2s;
+    }
+
+    .resize-handle:hover {
+      background: var(--pico-primary);
+    }
+
+    .preview-panel {
+      position: relative;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--pico-background-color);
+      overflow: hidden;
+    }
+
+    .preview-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--pico-muted-border-color);
+      background: var(--pico-card-background-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .preview-header h2 {
+      margin: 0;
+      font-size: 1.125rem;
+    }
+
+    .preview-header button {
+      padding: 0.375rem 0.75rem;
+      font-size: 0.875rem;
+      margin: 0;
+    }
+
+    .preview-content {
+      flex: 1;
+      padding: 2rem;
+      overflow-y: auto;
+    }
+
+    .error-message {
+      padding: 1.5rem;
+      margin: 2rem;
+      background: var(--pico-del-background-color);
+      border: 2px solid var(--pico-del-color);
+      border-radius: 0.5rem;
+      color: var(--pico-color);
+    }
+
+    .error-message strong {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--pico-color);
+    }
+
+    .error-message pre {
+      margin-top: 0.75rem;
+      padding: 0.75rem;
+      background: rgba(0,0,0,0.1);
+      border-radius: 0.25rem;
+      overflow-x: auto;
+      font-size: 0.875rem;
+    }
+
+    .success-message {
+      padding: 1rem;
+      margin: 2rem;
+      background: var(--pico-ins-background-color);
+      border: 2px solid var(--pico-ins-color);
+      border-radius: 0.5rem;
+      color: var(--pico-ins-color);
+    }
+
+    .placeholder {
+      padding: 3rem;
+      text-align: center;
+      color: var(--pico-muted-color);
+      font-style: italic;
+    }
+
+    .streaming-incomplete {
+      position: relative;
+      opacity: 0.85;
+    }
+
+    .streaming-incomplete::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--pico-primary) 0%, transparent 50%, var(--pico-primary) 100%);
+      background-size: 200% 100%;
+      animation: streaming-indicator 1.5s ease-in-out infinite;
+    }
+
+    @keyframes streaming-indicator {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Console Panel */
+    .console-panel {
+      position: relative;
+      border-top: 1px solid var(--pico-muted-border-color);
+      background: #1e1e1e;
+      color: #d4d4d4;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 0.8rem;
+      max-height: 200px;
+      overflow: visible;
+      flex-shrink: 0;
+    }
+
+    .console-panel .console-content {
+      max-height: 200px;
+      overflow-y: auto;
+      transition: max-height 0.2s ease;
+    }
+
+    .console-panel.hidden {
+      border-top: none;
+    }
+
+    .console-panel.hidden .console-content {
+      max-height: 0;
+      overflow: hidden;
+    }
+
+    .console-header {
+      position: sticky;
+      top: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      background: #2d2d2d;
+      border-bottom: 1px solid #3d3d3d;
+      z-index: 1;
+    }
+
+    .console-header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      color: #9cdcfe;
+    }
+
+    .console-header-left [data-lucide] {
+      width: 14px;
+      height: 14px;
+    }
+
+    .console-header-right {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .console-header button {
+      background: transparent;
+      border: none;
+      color: #9cdcfe;
+      cursor: pointer;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.7rem;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .console-header button:hover {
+      background: #3d3d3d;
+    }
+
+    .console-header button [data-lucide] {
+      width: 12px;
+      height: 12px;
+    }
+
+    .console-badge {
+      background: #dc3545;
+      color: white;
+      font-size: 0.65rem;
+      padding: 0.1rem 0.35rem;
+      border-radius: 10px;
+      min-width: 16px;
+      text-align: center;
+    }
+
+    .console-badge.hidden {
+      display: none;
+    }
+
+    .console-messages {
+      padding: 0.5rem;
+    }
+
+    .console-entry {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.25rem 0.5rem;
+      border-bottom: 1px solid #2d2d2d;
+    }
+
+    .console-entry:last-child {
+      border-bottom: none;
+    }
+
+    .console-entry.log {
+      color: #d4d4d4;
+    }
+
+    .console-entry.warn {
+      color: #dcdcaa;
+      background: rgba(220, 220, 170, 0.1);
+    }
+
+    .console-entry.error {
+      color: #f48771;
+      background: rgba(244, 135, 113, 0.1);
+    }
+
+    .console-entry-icon {
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .console-entry-icon [data-lucide] {
+      width: 12px;
+      height: 12px;
+    }
+
+    .console-entry-text {
+      flex: 1;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+
+    .console-entry-actions {
+      flex-shrink: 0;
+    }
+
+    .console-fix-btn {
+      background: #dc3545 !important;
+      color: white !important;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem !important;
+    }
+
+    .console-fix-btn:hover {
+      background: #c82333 !important;
+    }
+
+    .console-toggle-btn {
+      position: absolute;
+      bottom: 0;
+      right: 1rem;
+      background: #2d2d2d;
+      color: #9cdcfe;
+      border: 1px solid #3d3d3d;
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      z-index: 10;
+      transform: translateY(-100%);
+    }
+
+    .console-toggle-btn:hover {
+      background: #3d3d3d;
+    }
+
+    .console-toggle-btn [data-lucide] {
+      width: 12px;
+      height: 12px;
+    }
+
+    /* When console is open, hide the floating toggle (header has its own hide button) */
+    .console-panel:not(.hidden) + .console-toggle-btn {
+      display: none;
+    }
+
+    @media (max-width: 1024px) {
+      .demo-container {
+        flex-direction: column;
+      }
+
+      .editor-panel {
+        width: 100% !important;
+        min-width: 0;
+        max-width: 100%;
+        height: 50vh;
+        border-right: none;
+        border-bottom: 1px solid var(--pico-muted-border-color);
+      }
+
+      .editor-panel.collapsed {
+        height: 0;
+        border-bottom: none;
+      }
+
+      .resize-handle {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-container">
+    <!-- Editor Panel -->
+    <div class="editor-panel" id="editor-panel">
+      <div class="resize-handle" id="resize-handle"></div>
+
+      <div class="editor-header">
+        <h2>Component JSON</h2>
+        <div class="editor-actions">
+          <button class="theme-toggle-btn outline" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle Theme">
+            <i data-lucide="sun" class="icon-light"></i>
+            <i data-lucide="moon" class="icon-dark"></i>
+          </button>
+          <button class="outline" onclick="formatJSON()" title="Format JSON (Ctrl/Cmd+S)">Format</button>
+          <button onclick="loadExample()" title="Load Random Example">
+            <i data-lucide="shuffle"></i> Example
+          </button>
+          <button class="outline" onclick="toggleEditor()" title="Hide Editor">
+            <i data-lucide="panel-left-close"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="code-editor">
+        <textarea id="json-editor" spellcheck="false"></textarea>
+      </div>
+    </div>
+
+    <!-- Preview Panel -->
+    <div class="preview-panel">
+      <div class="preview-header">
+        <h2>Live Preview</h2>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <select id="color-theme-select" onchange="changeColorTheme()" title="Color theme" style="margin: 0; padding: 0.25rem 0.5rem; font-size: 0.875rem; min-width: 100px;">
+            <option value="">Default</option>
+            <option value="red">Red</option>
+            <option value="pink">Pink</option>
+            <option value="fuchsia">Fuchsia</option>
+            <option value="purple">Purple</option>
+            <option value="violet">Violet</option>
+            <option value="indigo">Indigo</option>
+            <option value="blue">Blue</option>
+            <option value="azure">Azure</option>
+            <option value="cyan">Cyan</option>
+            <option value="jade">Jade</option>
+            <option value="green">Green</option>
+            <option value="lime">Lime</option>
+            <option value="yellow">Yellow</option>
+            <option value="amber">Amber</option>
+            <option value="pumpkin">Pumpkin</option>
+            <option value="orange">Orange</option>
+            <option value="sand">Sand</option>
+            <option value="grey">Grey</option>
+            <option value="zinc">Zinc</option>
+            <option value="slate">Slate</option>
+          </select>
+          <button class="outline" onclick="toggleEditor()" id="show-editor-btn" style="display: none;" title="Show Editor">
+            <i data-lucide="panel-left-open"></i> Show Editor
+          </button>
+        </div>
+      </div>
+      <div id="preview" class="preview-content"></div>
+
+      <!-- Console Panel -->
+      <div id="console-panel" class="console-panel hidden">
+        <div class="console-content">
+          <div class="console-header">
+            <div class="console-header-left">
+              <i data-lucide="terminal"></i>
+              <span>Console</span>
+            </div>
+            <div class="console-header-right">
+              <button onclick="clearConsole()" title="Clear console">
+                <i data-lucide="trash-2"></i>
+                Clear
+              </button>
+              <button onclick="toggleConsole()" title="Hide console">
+                <i data-lucide="chevron-down"></i>
+                Hide
+              </button>
+            </div>
+          </div>
+          <div id="console-messages" class="console-messages">
+            <!-- Console entries will be added here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Console Toggle Button (always visible when console is hidden) -->
+      <button class="console-toggle-btn" onclick="toggleConsole()">
+        <i data-lucide="terminal"></i>
+        <span>Console</span>
+        <span id="console-error-badge" class="console-badge hidden">0</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Hidden element for Render.js initialization -->
+  <div id="render-dummy" style="display: none;"></div>
+
+  <!-- Dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/frappe-charts@1.2.4/dist/frappe-charts.min.iife.js"></script>
+  <!-- DeclarativeWeb Bundle -->
+  <script src="dist/declarativeweb.min.js"></script>
+
+  <script>
+    // Console interception state
+    let consoleErrorCount = 0
+    const originalConsole = {
+      log: console.log.bind(console),
+      warn: console.warn.bind(console),
+      error: console.error.bind(console)
+    }
+
+    // Intercept console methods to display in our panel
+    function interceptConsole() {
+      const addEntry = (type, args) => {
+        const messagesEl = document.getElementById('console-messages')
+        const panelEl = document.getElementById('console-panel')
+        const badgeEl = document.getElementById('console-error-badge')
+        if (!messagesEl) return
+
+        // Format message
+        const message = args.map(arg => {
+          if (typeof arg === 'object') {
+            try {
+              return JSON.stringify(arg, null, 2)
+            } catch (e) {
+              return String(arg)
+            }
+          }
+          return String(arg)
+        }).join(' ')
+
+        // Skip some internal render.js messages unless they're errors
+        if (type !== 'error' && (
+          message.includes('[Render] Re-rendering') ||
+          message.includes('[Render] Processing') ||
+          message.includes('[Render] Scrolled')
+        )) {
+          return // Skip noisy internal messages
+        }
+
+        // Get icon based on type
+        const icons = {
+          log: 'info',
+          warn: 'alert-triangle',
+          error: 'x-circle'
+        }
+
+        // Create entry element
+        const entry = document.createElement('div')
+        entry.className = `console-entry ${type}`
+
+        let html = `
+          <div class="console-entry-icon">
+            <i data-lucide="${icons[type]}"></i>
+          </div>
+          <div class="console-entry-text">${escapeHtml(message)}</div>
+        `
+
+        // Add "Fix it!" button for errors (no chat in streaming-demo)
+        if (type === 'error') {
+          consoleErrorCount++
+          badgeEl.textContent = consoleErrorCount
+          badgeEl.classList.remove('hidden')
+          // Auto-show console on error
+          panelEl.classList.remove('hidden')
+
+          html += `
+            <div class="console-entry-actions">
+              <button class="console-fix-btn" onclick="copyError(this)">
+                Copy error
+              </button>
+            </div>
+          `
+        }
+
+        entry.innerHTML = html
+        entry.dataset.message = message // Store for copy
+        messagesEl.appendChild(entry)
+
+        // Update Lucide icons
+        if (window.lucide) lucide.createIcons({ nodes: [entry] })
+
+        // Scroll to bottom
+        messagesEl.scrollTop = messagesEl.scrollHeight
+      }
+
+      console.log = (...args) => {
+        originalConsole.log(...args)
+        addEntry('log', args)
+      }
+
+      console.warn = (...args) => {
+        originalConsole.warn(...args)
+        addEntry('warn', args)
+      }
+
+      console.error = (...args) => {
+        originalConsole.error(...args)
+        addEntry('error', args)
+      }
+    }
+
+    // Helper function to escape HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div')
+      div.textContent = text
+      return div.innerHTML
+    }
+
+    // Toggle console visibility
+    function toggleConsole() {
+      const panelEl = document.getElementById('console-panel')
+      panelEl.classList.toggle('hidden')
+    }
+
+    // Clear console
+    function clearConsole() {
+      const messagesEl = document.getElementById('console-messages')
+      const badgeEl = document.getElementById('console-error-badge')
+      messagesEl.innerHTML = ''
+      consoleErrorCount = 0
+      badgeEl.textContent = '0'
+      badgeEl.classList.add('hidden')
+    }
+
+    // Copy error to clipboard
+    function copyError(btn) {
+      const entry = btn.closest('.console-entry')
+      const errorMessage = entry.dataset.message
+      navigator.clipboard.writeText(errorMessage).then(() => {
+        btn.textContent = 'Copied!'
+        setTimeout(() => { btn.textContent = 'Copy error' }, 1500)
+      })
+    }
+
+    // Initialize console interception
+    interceptConsole()
+
+    // Example components
+    const examples = [
+      {
+        "type": "hero",
+        "headline": "Welcome Dashboard",
+        "subhead": "Your personalized overview"
+      },
+      {
+        "type": "section",
+        "title": "Key Features",
+        "columns": 3,
+        "resources": [
+          {"title": "Fast", "description": "Lightning quick rendering", "icon": "zap"},
+          {"title": "Simple", "description": "Pure JSON, no code", "icon": "smile"},
+          {"title": "Powerful", "description": "Full framework features", "icon": "cpu"}
+        ]
+      },
+      {
+        "type": "markdown",
+        "content": "## Dynamic Content\n\nThis markdown supports **bold**, *italic*, and `code`.\n\n- List item 1\n- List item 2\n- List item 3\n\nCounter value: **{{state.counter}}**"
+      },
+      {
+        "type": "html",
+        "content": "<article><header><h3>Interactive Counter</h3></header><p>Current value: <strong style='font-size: 1.5rem; color: var(--pico-primary);'>{{state.counter}}</strong></p><footer><button onclick='Render.state.counter++'>Increment</button><button onclick='Render.state.counter--' class='secondary'>Decrement</button><button onclick='Render.state.counter = 0' class='outline'>Reset</button></footer></article>"
+      },
+      {
+        "type": "code",
+        "language": "javascript",
+        "title": "Example Code",
+        "description": "A simple greeting function",
+        "code": "function greet(name) {\n  return `Hello, ${name}!`;\n}\n\nconsole.log(greet('World'));"
+      },
+      {
+        "type": "table",
+        "caption": "Feature Comparison",
+        "striped": true,
+        "data": [
+          ["Feature", "Render.js", "Traditional"],
+          ["Build Step", "None ✅", "Required ❌"],
+          ["JSON Config", "Yes ✅", "No ❌"],
+          ["LLM-Friendly", "Perfect ✅", "Poor ❌"]
+        ]
+      },
+      {
+        "type": "mermaid",
+        "content": "graph TD\n  A[Start] --> B{Decision}\n  B -->|Yes| C[Process]\n  B -->|No| D[Skip]\n  C --> E[End]\n  D --> E",
+        "theme": "neutral"
+      },
+      {
+        "type": "frappe-chart",
+        "chartType": "bar",
+        "title": "Quarterly Revenue 2024",
+        "labels": ["Q1", "Q2", "Q3", "Q4"],
+        "datasets": [
+          {
+            "name": "Revenue",
+            "values": [120, 180, 140, 220]
+          }
+        ]
+      },
+      {
+        "type": "frappe-chart",
+        "chartType": "line",
+        "title": "User Growth",
+        "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+        "datasets": [
+          {
+            "name": "Active Users",
+            "values": [850, 920, 1050, 1200, 1350, 1500]
+          },
+          {
+            "name": "New Signups",
+            "values": [120, 145, 180, 210, 195, 225]
+          }
+        ],
+        "height": 350
+      },
+      [
+        {
+          "type": "hero",
+          "headline": "Multi-Block Array",
+          "subhead": "This demonstrates injecting multiple blocks at once"
+        },
+        {
+          "type": "markdown",
+          "content": "You can pass an **array of blocks** to render multiple components in sequence. Perfect for building complete sections!"
+        },
+        {
+          "type": "section",
+          "title": "Array Benefits",
+          "columns": 2,
+          "resources": [
+            {"title": "Compose", "description": "Build complex layouts", "icon": "layers"},
+            {"title": "Organize", "description": "Group related content", "icon": "folder"}
+          ]
+        }
+      ]
+    ]
+
+    // Initialize editor with default example
+    const editor = document.getElementById('json-editor')
+    editor.value = JSON.stringify(examples[0], null, 2)
+
+    // Initialize Render.js (needed for injection API)
+    Render.init({
+      data: {
+        site: { title: 'Streaming Demo' },
+        state: { counter: 0 },
+        pages: [{ path: '/', content: [] }]
+      },
+      target: '#render-dummy', // Hidden dummy target
+      showJsonButton: false
+    })
+
+    let currentInjection = null
+
+    // Format JSON
+    function formatJSON() {
+      try {
+        const json = JSON.parse(editor.value)
+        editor.value = JSON.stringify(json, null, 2)
+      } catch (e) {
+        console.error('Invalid JSON:', e)
+      }
+    }
+
+    // Load random example
+    function loadExample() {
+      const example = examples[Math.floor(Math.random() * examples.length)]
+      editor.value = JSON.stringify(example, null, 2)
+      renderComponent()
+    }
+
+    // Track last valid render for progressive display
+    let lastValidJson = null
+
+    // Render component using injection API with streaming JSON support
+    async function renderComponent() {
+      const preview = document.getElementById('preview')
+
+      try {
+        const inputText = editor.value.trim()
+
+        if (!inputText) {
+          lastValidJson = null
+          preview.innerHTML = `
+            <div style="padding: 2rem; color: var(--pico-muted-color); text-align: center;">
+              <i data-lucide="code" style="width: 2rem; height: 2rem; margin-bottom: 0.5rem;"></i>
+              <p>Type JSON to see preview...</p>
+            </div>
+          `
+          if (window.lucide) lucide.createIcons()
+          return
+        }
+
+        // Try parsing with streaming parser (handles incomplete JSON)
+        const parser = StreamingJSONParser.create({ debug: false })
+        parser.buffer = inputText
+        const json = parser.tryParse()
+
+        // Determine if we have something to render
+        const jsonToRender = json || lastValidJson
+        const isIncomplete = !parser.isLikelyComplete()
+
+        if (jsonToRender === null) {
+          // Only show loader if we have NO valid state yet
+          preview.innerHTML = `
+            <div style="padding: 2rem; color: var(--pico-muted-color); text-align: center;">
+              <i data-lucide="edit-3" style="width: 2rem; height: 2rem; margin-bottom: 0.5rem;"></i>
+              <p>Start typing JSON...</p>
+              <small style="opacity: 0.7;">e.g., {"type": "hero", "headline": "Hello"}</small>
+            </div>
+          `
+          if (window.lucide) lucide.createIcons()
+          return
+        }
+
+        // Update last valid if we got a new parse
+        if (json !== null) {
+          lastValidJson = json
+        }
+
+        // Clear previous injection
+        if (currentInjection) {
+          Render.destroyInjection(currentInjection)
+        }
+
+        // Clear preview and inject component
+        preview.innerHTML = ''
+        currentInjection = await Render.inject('#preview', jsonToRender)
+
+        // Add streaming indicator if incomplete
+        if (isIncomplete && preview.firstElementChild) {
+          preview.firstElementChild.classList.add('streaming-incomplete')
+        }
+
+        // Initialize Lucide icons
+        if (window.lucide) {
+          lucide.createIcons()
+        }
+
+      } catch (e) {
+        // On error, try to show last valid state with error indicator
+        if (lastValidJson) {
+          try {
+            if (currentInjection) {
+              Render.destroyInjection(currentInjection)
+            }
+            preview.innerHTML = ''
+            currentInjection = await Render.inject('#preview', lastValidJson)
+            if (preview.firstElementChild) {
+              preview.firstElementChild.classList.add('streaming-incomplete')
+            }
+            if (window.lucide) lucide.createIcons()
+            return
+          } catch (innerError) {
+            // Fall through to error display
+          }
+        }
+
+        preview.innerHTML = `
+          <div class="error-message">
+            <strong>⚠️ Error</strong>
+            <p>${e.message}</p>
+            <pre>${e.stack || ''}</pre>
+          </div>
+        `
+      }
+    }
+
+    // Auto-update preview on input with debouncing
+    let debounceTimer
+    editor.addEventListener('input', () => {
+      clearTimeout(debounceTimer)
+      debounceTimer = setTimeout(renderComponent, 500)
+    })
+
+    // Theme toggle
+    function toggleTheme() {
+      const html = document.documentElement
+      const currentTheme = html.getAttribute('data-theme')
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light'
+      html.setAttribute('data-theme', newTheme)
+      localStorage.setItem('demo-theme', newTheme)
+
+      // Reinitialize Lucide icons after theme change
+      setTimeout(() => {
+        if (window.lucide) {
+          lucide.createIcons()
+        }
+      }, 100)
+    }
+
+    // Toggle editor panel
+    function toggleEditor() {
+      const panel = document.getElementById('editor-panel')
+      const showBtn = document.getElementById('show-editor-btn')
+
+      if (panel.classList.contains('collapsed')) {
+        panel.classList.remove('collapsed')
+        showBtn.style.display = 'none'
+      } else {
+        panel.classList.add('collapsed')
+        showBtn.style.display = 'flex'
+      }
+    }
+
+    // Resize functionality
+    let isResizing = false
+    let startX = 0
+    let startWidth = 0
+
+    const resizeHandle = document.getElementById('resize-handle')
+    const editorPanel = document.getElementById('editor-panel')
+
+    resizeHandle.addEventListener('mousedown', (e) => {
+      isResizing = true
+      startX = e.clientX
+      startWidth = editorPanel.offsetWidth
+      document.body.style.cursor = 'col-resize'
+      document.body.style.userSelect = 'none'
+    })
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isResizing) return
+
+      const diff = e.clientX - startX
+      const newWidth = startWidth + diff
+      const minWidth = 300
+      const maxWidth = window.innerWidth * 0.8
+
+      if (newWidth >= minWidth && newWidth <= maxWidth) {
+        editorPanel.style.width = newWidth + 'px'
+      }
+    })
+
+    document.addEventListener('mouseup', () => {
+      if (isResizing) {
+        isResizing = false
+        document.body.style.cursor = ''
+        document.body.style.userSelect = ''
+      }
+    })
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('demo-theme')
+    if (savedTheme) {
+      document.documentElement.setAttribute('data-theme', savedTheme)
+    }
+
+    // Color theme map (same as render.js)
+    const colorThemeMap = {
+      default: { h: 205, s: '85%', l: '55%' },
+      red: { h: 0, s: '85%', l: '55%' },
+      pink: { h: 330, s: '85%', l: '65%' },
+      fuchsia: { h: 300, s: '85%', l: '60%' },
+      purple: { h: 270, s: '85%', l: '60%' },
+      violet: { h: 250, s: '85%', l: '60%' },
+      indigo: { h: 230, s: '85%', l: '55%' },
+      blue: { h: 210, s: '85%', l: '55%' },
+      azure: { h: 205, s: '85%', l: '55%' },
+      cyan: { h: 185, s: '85%', l: '50%' },
+      jade: { h: 160, s: '70%', l: '45%' },
+      green: { h: 140, s: '70%', l: '45%' },
+      lime: { h: 80, s: '75%', l: '50%' },
+      yellow: { h: 50, s: '95%', l: '55%' },
+      amber: { h: 35, s: '95%', l: '55%' },
+      pumpkin: { h: 25, s: '95%', l: '55%' },
+      orange: { h: 20, s: '95%', l: '55%' },
+      sand: { h: 40, s: '30%', l: '50%' },
+      grey: { h: 0, s: '0%', l: '50%' },
+      zinc: { h: 0, s: '0%', l: '45%' },
+      slate: { h: 215, s: '15%', l: '40%' }
+    }
+
+    // Apply color theme CSS variables
+    function applyColorTheme(colorName) {
+      const root = document.documentElement
+      const color = colorThemeMap[colorName] || colorThemeMap.default
+      const { h, s, l } = color
+      root.style.setProperty('--pico-primary', `hsl(${h}, ${s}, ${l})`)
+      root.style.setProperty('--pico-primary-hover', `hsl(${h}, ${s}, calc(${l} - 5%))`)
+      root.style.setProperty('--pico-primary-focus', `hsla(${h}, ${s}, ${l}, 0.25)`)
+      root.style.setProperty('--pico-primary-inverse', `hsl(${h}, ${s}, 95%)`)
+    }
+
+    // Color theme change
+    function changeColorTheme() {
+      const select = document.getElementById('color-theme-select')
+      const color = select.value
+      applyColorTheme(color || 'default')
+      localStorage.setItem('demo-color-theme', color)
+    }
+
+    // Load saved color theme
+    const savedColorTheme = localStorage.getItem('demo-color-theme')
+    if (savedColorTheme) {
+      const select = document.getElementById('color-theme-select')
+      if (select) select.value = savedColorTheme
+      applyColorTheme(savedColorTheme)
+    }
+
+    // Initialize Lucide icons
+    if (window.lucide) {
+      lucide.createIcons()
+    }
+
+    // Initial render
+    renderComponent()
+
+    // Keyboard shortcuts
+    editor.addEventListener('keydown', (e) => {
+      // Tab key inserts 2 spaces
+      if (e.key === 'Tab') {
+        e.preventDefault()
+        const start = editor.selectionStart
+        const end = editor.selectionEnd
+        editor.value = editor.value.substring(0, start) + '  ' + editor.value.substring(end)
+        editor.selectionStart = editor.selectionEnd = start + 2
+      }
+
+      // Cmd/Ctrl + S to format
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault()
+        formatJSON()
+      }
+    })
+  </script>
+</body>
+</html>

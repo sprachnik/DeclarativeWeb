@@ -1,0 +1,130 @@
+{
+  "$schema": "./schema.json",
+  "site": {
+    "title": "DeclarativeWeb",
+    "description": "A minimal, LLM-friendly JavaScript library for rendering websites from JSON",
+    "defaultTheme": "dark",
+    "state": {
+      "version": "0.0.1-beta",
+      "counter": 0,
+      "username": "",
+      "tasks": [],
+      "showAdvanced": false,
+      "colorTheme": "default"
+    },
+    "theme": {
+      "fontSize": 100,
+      "primaryColor": "#3b82f6",
+      "secondaryColor": "#8b5cf6"
+    }
+  },
+  "nav": {
+    "layout": "horizontal",
+    "logo": {
+      "text": "DeclarativeWeb",
+      "icon": "zap"
+    },
+    "links": [
+      {
+        "label": "Home",
+        "path": "/"
+      },
+      {
+        "label": "Why DeclarativeWeb?",
+        "path": "/why"
+      },
+      {
+        "label": "Interactive Demos",
+        "path": "/demos"
+      },
+      {
+        "label": "Docs",
+        "path": "/docs"
+      },
+      {
+        "label": "LLM Prompt",
+        "path": "/llm-prompt"
+      },
+      {
+        "label": "Streaming LLM",
+        "path": "/streaming-llm"
+      },
+      {
+        "label": "Live Editors",
+        "path": "/live-editors"
+      }
+    ],
+    "actions": [
+      {
+        "type": "theme-toggle"
+      }
+    ]
+  },
+  "footer": {
+    "text": "DeclarativeWeb v{{state.version}} · © 2026 James Stalley-Moores · Made for humans, optimized for AI",
+    "links": [
+      {
+        "label": "Example JSONs",
+        "path": "/examples"
+      },
+      {
+        "label": "BLOCKS.md",
+        "url": "BLOCKS.md"
+      },
+      {
+        "label": "README.md",
+        "url": "README.md"
+      },
+      {
+        "label": "schema.json",
+        "url": "schema.json"
+      },
+      {
+        "label": "LinkedIn",
+        "url": "https://www.linkedin.com/in/jamesmoores"
+      }
+    ]
+  },
+  "functions": {
+    "year": "() => new Date().getFullYear()",
+    "renderTasks": "(tasks) => tasks.map((task, i) => `<li>${i + 1}. ${task} <button onclick=\"Render.state.tasks.splice(${i}, 1); Render.state.tasks = [...Render.state.tasks]\" style=\"font-size: 0.8rem; padding: 0.25rem 0.5rem; margin-left: 0.5rem;\">✕</button></li>`).join('')"
+  },
+  "pages": [
+    {
+      "path": "/",
+      "$import": "pages/home.json"
+    },
+    {
+      "path": "/demos",
+      "$import": "pages/demos.json"
+    },
+    {
+      "path": "/examples",
+      "$import": "pages/examples.json"
+    },
+    {
+      "path": "/docs",
+      "$import": "pages/docs.json"
+    },
+    {
+      "path": "/llm-prompt",
+      "$import": "pages/llm-prompt.json"
+    },
+    {
+      "path": "/streaming-llm",
+      "$import": "pages/streaming-llm.json"
+    },
+    {
+      "path": "/why",
+      "$import": "pages/why.json"
+    },
+    {
+      "path": "/live-editors",
+      "$import": "pages/live-editors.json"
+    },
+    {
+      "path": "/demo.html",
+      "$import": "pages/demo-html.json"
+    }
+  ]
+}

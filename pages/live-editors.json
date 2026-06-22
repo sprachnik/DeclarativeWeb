@@ -1,0 +1,26 @@
+{
+  "path": "/live-editors",
+  "meta": {
+    "title": "Live Editors",
+    "description": "Interactive playgrounds for building with DeclarativeWeb"
+  },
+  "content": [
+    {
+      "type": "hero",
+      "headline": "Live Editors",
+      "subhead": "Try DeclarativeWeb in real-time with our interactive playgrounds"
+    },
+    {
+      "type": "markdown",
+      "content": "## Choose Your Playground"
+    },
+    {
+      "type": "html",
+      "html": "<div class='grid'><article><header><h3><i data-lucide='layout'></i> Full Site Editor</h3></header><p>Build complete sites with pages, navigation, and routing. Edit the entire JSON configuration and see your site update in real-time.</p><div class='tags'><span class='tag'>Pages</span><span class='tag'>Routing</span><span class='tag'>State</span><span class='tag'>Functions</span></div><footer style='margin-top: 1rem;'><a href='demo.html' role='button'>Open Editor →</a></footer></article><article><header><h3><i data-lucide='package'></i> Component Playground</h3></header><p>Test individual components and injection API. Perfect for prototyping widgets, cards, and reusable blocks without routing.</p><div class='tags'><span class='tag'>Components</span><span class='tag'>Injection</span><span class='tag'>Streaming</span><span class='tag'>Widgets</span></div><footer style='margin-top: 1rem;'><a href='streaming-demo.html' role='button'>Open Playground →</a></footer></article><article><header><h3><i data-lucide='sparkles'></i> AI Chat Builder</h3></header><p>Build components with AI! Chat with Gemini to generate DeclarativeWeb blocks. Iteratively build pages by describing what you want.</p><div class='tags'><span class='tag'>AI</span><span class='tag'>Gemini</span><span class='tag'>Chat</span><span class='tag'>Streaming</span></div><footer style='margin-top: 1rem;'><a href='chat.html' role='button'>Open Chat →</a></footer></article></div>"
+    },
+    {
+      "type": "markdown",
+      "content": "## Features\n\nBoth editors include:\n\n- **Split-screen view** - JSON on left, live preview on right\n- **Auto-formatting** - Press Ctrl/Cmd+S to format JSON\n- **Syntax highlighting** - Monospace font with proper indentation\n- **Resizable panels** - Drag the divider to adjust panel sizes\n- **Theme toggle** - Switch between light and dark modes\n- **Keyboard shortcuts** - Efficient editing without leaving the keyboard\n- **Error feedback** - Clear error messages when JSON is invalid\n\n## Getting Started\n\n### Full Site Editor\n\nThe full site editor lets you build complete websites with:\n- Multiple pages and routing\n- Navigation menus\n- Global state management\n- Custom functions\n- All block types (hero, section, table, etc.)\n\nPerfect for building complete single-page applications.\n\n### Component Playground\n\nThe component playground focuses on:\n- Single component testing\n- Injection API for non-routed content\n- Real-time component rendering\n- Streaming JSON support\n- Widget prototyping\n\nIdeal for testing individual components or building embeddable widgets.\n\n## Tips\n\n- **Start simple** - Begin with a basic component and add complexity gradually\n- **Use examples** - Click the example buttons to see what's possible\n- **Format often** - Keep your JSON clean with Ctrl/Cmd+S\n- **Check errors** - Read error messages carefully when things break\n- **Save your work** - Copy JSON to save your creations locally\n\n## Next Steps\n\nOnce you've built something cool:\n1. Copy the JSON from the editor\n2. Create a `site.json` file in your project\n3. Include the DeclarativeWeb library\n4. Deploy to any static host (GitHub Pages, Netlify, etc.)\n\nNo build step required!"
+    }
+  ]
+}

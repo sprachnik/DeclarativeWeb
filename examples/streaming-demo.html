@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeclarativeWeb Streaming JSON Demo</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    .demo-section {
+      margin: 2rem 0;
+      padding: 1.5rem;
+      border: 1px solid var(--muted-border-color);
+      border-radius: 0.5rem;
+    }
+    .streaming-output {
+      min-height: 200px;
+      padding: 1rem;
+      border: 2px solid var(--primary);
+      border-radius: 0.5rem;
+      margin: 1rem 0;
+    }
+    .streaming-incomplete {
+      opacity: 0.85;
+      position: relative;
+    }
+    .streaming-incomplete::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary) 0%, transparent 50%, var(--primary) 100%);
+      background-size: 200% 100%;
+      animation: streaming-indicator 1.5s ease-in-out infinite;
+    }
+    @keyframes streaming-indicator {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .json-preview {
+      background: var(--code-background-color);
+      padding: 1rem;
+      border-radius: 0.5rem;
+      font-family: monospace;
+      font-size: 0.875rem;
+      overflow-x: auto;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .demo-controls button {
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .progress-bar {
+      height: 4px;
+      background: var(--muted-border-color);
+      border-radius: 2px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--primary);
+      transition: width 0.3s;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <!-- Load dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/frappe-charts@1.2.4/dist/frappe-charts.min.iife.js"></script>
+
+  <!-- DeclarativeWeb Bundle -->
+  <script src="../dist/declarativeweb.min.js"></script>
+
+  <script>
+    // Initialize DeclarativeWeb
+    Render.init({
+      data: {
+        site: {
+          title: 'Streaming JSON Demo',
+          description: 'Simulate LLM streaming component generation'
+        },
+        nav: {
+          logo: { text: 'Streaming Demo', icon: 'radio' },
+          links: []
+        },
+        components: {
+          'product-card': `
+            <article>
+              <header><strong>{{name}}</strong></header>
+              <p>{{description}}</p>
+              <footer>
+                <small>Price: ${{price}}</small>
+              </footer>
+            </article>
+          `
+        },
+        pages: [
+          {
+            path: '/',
+            content: [
+              {
+                type: 'hero',
+                title: '🎬 Streaming JSON Demo',
+                subtitle: 'Watch components render in real-time as JSON streams in'
+              },
+              {
+                type: 'html',
+                content: `
+                  <div class="demo-section">
+                    <h2>Demo 1: Simple Hero Streaming</h2>
+                    <p>Simulate an LLM generating a hero component chunk by chunk.</p>
+                    <div class="demo-controls">
+                      <button onclick="demo1Start()">Start Stream</button>
+                      <button onclick="demo1Cancel()" class="outline">Cancel</button>
+                    </div>
+                    <div id="demo1-progress" class="progress-bar" style="display: none;">
+                      <div class="progress-bar-fill" style="width: 0%"></div>
+                    </div>
+                    <div id="demo1-output" class="streaming-output">
+                      <em>Click "Start Stream" to begin</em>
+                    </div>
+                    <details>
+                      <summary>View JSON buffer</summary>
+                      <div id="demo1-json" class="json-preview">No data yet</div>
+                    </details>
+                  </div>
+
+                  <div class="demo-section">
+                    <h2>Demo 2: Complex Component</h2>
+                    <p>Stream a section with multiple cards.</p>
+                    <div class="demo-controls">
+                      <button onclick="demo2Start()">Start Stream</button>
+                      <button onclick="demo2Cancel()" class="outline">Cancel</button>
+                    </div>
+                    <div id="demo2-progress" class="progress-bar" style="display: none;">
+                      <div class="progress-bar-fill" style="width: 0%"></div>
+                    </div>
+                    <div id="demo2-output" class="streaming-output">
+                      <em>Click "Start Stream" to begin</em>
+                    </div>
+                    <details>
+                      <summary>View JSON buffer</summary>
+                      <div id="demo2-json" class="json-preview">No data yet</div>
+                    </details>
+                  </div>
+
+                  <div class="demo-section">
+                    <h2>Demo 3: Fast Stream (100ms chunks)</h2>
+                    <p>High-speed streaming to test performance.</p>
+                    <div class="demo-controls">
+                      <button onclick="demo3Start()">Start Fast Stream</button>
+                      <button onclick="demo3Cancel()" class="outline">Cancel</button>
+                    </div>
+                    <div id="demo3-output" class="streaming-output">
+                      <em>Click "Start Fast Stream" to begin</em>
+                    </div>
+                  </div>
+                `
+              }
+            ]
+          }
+        ]
+      },
+      target: '#app'
+    })
+
+    // Store active streams
+    let activeStreams = {}
+
+    // ========================================================================
+    // Demo 1: Simple Hero Streaming
+    // ========================================================================
+    function demo1Start() {
+      const chunks = [
+        '{"type": "hero", ',
+        '"title": "AI Generated Component", ',
+        '"subtitle": "This was streamed in real-time!", ',
+        '"icon": "sparkles"}'
+      ]
+
+      const stream = Render.createStream('#demo1-output', {
+        debug: true,
+        onProgress: (partial, meta) => {
+          console.log('[Demo 1] Progress:', meta.updateCount, partial)
+          document.getElementById('demo1-json').textContent = JSON.stringify(partial, null, 2)
+
+          // Update progress bar
+          const progress = (meta.updateCount / chunks.length) * 100
+          document.querySelector('#demo1-progress .progress-bar-fill').style.width = progress + '%'
+        },
+        onComplete: (final, meta) => {
+          console.log('[Demo 1] Complete:', final)
+          console.log('[Demo 1] Stats:', meta)
+          document.getElementById('demo1-progress').style.display = 'none'
+        }
+      })
+
+      activeStreams.demo1 = stream
+
+      // Show progress bar
+      document.getElementById('demo1-progress').style.display = 'block'
+
+      // Stream chunks with delay
+      let i = 0
+      const interval = setInterval(() => {
+        if (i < chunks.length && activeStreams.demo1) {
+          stream.append(chunks[i])
+          i++
+        } else {
+          clearInterval(interval)
+          if (activeStreams.demo1) {
+            stream.complete()
+            delete activeStreams.demo1
+          }
+        }
+      }, 500)  // 500ms between chunks
+
+      activeStreams.demo1.interval = interval
+    }
+
+    function demo1Cancel() {
+      if (activeStreams.demo1) {
+        clearInterval(activeStreams.demo1.interval)
+        activeStreams.demo1.cancel()
+        delete activeStreams.demo1
+        document.getElementById('demo1-progress').style.display = 'none'
+        console.log('[Demo 1] Cancelled')
+      }
+    }
+
+    // ========================================================================
+    // Demo 2: Complex Component
+    // ========================================================================
+    function demo2Start() {
+      const chunks = [
+        '{"type": "section", ',
+        '"title": "Product Catalog", ',
+        '"cards": [',
+        '  {"$ref": "product-card", "name": "Widget A", ',
+        '   "description": "Amazing widget", ',
+        '   "price": "29.99"},',
+        '  {"$ref": "product-card", "name": "Widget B", ',
+        '   "description": "Incredible widget", ',
+        '   "price": "39.99"},',
+        '  {"$ref": "product-card", "name": "Widget C", ',
+        '   "description": "Fantastic widget", ',
+        '   "price": "49.99"}',
+        ']}'
+      ]
+
+      const stream = Render.createStream('#demo2-output', {
+        debug: false,
+        onProgress: (partial, meta) => {
+          document.getElementById('demo2-json').textContent = JSON.stringify(partial, null, 2)
+
+          // Update progress bar
+          const progress = (meta.updateCount / chunks.length) * 100
+          document.querySelector('#demo2-progress .progress-bar-fill').style.width = progress + '%'
+        },
+        onComplete: (final, meta) => {
+          console.log('[Demo 2] Complete:', meta)
+          document.getElementById('demo2-progress').style.display = 'none'
+        }
+      })
+
+      activeStreams.demo2 = stream
+
+      // Show progress bar
+      document.getElementById('demo2-progress').style.display = 'block'
+
+      // Stream chunks with delay
+      let i = 0
+      const interval = setInterval(() => {
+        if (i < chunks.length && activeStreams.demo2) {
+          stream.append(chunks[i])
+          i++
+        } else {
+          clearInterval(interval)
+          if (activeStreams.demo2) {
+            stream.complete()
+            delete activeStreams.demo2
+          }
+        }
+      }, 400)  // 400ms between chunks
+
+      activeStreams.demo2.interval = interval
+    }
+
+    function demo2Cancel() {
+      if (activeStreams.demo2) {
+        clearInterval(activeStreams.demo2.interval)
+        activeStreams.demo2.cancel()
+        delete activeStreams.demo2
+        document.getElementById('demo2-progress').style.display = 'none'
+        console.log('[Demo 2] Cancelled')
+      }
+    }
+
+    // ========================================================================
+    // Demo 3: Fast Streaming
+    // ========================================================================
+    function demo3Start() {
+      const fullJSON = JSON.stringify({
+        type: 'html',
+        content: `
+          <article style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h2>🚀 High-Speed Streaming</h2>
+            <p>This component was streamed at 100ms per chunk!</p>
+            <p>The streaming parser handles high-frequency updates efficiently.</p>
+            <footer><small>Completed in ~${Math.ceil(fullJSON.length / 10) * 100}ms</small></footer>
+          </article>
+        `
+      })
+
+      const stream = Render.createStream('#demo3-output', {
+        onComplete: (final, meta) => {
+          console.log('[Demo 3] High-speed stream complete:', meta)
+        }
+      })
+
+      activeStreams.demo3 = stream
+
+      // Stream character by character (fast!)
+      let i = 0
+      const chunkSize = 10  // Characters per chunk
+      const interval = setInterval(() => {
+        if (i < fullJSON.length && activeStreams.demo3) {
+          const chunk = fullJSON.slice(i, i + chunkSize)
+          stream.append(chunk)
+          i += chunkSize
+        } else {
+          clearInterval(interval)
+          if (activeStreams.demo3) {
+            stream.complete()
+            delete activeStreams.demo3
+          }
+        }
+      }, 100)  // 100ms between chunks
+
+      activeStreams.demo3.interval = interval
+    }
+
+    function demo3Cancel() {
+      if (activeStreams.demo3) {
+        clearInterval(activeStreams.demo3.interval)
+        activeStreams.demo3.cancel()
+        delete activeStreams.demo3
+        console.log('[Demo 3] Cancelled')
+      }
+    }
+
+    // Log initial state
+    console.log('Streaming Demo Ready!')
+    console.log('Try the streaming demos above')
+    console.log('Open console to see parse progress')
+  </script>
+</body>
+</html>

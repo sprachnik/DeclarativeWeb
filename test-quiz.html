@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Test</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+</head>
+<body>
+  <main class="container">
+    <h1>Quiz Block Test</h1>
+    <div id="app"></div>
+  </main>
+
+  <!-- Force fresh load with timestamp -->
+  <script>
+    // Add timestamp to bypass cache
+    const script = document.createElement('script');
+    script.src = `dist/declarativeweb.min.js?v=${Date.now()}`;
+    script.onload = function() {
+      console.log('=== QUIZ TEST STARTING ===');
+      console.log('Render object:', typeof Render);
+
+      // Callback tracking for testing
+      window.quizCallbackData = {
+        answers: [],
+        completion: null
+      };
+
+      Render.init({
+        data: {
+          site: { title: 'Quiz Test' },
+          state: {},
+          pages: [{
+            path: '/',
+            content: [{
+              type: 'quiz',
+              title: 'Test Quiz',
+              questions: [
+                {
+                  question: 'What is 1+1?',
+                  options: ['1', '2', '3'],
+                  correct: 1
+                }
+              ],
+              onAnswer: (data) => {
+                console.log('[Quiz Callback] onAnswer:', data);
+                window.quizCallbackData.answers.push(data);
+              },
+              onComplete: (data) => {
+                console.log('[Quiz Callback] onComplete:', data);
+                window.quizCallbackData.completion = data;
+              }
+            }]
+          }]
+        },
+        target: '#app',
+        showJsonButton: false
+      });
+
+      console.log('=== CHECKING WINDOW HANDLERS ===');
+      const handlers = Object.keys(window).filter(k => k.startsWith('quizAnswer'));
+      console.log('Quiz handlers found:', handlers);
+      handlers.forEach(h => {
+        console.log(`  ${h}:`, typeof window[h]);
+      });
+
+      console.log('=== CHECKING BUTTON ONCLICK ===');
+      const buttons = document.querySelectorAll('.quiz-container button');
+      buttons.forEach((btn, i) => {
+        console.log(`Button ${i} onclick:`, btn.getAttribute('onclick'));
+      });
+    };
+    document.head.appendChild(script);
+  </script>
+</body>
+</html>

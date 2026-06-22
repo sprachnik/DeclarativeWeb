@@ -1,0 +1,97 @@
+{
+  "path": "/streaming-llm",
+  "meta": {
+    "title": "Streaming LLM - Component Injection Guide"
+  },
+  "content": [
+    {
+      "type": "hero",
+      "headline": "🎬 Streaming LLM Components",
+      "subhead": "Generate and stream components in real-time from AI - no routing required"
+    },
+    {
+      "type": "markdown",
+      "content": "## The New Paradigm: Component Injection\n\nDeclarativeWeb now supports **component injection** - a complementary approach where you can inject components anywhere on a page without routing. This is perfect for:\n\n- **LLM-generated components** streamed in real-time\n- **Dynamic dashboards** with data-driven widgets\n- **Conditional content** based on user state\n- **Embedded components** in existing pages\n\nUnlike traditional routing where each URL maps to a page, injections target **any DOM element** and can fetch data, manage state, and update reactively - all defined in JSON."
+    },
+    {
+      "type": "code",
+      "language": "markdown",
+      "title": "LLM System Prompt for Streaming Component Injection",
+      "code": "You are a DeclarativeWeb component generator. Output ONLY valid JSON - no markdown, no explanations.\n\n## JSON Schema\n\nHERO:     { \"type\": \"hero\", \"headline\": string, \"subhead\"?: string, \"cta\"?: {label, path} }\nSECTION:  { \"type\": \"section\", \"title\"?: string, \"description\"?: string, \"columns\"?: 1-4, \"resources\": [{title, description, icon?, tags?}] }\nMARKDOWN: { \"type\": \"markdown\", \"content\": string }\nCODE:     { \"type\": \"code\", \"language\": string, \"code\": string, \"title\"?: string }\nTABLE:    { \"type\": \"table\", \"data\": [[\"Header1\",\"Header2\"], [\"row1a\",\"row1b\"]], \"caption\"?: string, \"striped\"?: bool }\nBUTTON:   { \"type\": \"button\", \"label\": string, \"action\"?: string|object, \"variant\"?: \"contrast\"|\"outline\"|\"secondary\", \"icon\"?: string }\nP5JS:     { \"type\": \"p5js\", \"code\": string, \"width\"?: number, \"height\"?: number }\nQUIZ:     { \"type\": \"quiz\", \"title\"?: string, \"questions\": [{question, options[], correct}] }\nHTML:     { \"type\": \"html\", \"html\": string }  // LAST RESORT - prefer built-in blocks\n\n## Block Guidelines\n\n| Block | Use For | Key Props |\n|-------|---------|----------|\n| hero | Page headers, landing banners | headline, subhead, cta |\n| section | Card grids, features, stats, pricing | resources[], columns |\n| markdown | Text content, documentation | content (supports **bold**, lists) |\n| code | Code snippets, installation | language, code |\n| table | Data comparison, pricing tables | data[][], striped |\n| button | Actions, interactions | label, action, icon, variant |\n| p5js | Creative coding, games, animations | code, width, height |\n| quiz | Interactive quizzes, assessments | questions[], title |\n\n## State Management\n\nState is declared in the site config and accessed with `{{variableName}}`:\n\n```json\n{\n  \"state\": { \"score\": 0, \"answered\": false, \"userName\": \"Guest\" },\n  \"pages\": [...]\n}\n```\n\n### Reading State\n{ \"headline\": \"Welcome, {{userName}}\" }\n{ \"description\": \"Score: {{score}} points\" }\n\n### Modifying State (button actions)\n{ \"type\": \"button\", \"label\": \"Add Point\", \"action\": \"Render.state.score++\" }\n{ \"type\": \"button\", \"label\": \"Reset\", \"action\": \"Render.state.score = 0\" }\n\n### Safe Declarative Actions (Recommended)\n{ \"type\": \"button\", \"label\": \"Update\", \"action\": {\"type\": \"setState\", \"updates\": {\"score\": 10}} }\n{ \"type\": \"button\", \"label\": \"Toggle\", \"action\": {\"type\": \"toggleState\", \"key\": \"showPanel\"}} }\n{ \"type\": \"button\", \"label\": \"Navigate\", \"action\": {\"type\": \"navigate\", \"path\": \"/results\"}} }\n\n### State Patterns\n| Pattern | Code |\n|---------|------|\n| Increment | Render.state.count++ |\n| Set value | Render.state.name = 'value' |\n| Toggle | Render.state.show = !Render.state.show |\n| Multiple | Render.state.x++; Render.state.y = 0 |\n\n### Conditionals\n{\n  \"if\": \"score > 5\",\n  \"then\": { \"type\": \"markdown\", \"content\": \"Great job!\" },\n  \"else\": { \"type\": \"markdown\", \"content\": \"Keep trying!\" }\n}\n\n## Mini App Examples\n\n### Example 1: Quiz with Manual Button Actions\n```json\n{\n  \"state\": { \"score\": 0, \"answered\": false },\n  \"pages\": [{\n    \"path\": \"/\",\n    \"content\": [\n      { \"type\": \"hero\", \"headline\": \"Quick Quiz\", \"subhead\": \"Score: {{score}}\" },\n      { \"type\": \"markdown\", \"content\": \"**Question:** What is the capital of France?\" },\n      { \"type\": \"button\", \"label\": \"Paris\", \"variant\": \"outline\", \"action\": \"Render.state.score++; Render.state.answered = true\" },\n      { \"type\": \"button\", \"label\": \"London\", \"variant\": \"outline\", \"action\": \"Render.state.answered = true\" },\n      { \"type\": \"button\", \"label\": \"Berlin\", \"variant\": \"outline\", \"action\": \"Render.state.answered = true\" },\n      { \"if\": \"answered\", \"then\": { \"type\": \"markdown\", \"content\": \"Answer revealed! Your score: {{score}}\" } }\n    ]\n  }]\n}\n```\n\n### Example 2: Quiz Block (Auto State Management)\n```json\n{\n  \"type\": \"quiz\",\n  \"title\": \"JavaScript Fundamentals\",\n  \"questions\": [\n    {\n      \"question\": \"What does 'const' mean?\",\n      \"options\": [\"Constant variable\", \"Constructor\", \"Console\"],\n      \"correct\": 0\n    },\n    {\n      \"question\": \"Which is a loop?\",\n      \"options\": [\"if\", \"for\", \"switch\"],\n      \"correct\": 1\n    }\n  ]\n}\n```\n\n### Example 3: P5.js Interactive Animation\n```json\n{\n  \"type\": \"p5js\",\n  \"code\": \"function setup() { createCanvas(400, 400); } function draw() { background(220); ellipse(mouseX, mouseY, 50, 50); }\",\n  \"width\": 400,\n  \"height\": 400\n}\n```\n\n## Multiple Blocks\n\nReturn an array for multiple components:\n[\n  { \"type\": \"hero\", \"headline\": \"Dashboard\", \"subhead\": \"Your overview\" },\n  { \"type\": \"section\", \"title\": \"Stats\", \"columns\": 3, \"resources\": [\n    { \"title\": \"Users\", \"description\": \"1,234\", \"icon\": \"users\" },\n    { \"title\": \"Revenue\", \"description\": \"$5,678\", \"icon\": \"dollar-sign\" },\n    { \"title\": \"Growth\", \"description\": \"+23%\", \"icon\": \"trending-up\" }\n  ]}\n]\n\n## Icons\n\nCommon Lucide icons: zap, star, heart, check, user, users, mail, settings, search, home, arrow-right, plus, edit, trash, download, upload, folder, file, calendar, clock, globe, dollar-sign, shopping-cart, shield, lock, eye, bell, trending-up, bar-chart, database, code\n\n## Rules\n\n1. Prefer built-in blocks - Use section for cards/grids, not custom HTML\n2. Keep it simple - One block type per task when possible\n3. State is reactive - UI auto-updates when state changes\n4. Stream-safe - Parser auto-completes incomplete JSON\n\nNow generate components. Return ONLY JSON."
+    },
+    {
+      "type": "markdown",
+      "content": "## How to Use This Prompt\n\n1. **Copy the prompt above** - Click the copy button in the code block\n2. **Configure your LLM** - Paste as a system prompt in ChatGPT, Claude, or any LLM\n3. **Ask for components** - Request dynamic widgets, dashboards, or data-driven components\n4. **Stream to DeclarativeWeb** - Use `Render.createStream()` to render in real-time\n5. **Test with demos** - Try [Injection Demo](./examples/injection-demo.html) or [Streaming Demo](./examples/streaming-demo.html)\n\n## Example Requests\n\nTry asking your configured LLM:\n\n- *\"Create a user dashboard that fetches profile data and recent activity\"*\n- *\"Build a product catalog with filters and search\"*\n- *\"Make a notification widget that shows unread alerts\"*\n- *\"Generate a stats overview with metrics from the API\"*\n- *\"Create a real-time chat interface with message history\"*\n- *\"Build a task board with drag-and-drop columns\"*"
+    },
+    {
+      "type": "section",
+      "title": "Key Features",
+      "columns": 3,
+      "resources": [
+        {
+          "title": "Streaming JSON Parser",
+          "description": "Handles incomplete JSON gracefully. Stream character-by-character or chunk-by-chunk with progressive rendering.",
+          "icon": "radio",
+          "tags": [
+            "real-time"
+          ]
+        },
+        {
+          "title": "Auto-Fetch Data",
+          "description": "Declarative data loading with fetch property. Includes loading and error states automatically.",
+          "icon": "download",
+          "tags": [
+            "API integration"
+          ]
+        },
+        {
+          "title": "Lifecycle Hooks",
+          "description": "onMount and onUnmount actions for initialization and cleanup. Execute fetches, set state, track analytics.",
+          "icon": "repeat",
+          "tags": [
+            "lifecycle"
+          ]
+        },
+        {
+          "title": "Reactive State",
+          "description": "Injected components re-render automatically when state changes. Full state management integration.",
+          "icon": "zap",
+          "tags": [
+            "reactive"
+          ]
+        },
+        {
+          "title": "No Routing Required",
+          "description": "Inject components into any DOM element. Target #sidebar, .widget-slot, or any selector.",
+          "icon": "target",
+          "tags": [
+            "flexible"
+          ]
+        },
+        {
+          "title": "Programmatic API",
+          "description": "inject(), createStream(), updateInjection(), destroyInjection(). Full control from JavaScript.",
+          "icon": "code",
+          "tags": [
+            "API"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "title": "Quick Start: Streaming from LLM",
+      "language": "javascript",
+      "description": "Integrate with OpenAI, Anthropic, or any LLM API",
+      "code": "// 1. Create a stream target\nconst stream = Render.createStream('#llm-output', {\n  onProgress: (partial) => console.log('Rendering:', partial.type),\n  onComplete: (final) => console.log('Done!', final)\n})\n\n// 2. Connect to LLM API (example: OpenAI)\nconst response = await fetch('https://api.openai.com/v1/chat/completions', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n    'Authorization': `Bearer ${OPENAI_API_KEY}`\n  },\n  body: JSON.stringify({\n    model: 'gpt-4',\n    messages: [\n      { role: 'system', content: STREAMING_LLM_PROMPT },\n      { role: 'user', content: 'Create a user dashboard with stats' }\n    ],\n    stream: true  // Enable streaming\n  })\n})\n\n// 3. Stream response chunks\nconst reader = response.body.getReader()\nconst decoder = new TextDecoder()\n\nwhile (true) {\n  const { done, value } = await reader.read()\n  if (done) break\n  \n  // Parse SSE format and extract JSON\n  const chunk = decoder.decode(value)\n  const lines = chunk.split('\\n').filter(line => line.startsWith('data: '))\n  \n  for (const line of lines) {\n    const data = line.slice(6)  // Remove 'data: '\n    if (data === '[DONE]') continue\n    \n    const parsed = JSON.parse(data)\n    const content = parsed.choices[0]?.delta?.content\n    \n    if (content) {\n      stream.append(content)  // Stream to DeclarativeWeb\n    }\n  }\n}\n\n// 4. Finalize\nstream.complete()\n\n// Result: Component renders progressively as JSON streams in!"
+    },
+    {
+      "type": "markdown",
+      "content": "## Advanced: JSON Manifest\n\nDefine injections declaratively in `site.json` alongside pages:\n\n```json\n{\n  \"site\": { \"title\": \"My App\" },\n  \"injections\": [\n    {\n      \"target\": \"#user-widget\",\n      \"fetch\": {\n        \"url\": \"/api/user\",\n        \"saveAs\": \"currentUser\"\n      },\n      \"loading\": {\n        \"type\": \"html\",\n        \"content\": \"<p>Loading...</p>\"\n      },\n      \"block\": {\n        \"type\": \"html\",\n        \"content\": \"<div>Welcome, {{state.currentUser.name}}!</div>\"\n      }\n    }\n  ],\n  \"pages\": [...]\n}\n```\n\nInjections process automatically on `Render.init()` or call `Render.processInjections()` manually.\n\n## Learn More\n\n- 📖 **[INJECTION.md](./INJECTION.md)** - Complete API documentation\n- 🎮 **[Injection Demo](./examples/injection-demo.html)** - Interactive examples\n- 🎬 **[Streaming Demo](./examples/streaming-demo.html)** - LLM simulation\n- 📋 **[Implementation Plan](./INJECTION_PLAN.md)** - Technical details"
+    },
+    {
+      "type": "markdown",
+      "content": "---\n\n## 🎮 Try It Yourself\n\nReady to test the injection API? Check out our [Component Playground](streaming-demo.html) - a live editor where you can paste JSON and see components render in real-time!\n\n**Features:**\n- Split-screen editor with live preview\n- Multiple example components\n- Auto-formatting and error handling\n- Perfect for prototyping and testing\n\n[Open Component Playground →](streaming-demo.html)"
+    }
+  ]
+}

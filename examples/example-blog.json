@@ -1,0 +1,249 @@
+{
+  "$schema": "../schema.json",
+  "site": {
+    "title": "EduInsights Blog",
+    "description": "Thoughts on education technology, learning science, and online teaching",
+    "defaultTheme": "light",
+    "state": {
+      "postCount": 127
+    }
+  },
+  "nav": {
+    "layout": "horizontal",
+    "logo": {
+      "text": "EduInsights",
+      "icon": "pen-tool"
+    },
+    "links": [
+      { "label": "Articles", "path": "/" },
+      { "label": "Categories", "path": "/categories" },
+      { "label": "About", "path": "/about" }
+    ],
+    "actions": [
+      { "type": "theme-toggle" },
+      {
+        "type": "link",
+        "label": "Subscribe",
+        "path": "/subscribe",
+        "icon": "mail"
+      }
+    ]
+  },
+  "footer": {
+    "text": "EduInsights Blog · © {{year()}} · Exploring the future of education",
+    "links": [
+      { "label": "RSS", "path": "/feed.xml" },
+      { "label": "Twitter", "path": "https://twitter.com/eduinsights" },
+      { "label": "Newsletter", "path": "/subscribe" }
+    ]
+  },
+  "functions": {
+    "year": "() => new Date().getFullYear()"
+  },
+  "components": {
+    "article-card": "<article class=\"resource-card\"><div class=\"tags\"><span class=\"tag\">{{category}}</span></div><h3><a href=\"{{url}}\" data-route>{{title}}</a></h3><p>{{excerpt}}</p><small style=\"color: var(--text-muted);\">{{author}} · {{date}} · {{readTime}}</small></article>"
+  },
+  "pages": [
+    {
+      "path": "/",
+      "meta": {
+        "title": "Articles",
+        "description": "Latest insights on education technology"
+      },
+      "content": [
+        {
+          "type": "hero",
+          "headline": "Ideas on Education Technology",
+          "subhead": "Exploring the intersection of learning science, technology, and pedagogy. New articles every week."
+        },
+        {
+          "type": "section",
+          "id": "featured",
+          "title": "Featured Articles",
+          "columns": 1,
+          "resources": [
+            {
+              "$ref": "article-card",
+              "category": "Learning Science",
+              "title": "The Spacing Effect: Why Cramming Doesn't Work",
+              "excerpt": "Research shows that distributed practice dramatically improves long-term retention. Here's how to apply spacing principles in online courses and what ed-tech platforms get wrong about review schedules.",
+              "author": "Dr. Sarah Chen",
+              "date": "Jan 2, 2025",
+              "readTime": "8 min read",
+              "url": "/articles/spacing-effect"
+            }
+          ]
+        },
+        {
+          "type": "section",
+          "id": "recent",
+          "title": "Recent Posts",
+          "columns": 2,
+          "resources": [
+            {
+              "$ref": "article-card",
+              "category": "EdTech",
+              "title": "Building Accessible Online Courses",
+              "excerpt": "Accessibility isn't optional. A practical guide to WCAG compliance, screen reader support, and inclusive design patterns for course creators.",
+              "author": "Marcus Rodriguez",
+              "date": "Dec 30, 2024",
+              "readTime": "12 min read",
+              "url": "/articles/accessible-courses"
+            },
+            {
+              "$ref": "article-card",
+              "category": "Teaching",
+              "title": "Asynchronous vs Synchronous Learning",
+              "excerpt": "When should you run live sessions versus pre-recorded content? Data from 500 courses reveals surprising insights about student engagement and outcomes.",
+              "author": "Aisha Patel",
+              "date": "Dec 27, 2024",
+              "readTime": "6 min read",
+              "url": "/articles/async-vs-sync"
+            },
+            {
+              "$ref": "article-card",
+              "category": "Product",
+              "title": "Designing Better Quiz Interfaces",
+              "excerpt": "Small UX decisions have big impacts on assessment validity. We tested 12 different quiz interfaces with 2,000 students to find what actually works.",
+              "author": "James O'Brien",
+              "date": "Dec 23, 2024",
+              "readTime": "10 min read",
+              "url": "/articles/quiz-interfaces"
+            },
+            {
+              "$ref": "article-card",
+              "category": "Data",
+              "title": "Predicting Course Completion Rates",
+              "excerpt": "Machine learning analysis of 10,000 courses reveals the top factors that predict whether students finish. Spoiler: it's not what you think.",
+              "author": "Dr. Sarah Chen",
+              "date": "Dec 20, 2024",
+              "readTime": "15 min read",
+              "url": "/articles/completion-prediction"
+            }
+          ]
+        },
+        {
+          "type": "section",
+          "id": "popular",
+          "title": "Most Popular This Month",
+          "columns": 3,
+          "resources": [
+            {
+              "title": "The Myth of Learning Styles",
+              "description": "Visual, auditory, kinesthetic—science shows learning styles are a myth. What actually works for differentiated instruction.",
+              "icon": "trending-up",
+              "tags": ["15 min read"]
+            },
+            {
+              "title": "Building a Course in Public",
+              "description": "I created an entire course live on Twitter. Here's what I learned about audience development and content validation.",
+              "icon": "eye",
+              "tags": ["8 min read"]
+            },
+            {
+              "title": "The Economics of Online Education",
+              "description": "Deep dive into unit economics, customer acquisition costs, and what makes ed-tech businesses sustainable.",
+              "icon": "dollar-sign",
+              "tags": ["20 min read"]
+            }
+          ]
+        },
+        {
+          "type": "html",
+          "html": "<div style=\"background: linear-gradient(135deg, var(--pico-primary) 0%, #0056b3 100%); color: white; padding: 2.5rem 2rem; border-radius: 0.5rem; text-align: center; margin: 3rem 0;\"><h3 style=\"color: white; margin: 0 0 0.5rem;\">📬 Never Miss a Post</h3><p style=\"margin: 0 0 1.5rem; opacity: 0.9;\">Get new articles delivered to your inbox every Thursday.</p><div style=\"display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; max-width: 400px; margin: 0 auto;\"><input type=\"email\" placeholder=\"your@email.com\" style=\"flex: 1; min-width: 200px; margin: 0;\" /><button style=\"background: white; color: var(--pico-primary); margin: 0; border: none;\">Subscribe</button></div></div>"
+        }
+      ]
+    },
+    {
+      "path": "/categories",
+      "meta": {
+        "title": "Categories"
+      },
+      "content": [
+        {
+          "type": "hero",
+          "headline": "Browse by Category",
+          "subhead": "Find articles on the topics that matter to you"
+        },
+        {
+          "type": "section",
+          "id": "category-list",
+          "columns": 3,
+          "resources": [
+            {
+              "title": "Learning Science",
+              "description": "Evidence-based insights from cognitive psychology and educational research. 32 articles.",
+              "icon": "brain",
+              "url": "/categories/learning-science",
+              "tags": ["research", "evidence-based"]
+            },
+            {
+              "title": "EdTech Product",
+              "description": "Product design, UX patterns, and technical implementation for educational software. 28 articles.",
+              "icon": "layout",
+              "url": "/categories/product",
+              "tags": ["design", "UX", "development"]
+            },
+            {
+              "title": "Teaching Online",
+              "description": "Practical tips for instructors creating and delivering online courses. 24 articles.",
+              "icon": "video",
+              "url": "/categories/teaching",
+              "tags": ["instructors", "pedagogy"]
+            },
+            {
+              "title": "Data & Analytics",
+              "description": "Using data to improve learning outcomes and course effectiveness. 18 articles.",
+              "icon": "bar-chart",
+              "url": "/categories/data",
+              "tags": ["analytics", "metrics"]
+            },
+            {
+              "title": "Business of Ed",
+              "description": "Building sustainable education businesses and scaling learning platforms. 15 articles.",
+              "icon": "briefcase",
+              "url": "/categories/business",
+              "tags": ["strategy", "growth"]
+            },
+            {
+              "title": "Accessibility",
+              "description": "Creating inclusive learning experiences for all students. 10 articles.",
+              "icon": "heart",
+              "url": "/categories/accessibility",
+              "tags": ["inclusion", "WCAG"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/about",
+      "meta": {
+        "title": "About"
+      },
+      "content": [
+        {
+          "type": "hero",
+          "headline": "About EduInsights",
+          "subhead": "A blog by educators and technologists exploring the future of learning"
+        },
+        {
+          "type": "markdown",
+          "content": "## Our Mission\n\nEduInsights was founded in 2020 to bridge the gap between educational research and practical implementation. Too often, evidence-based teaching practices stay locked in academic journals while ed-tech products are built on assumptions rather than data.\n\nWe believe better tools and better teaching methods come from:\n\n- **Evidence-based thinking**: Starting with research, not opinions\n- **Practical application**: Showing how to actually implement ideas\n- **Honest evaluation**: Calling out what doesn't work\n- **Open sharing**: No paywalls, no gatekeeping\n\n## Our Writers\n\nWe're a team of educators, researchers, and product builders who've worked at universities, ed-tech companies, and schools. We've collectively:\n\n- Taught over 100,000 students\n- Built learning platforms serving millions\n- Published research in peer-reviewed journals\n- Designed courses with 90%+ completion rates\n\n## Topics We Cover\n\n- Learning science and cognitive psychology\n- Course design and instructional methods\n- Ed-tech product development\n- Student engagement and motivation\n- Assessment and feedback design\n- Accessibility and inclusive education\n- Business models and sustainability\n\n## Get in Touch\n\nWe'd love to hear from you:\n\n- **Email**: hello@eduinsights.blog\n- **Twitter**: [@eduinsights](https://twitter.com/eduinsights)\n- **Newsletter**: [Subscribe here](/subscribe)\n- **Pitch an article**: editors@eduinsights.blog"
+        }
+      ]
+    },
+    {
+      "path": "/articles/spacing-effect",
+      "meta": {
+        "title": "The Spacing Effect: Why Cramming Doesn't Work"
+      },
+      "content": [
+        {
+          "type": "markdown",
+          "content": "# The Spacing Effect: Why Cramming Doesn't Work\n\n*Dr. Sarah Chen · Jan 2, 2025 · 8 min read*\n\n**Research shows that distributed practice dramatically improves long-term retention. Here's how to apply spacing principles in online courses—and what ed-tech platforms get wrong about review schedules.**\n\n## The Problem with Cramming\n\nEvery student knows the drill: exam next week, better study everything tonight. It feels productive—you're reviewing dozens of concepts, taking frantic notes, highlighting textbooks.\n\nBut here's the uncomfortable truth: **most of what you cram is forgotten within 48 hours**.\n\nThe \"spacing effect\" is one of the most robust findings in learning science. Distributing practice over time leads to dramatically better long-term retention than massed practice (cramming), even when total study time is identical.\n\n## The Research\n\nCepeda et al. (2006) analyzed 317 experiments on spacing effects spanning over a century. Their meta-analysis found:\n\n- Spaced practice improves retention by **10-30%** on average\n- Effects are stronger for complex material\n- Benefits persist for months or years\n- Optimal spacing depends on retention interval\n\n### Optimal Spacing Schedules\n\nFor material you need to remember:\n\n- **1 week later**: Review after 1-2 days\n- **1 month later**: Review after 1 week\n- **1 year later**: Review after 1 month\n\nThe key principle: spacing should expand over time (expanding rehearsal).\n\n## What Ed-Tech Gets Wrong\n\nMost course platforms completely ignore spacing effects:\n\n### ❌ Linear Content Delivery\n\n\"Complete Module 1, then Module 2, then Module 3.\"\n\nStudents never see Module 1 material again after they finish it.\n\n### ❌ End-of-Course Reviews\n\n\"Review everything right before the final exam.\"\n\nThis is literally massed practice.\n\n### ❌ Optional Review Quizzes\n\n\"Click here if you want to review.\"\n\nStudents don't know what they need to review until they forget it (too late).\n\n## What Actually Works\n\n### ✅ Interleaved Content\n\nMix old topics into new lessons. When teaching JavaScript loops (Module 3), include problems requiring variables (Module 1) and conditionals (Module 2).\n\n### ✅ Scheduled Retrieval Practice\n\nForce recall at expanding intervals:\n\n- Day 1: Learn concept\n- Day 2: Quiz on concept\n- Day 7: Quiz again\n- Day 21: Quiz again\n- Day 60: Quiz again\n\n### ✅ Adaptive Spacing Algorithms\n\nUse spaced repetition software (SRS) principles:\n\n- Short intervals for weak items\n- Long intervals for mastered items\n- Dynamic adjustment based on performance\n\n## Implementation Guide\n\nHere's how to build spacing into your online course:\n\n### 1. Create a Review Item Bank\n\nFor every lesson, create 5-10 review questions covering key concepts. Store these in a separate bank.\n\n### 2. Schedule Automatic Reviews\n\nEvery 3-4 lessons, insert a review quiz drawing from previous lessons:\n\n- 40% from most recent lesson\n- 30% from 2-3 lessons ago\n- 20% from 4-6 lessons ago\n- 10% from 7+ lessons ago\n\n### 3. Use Cumulative Assignments\n\nEvery project should require knowledge from multiple modules. Don't let students compartmentalize.\n\n### 4. Build Review into Communication\n\nWeekly emails to students:\n\n> \"This week we covered React hooks. Can you still explain the difference between var, let, and const from Week 2? If not, review this 2-minute video.\"\n\n## Example: Course Redesign\n\n**Before (Linear)**\n```\nWeek 1: Variables\nWeek 2: Conditionals\nWeek 3: Loops\nWeek 4: Functions\nWeek 5: Final Project\n```\n\n**After (Spaced)**\n```\nWeek 1: Variables\nWeek 2: Conditionals + Variables Quiz\nWeek 3: Loops + Conditionals Quiz\nWeek 4: Functions + All Topics Quiz\nWeek 5: Project (uses everything) + Weekly Mini-Reviews\n```\n\n## Measuring Impact\n\nI implemented spaced review in my data science course (n=240 students):\n\n- **Before**: 67% average on delayed retention test (1 month post-course)\n- **After**: 84% average on same test\n- **Student feedback**: 92% found reviews helpful (vs. 43% who found end-of-course review helpful)\n\n## Common Objections\n\n**\"But this makes courses longer!\"**\n\nNo—it makes them more effective. Same content, better sequencing. You're adding 5-minute quizzes, not new lessons.\n\n**\"Students will complain about repetition.\"**\n\nFrame it correctly: \"Spaced practice is proven to improve retention. You'll thank me later.\" Students appreciate it when it works.\n\n**\"My platform doesn't support this.\"**\n\nYou don't need fancy software. A spreadsheet of review questions and manual quiz insertion works fine.\n\n## Conclusion\n\nThe spacing effect isn't controversial—it's one of the most replicated findings in psychology. Yet most online courses completely ignore it.\n\nStop organizing content linearly. Start designing for retention.\n\nYour students' future selves will thank you.\n\n---\n\n## References\n\n- Cepeda, N. J., Pashler, H., Vul, E., Wixted, J. T., & Rohrer, D. (2006). Distributed practice in verbal recall tasks: A review and quantitative synthesis. *Psychological Bulletin, 132*(3), 354-380.\n- Karpicke, J. D., & Roediger, H. L. (2008). The critical importance of retrieval for learning. *Science, 319*(5865), 966-968.\n\n---\n\n*Want to discuss? Find me on Twitter [@sarahchen](https://twitter.com/sarahchen) or email sarah@eduinsights.blog*"
+        }
+      ]
+    }
+  ]
+}

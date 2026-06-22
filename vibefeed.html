@@ -1,0 +1,2210 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VibeFeed - Share Your Vibes</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <!-- Pico CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.colors.min.css">
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: var(--pico-background-color);
+    }
+
+    /* Reduce hero padding in VibeFeed */
+    .vibe-block .hero,
+    .vibe-block > section:first-child {
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+    }
+
+    /* Reduce hero headline font size */
+    .vibe-block .hero h1,
+    .vibe-block .hero h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .vibe-block .hero p {
+      font-size: 0.95rem;
+    }
+
+    /* Header */
+    .vibe-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1.5rem;
+      background: var(--pico-card-background-color);
+      border-bottom: 1px solid var(--pico-muted-border-color);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .vibe-header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .vibe-logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .vibe-header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .add-vibe-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      font-weight: 600;
+      border-radius: 2rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .add-vibe-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .add-vibe-btn [data-lucide] {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    /* Avatar */
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 1rem;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .avatar.small {
+      width: 32px;
+      height: 32px;
+      font-size: 0.875rem;
+    }
+
+    .avatar.large {
+      width: 48px;
+      height: 48px;
+      font-size: 1.125rem;
+    }
+
+    /* Feed */
+    .feed-container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 1.5rem;
+      transition: max-width 0.3s ease;
+    }
+
+    /* Grid layout mode */
+    .feed-container.grid-view {
+      max-width: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .feed-container.grid-view .post-card {
+      margin-bottom: 0;
+    }
+
+    /* Tablet: 2 columns in grid mode */
+    @media (max-width: 1024px) {
+      .feed-container.grid-view {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* Mobile: always 1 column, hide grid toggle */
+    @media (max-width: 768px) {
+      .feed-container.grid-view {
+        display: block;
+        max-width: 680px;
+      }
+
+      .feed-container.grid-view .post-card {
+        margin-bottom: 1.5rem;
+      }
+
+      .layout-toggle-btn {
+        display: none !important;
+      }
+    }
+
+    /* Layout toggle button */
+    .layout-toggle-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.375rem 0.75rem;
+      font-size: 0.8rem;
+      background: var(--pico-secondary-background);
+      border: 1px solid var(--pico-muted-border-color);
+      border-radius: 1.5rem;
+      cursor: pointer;
+      color: var(--pico-color);
+      transition: all 0.2s;
+    }
+
+    .layout-toggle-btn:hover {
+      background: var(--pico-primary-focus);
+      border-color: var(--pico-primary);
+    }
+
+    .layout-toggle-btn [data-lucide] {
+      width: 0.9rem;
+      height: 0.9rem;
+    }
+
+    .layout-toggle-btn.grid-active {
+      background: var(--pico-primary);
+      color: var(--pico-primary-inverse);
+      border-color: var(--pico-primary);
+    }
+
+    /* Darker text in light mode for layout toggle */
+    [data-theme="light"] .layout-toggle-btn,
+    :root:not([data-theme="dark"]) .layout-toggle-btn {
+      color: #444;
+    }
+
+    [data-theme="light"] .layout-toggle-btn.grid-active,
+    :root:not([data-theme="dark"]) .layout-toggle-btn.grid-active {
+      color: var(--pico-primary-inverse);
+    }
+
+    /* Post Card */
+    .post-card {
+      background: var(--pico-card-background-color);
+      border-radius: 1rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+      transition: box-shadow 0.2s, transform 0.2s, outline 0.3s;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+    }
+
+    .post-card:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    /* Highlight animation for new posts */
+    .post-card.highlight {
+      outline: 3px solid var(--pico-primary);
+      outline-offset: 2px;
+    }
+
+    @keyframes highlight-fade {
+      0% { outline-color: var(--pico-primary); }
+      100% { outline-color: transparent; }
+    }
+
+    .post-card.highlight-fade {
+      animation: highlight-fade 2s ease-out forwards;
+    }
+
+    .post-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--pico-muted-border-color);
+    }
+
+    .post-author-info {
+      flex: 1;
+    }
+
+    .post-author-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin: 0;
+    }
+
+    .post-time {
+      font-size: 0.8rem;
+      color: var(--pico-muted-color);
+    }
+
+    .post-content {
+      padding: 1.25rem;
+      position: relative;
+      flex: 1;
+    }
+
+    .post-content > *:first-child {
+      margin-top: 0;
+    }
+
+    .post-content > *:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Collapsed/Expanded post states */
+    .post-card .post-content .vibe-block {
+      transition: opacity 0.3s ease, max-height 0.4s ease, margin 0.3s ease;
+      overflow: hidden;
+    }
+
+    /* When collapsed, hide all blocks except the first (hero) */
+    .post-card.collapsed .post-content .vibe-block:not(:first-child) {
+      max-height: 0;
+      opacity: 0;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* When expanded (click only, no hover), show all blocks */
+    .post-card:not(.collapsed) .post-content .vibe-block:not(:first-child) {
+      max-height: 1000px;
+      opacity: 1;
+      margin-top: 1rem;
+    }
+
+    /* Expand indicator */
+    .expand-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem;
+      color: var(--pico-muted-color);
+      font-size: 0.75rem;
+      gap: 0.25rem;
+      transition: opacity 0.2s, transform 0.3s;
+      cursor: pointer;
+    }
+
+    .expand-indicator [data-lucide] {
+      width: 1rem;
+      height: 1rem;
+      transition: transform 0.3s ease;
+    }
+
+    .expand-indicator:hover {
+      color: var(--pico-primary);
+    }
+
+    .post-card:not(.collapsed) .expand-indicator {
+      display: none;
+    }
+
+    /* View mode toggle button */
+    .view-toggle-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.375rem 0.75rem;
+      font-size: 0.8rem;
+      background: var(--pico-secondary-background);
+      border: 1px solid var(--pico-muted-border-color);
+      border-radius: 1.5rem;
+      cursor: pointer;
+      color: var(--pico-color);
+      transition: all 0.2s;
+    }
+
+    .view-toggle-btn:hover {
+      background: var(--pico-primary-focus);
+      border-color: var(--pico-primary);
+    }
+
+    .view-toggle-btn [data-lucide] {
+      width: 0.9rem;
+      height: 0.9rem;
+    }
+
+    .view-toggle-btn.expanded {
+      background: var(--pico-primary);
+      color: var(--pico-primary-inverse);
+      border-color: var(--pico-primary);
+    }
+
+    /* Post engagement bar */
+    .post-engagement {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 0.75rem 1.25rem;
+      border-top: 1px solid var(--pico-muted-border-color);
+      background: var(--pico-background-color);
+      margin-top: auto;
+    }
+
+    .engagement-stat {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.85rem;
+      color: var(--pico-muted-color);
+    }
+
+    .engagement-stat [data-lucide] {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    .engagement-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-left: auto;
+    }
+
+    .engagement-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.375rem 0.75rem;
+      font-size: 0.8rem;
+      background: transparent;
+      border: 1px solid var(--pico-muted-border-color);
+      border-radius: 1.5rem;
+      cursor: pointer;
+      color: var(--pico-color);
+      transition: all 0.2s;
+    }
+
+    .engagement-btn:hover {
+      background: var(--pico-primary-focus);
+      border-color: var(--pico-primary);
+      color: var(--pico-primary);
+    }
+
+    /* Darker text in light mode for better readability */
+    [data-theme="light"] .engagement-btn,
+    :root:not([data-theme="dark"]) .engagement-btn {
+      color: #444;
+    }
+
+    .engagement-btn [data-lucide] {
+      width: 0.9rem;
+      height: 0.9rem;
+    }
+
+    .revibe-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+    }
+
+    .revibe-btn:hover {
+      opacity: 0.9;
+      color: white;
+      background: linear-gradient(135deg, #5a6fd6 0%, #6a4190 100%);
+    }
+
+    /* Create Mode Layout */
+    .create-mode {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: var(--pico-background-color);
+    }
+
+    .create-mode.active {
+      display: flex;
+    }
+
+    .create-chat-panel {
+      width: 380px;
+      min-width: 300px;
+      max-width: 50%;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--pico-muted-border-color);
+      background: var(--pico-card-background-color);
+    }
+
+    .create-chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--pico-muted-border-color);
+    }
+
+    .create-chat-header h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .create-chat-header [data-lucide] {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    .close-create-btn {
+      padding: 0.5rem;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      border-radius: 0.5rem;
+      color: var(--pico-muted-color);
+    }
+
+    .close-create-btn:hover {
+      background: var(--pico-secondary-background);
+      color: var(--pico-color);
+    }
+
+    .close-create-btn [data-lucide] {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    .create-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .create-message {
+      max-width: 90%;
+      padding: 0.75rem 1rem;
+      border-radius: 1rem;
+      line-height: 1.5;
+      font-size: 0.9rem;
+    }
+
+    .create-message.user {
+      align-self: flex-end;
+      background: var(--pico-primary);
+      color: var(--pico-primary-inverse);
+      border-bottom-right-radius: 0.25rem;
+    }
+
+    .create-message.assistant {
+      align-self: flex-start;
+      background: var(--pico-secondary-background);
+      border-bottom-left-radius: 0.25rem;
+      color: var(--pico-contrast);
+    }
+
+    .create-message.system {
+      align-self: center;
+      background: var(--pico-muted-border-color);
+      color: var(--pico-contrast);
+      font-size: 0.8rem;
+      padding: 0.5rem 1rem;
+    }
+
+    .create-message.error {
+      align-self: flex-start;
+      background: var(--pico-del-background-color);
+      color: var(--pico-del-color);
+      border-bottom-left-radius: 0.25rem;
+      max-width: 95%;
+    }
+
+    .retry-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.375rem 0.75rem;
+      font-size: 0.75rem;
+      background: var(--pico-primary);
+      color: var(--pico-primary-inverse);
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      align-self: flex-start;
+    }
+
+    .retry-btn:hover {
+      opacity: 0.9;
+    }
+
+    .retry-btn [data-lucide] {
+      width: 0.875rem;
+      height: 0.875rem;
+    }
+
+    .create-input-container {
+      padding: 1rem;
+      border-top: 1px solid var(--pico-muted-border-color);
+    }
+
+    .create-input-wrapper {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-end;
+    }
+
+    .create-input-wrapper textarea {
+      flex: 1;
+      resize: none;
+      min-height: 2.5rem;
+      max-height: 120px;
+      padding: 0.5rem 1rem;
+      border-radius: 1.5rem;
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    .create-input-wrapper button {
+      width: 2.5rem;
+      height: 2.5rem;
+      padding: 0;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      color: white;
+    }
+
+    .create-input-wrapper button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .create-input-wrapper button [data-lucide] {
+      width: 1.1rem;
+      height: 1.1rem;
+    }
+
+    /* Preview Panel */
+    .create-preview-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .create-preview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--pico-muted-border-color);
+      background: var(--pico-card-background-color);
+    }
+
+    .create-preview-header h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .create-preview-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .create-preview-actions button {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      margin: 0;
+    }
+
+    .post-vibe-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      color: white;
+    }
+
+    .post-vibe-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .create-preview-content {
+      flex: 1;
+      padding: 2rem;
+      overflow-y: auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    .preview-post-card {
+      width: 100%;
+      max-width: 600px;
+      max-height: calc(100vh - 200px);
+      background: var(--pico-card-background-color);
+      border-radius: 1rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .preview-post-card .post-content {
+      flex: 1;
+      overflow-y: auto;
+      min-height: 0;
+    }
+
+    .preview-post-card.streaming {
+      height: 100%;
+      max-height: calc(100vh - 200px);
+    }
+
+    .preview-post-card.streaming .streaming-code-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .preview-post-card.streaming #streaming-json {
+      flex: 1;
+      overflow-y: auto;
+      max-height: none !important;
+    }
+
+    .preview-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 300px;
+      color: var(--pico-muted-color);
+      text-align: center;
+    }
+
+    .preview-placeholder [data-lucide] {
+      width: 3rem;
+      height: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    /* Streaming indicator */
+    .streaming-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .streaming-dot {
+      width: 8px;
+      height: 8px;
+      background: #27c93f;
+      border-radius: 50%;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.2); }
+    }
+
+    /* Typing indicator */
+    .typing-indicator {
+      display: flex;
+      gap: 0.25rem;
+      padding: 0.75rem 1rem;
+      align-self: flex-start;
+      background: var(--pico-secondary-background);
+      border-radius: 1rem;
+    }
+
+    .typing-indicator span {
+      width: 6px;
+      height: 6px;
+      background: var(--pico-muted-color);
+      border-radius: 50%;
+      animation: typing 1.4s infinite;
+    }
+
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-3px); opacity: 1; }
+    }
+
+    /* Empty feed state */
+    .empty-feed {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--pico-muted-color);
+    }
+
+    .empty-feed [data-lucide] {
+      width: 4rem;
+      height: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.3;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .create-mode.active {
+        flex-direction: column;
+      }
+
+      .create-chat-panel {
+        width: 100%;
+        max-width: 100%;
+        height: 50vh;
+        border-right: none;
+        border-bottom: 1px solid var(--pico-muted-border-color);
+      }
+
+      .create-preview-panel {
+        height: 50vh;
+      }
+
+      .feed-container {
+        padding: 1rem;
+      }
+    }
+
+    /* Theme toggle */
+    .theme-toggle {
+      padding: 0.5rem;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      border-radius: 0.5rem;
+      color: var(--pico-muted-color);
+    }
+
+    .theme-toggle:hover {
+      background: var(--pico-secondary-background);
+      color: var(--pico-color);
+    }
+
+    .theme-toggle [data-lucide] {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    [data-theme="light"] .icon-dark { display: none; }
+    [data-theme="dark"] .icon-light { display: none; }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="vibe-header">
+    <div class="vibe-header-left">
+      <div class="avatar" id="user-avatar">U</div>
+      <span class="vibe-logo">VibeFeed</span>
+    </div>
+    <div class="vibe-header-right">
+      <button class="layout-toggle-btn" id="layout-toggle" onclick="toggleLayoutMode()" title="Toggle grid/list view">
+        <i data-lucide="layout-grid" class="icon-grid"></i>
+        <i data-lucide="list" class="icon-list" style="display: none;"></i>
+        <span>Grid</span>
+      </button>
+      <button class="view-toggle-btn" id="view-toggle" onclick="toggleViewMode()" title="Toggle expanded view">
+        <i data-lucide="expand"></i>
+        <span>Expand All</span>
+      </button>
+      <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i data-lucide="sun" class="icon-light"></i>
+        <i data-lucide="moon" class="icon-dark"></i>
+      </button>
+      <button class="add-vibe-btn" onclick="openCreateMode()">
+        <i data-lucide="plus"></i>
+        <span>Add Vibe</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Feed -->
+  <main class="feed-container" id="feed">
+    <!-- Posts will be rendered here -->
+  </main>
+
+  <!-- Create Mode Overlay -->
+  <div class="create-mode" id="create-mode">
+    <!-- Chat Panel -->
+    <div class="create-chat-panel">
+      <div class="create-chat-header">
+        <h3><i data-lucide="sparkles"></i> <span id="create-title">Create Your Vibe</span></h3>
+        <button class="close-create-btn" onclick="closeCreateMode()" title="Cancel">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="create-messages" id="create-messages">
+        <div class="create-message system">
+          Describe your vibe - a recipe, chart, workflow, or anything you want to share!
+        </div>
+      </div>
+      <div class="create-input-container">
+        <div class="create-input-wrapper">
+          <textarea
+            id="create-input"
+            placeholder="Describe your vibe..."
+            rows="1"
+            onkeydown="handleCreateKeyDown(event)"
+            oninput="autoResizeCreate(this)"
+          ></textarea>
+          <button onclick="generateVibe()" id="generate-btn" title="Generate">
+            <i data-lucide="sparkles"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preview Panel -->
+    <div class="create-preview-panel">
+      <div class="create-preview-header">
+        <h3><i data-lucide="eye"></i> Preview</h3>
+        <div class="create-preview-actions">
+          <button class="outline" onclick="closeCreateMode()">Cancel</button>
+          <button class="post-vibe-btn" onclick="postVibe()" id="post-btn" disabled>
+            <i data-lucide="send"></i> Post Vibe
+          </button>
+        </div>
+      </div>
+      <div class="create-preview-content" id="create-preview">
+        <div class="preview-post-card">
+          <div class="preview-placeholder">
+            <i data-lucide="image"></i>
+            <p>Your vibe preview will appear here</p>
+            <small>Start by describing what you want to share</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden element for RenderJS initialization -->
+  <div id="render-dummy" style="display: none;"></div>
+
+  <!-- Dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/frappe-charts@1.2.4/dist/frappe-charts.min.iife.js"></script>
+
+  <!-- DeclarativeWeb Bundle -->
+  <script src="dist/declarativeweb.min.js"></script>
+
+  <script>
+    // ============================================
+    // State
+    // ============================================
+    let isGenerating = false
+    let currentVibeContent = []
+    let editingPostId = null
+    let activeStreamReader = null
+    let lastUserMessage = ''
+    let renderErrors = []
+    let isExpandedView = false  // Default to collapsed view
+    let isGridView = false  // Default to list view
+
+    // Store original console methods
+    const originalConsole = {
+      log: console.log.bind(console),
+      warn: console.warn.bind(console),
+      error: console.error.bind(console)
+    }
+
+    // Intercept console errors during create mode
+    function setupConsoleInterception() {
+      console.error = (...args) => {
+        originalConsole.error(...args)
+
+        // Only capture during create mode
+        const createMode = document.getElementById('create-mode')
+        if (createMode && createMode.classList.contains('active')) {
+          const errorMsg = formatConsoleArgs(args)
+          renderErrors.push(errorMsg)
+          showErrorInChat(errorMsg)
+        }
+      }
+    }
+
+    function formatConsoleArgs(args) {
+      return args.map(arg => {
+        if (arg === null) return 'null'
+        if (arg === undefined) return 'undefined'
+        if (typeof arg === 'object') {
+          try {
+            // Handle Error objects specially
+            if (arg instanceof Error) {
+              return `${arg.name}: ${arg.message}`
+            }
+            return JSON.stringify(arg, null, 2)
+          } catch (e) {
+            return String(arg)
+          }
+        }
+        return String(arg)
+      }).join(' ')
+    }
+
+    function showErrorInChat(errorMsg) {
+      const messages = document.getElementById('create-messages')
+      if (!messages) return
+
+      // Log full error to console
+      console.error('[VibeFeed Error]', errorMsg)
+
+      // Truncate for display (keep first 150 chars)
+      const maxLen = 150
+      const truncated = errorMsg.length > maxLen
+      const displayMsg = truncated ? errorMsg.substring(0, maxLen) + '...' : errorMsg
+
+      // Create error message with retry button
+      const errorEl = document.createElement('div')
+      errorEl.className = 'create-message error'
+      errorEl.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
+            <i data-lucide="alert-circle" style="width: 1rem; height: 1rem; flex-shrink: 0; margin-top: 2px;"></i>
+            <span style="word-break: break-word; font-size: 0.85rem;">${escapeHtml(displayMsg)}</span>
+          </div>
+          ${truncated ? `<details style="font-size: 0.75rem; opacity: 0.8;">
+            <summary>Show full error</summary>
+            <pre style="margin: 0.5rem 0 0 0; white-space: pre-wrap; word-break: break-all; max-height: 150px; overflow-y: auto;">${escapeHtml(errorMsg)}</pre>
+          </details>` : ''}
+          <button class="retry-btn" onclick="retryGeneration()">
+            <i data-lucide="refresh-cw"></i> Retry
+          </button>
+        </div>
+      `
+
+      messages.appendChild(errorEl)
+      messages.scrollTop = messages.scrollHeight
+
+      if (window.lucide) lucide.createIcons({ nodes: [errorEl] })
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div')
+      div.textContent = text
+      return div.innerHTML
+    }
+
+    // ============================================
+    // Security: Sanitize Vibe Blocks
+    // ============================================
+
+    // Allowed block types for vibes (with safe interactive content)
+    const ALLOWED_VIBE_TYPES = ['markdown', 'hero', 'section', 'table', 'mermaid', 'frappe-chart', 'p5js', 'quiz', 'button']
+
+    // Event handler attributes to strip
+    const EVENT_HANDLERS = [
+      'onclick', 'ondblclick', 'onmousedown', 'onmouseup', 'onmouseover', 'onmousemove',
+      'onmouseout', 'onmouseenter', 'onmouseleave', 'onkeydown', 'onkeypress', 'onkeyup',
+      'onfocus', 'onblur', 'onchange', 'oninput', 'onsubmit', 'onreset', 'onload', 'onerror',
+      'onabort', 'onbeforeunload', 'onunload', 'onresize', 'onscroll', 'oncontextmenu',
+      'ondrag', 'ondragend', 'ondragenter', 'ondragleave', 'ondragover', 'ondragstart',
+      'ondrop', 'oncopy', 'oncut', 'onpaste', 'onanimationstart', 'onanimationend',
+      'onanimationiteration', 'ontransitionend', 'ontouchstart', 'ontouchmove', 'ontouchend',
+      'ontouchcancel', 'onpointerdown', 'onpointerup', 'onpointermove', 'onpointerenter',
+      'onpointerleave', 'onpointerover', 'onpointerout', 'onpointercancel'
+    ]
+
+    function sanitizeVibeBlocks(blocks) {
+      if (!Array.isArray(blocks)) return []
+
+      return blocks
+        .filter(block => {
+          // Only allow specific block types
+          if (!block || typeof block !== 'object') return false
+          if (!ALLOWED_VIBE_TYPES.includes(block.type)) {
+            console.warn(`[VibeFeed Security] Blocked disallowed block type: ${block.type}`)
+            return false
+          }
+          return true
+        })
+        .map(block => sanitizeBlock(block))
+    }
+
+    function sanitizeBlock(block) {
+      const sanitized = { ...block }
+
+      // Whitelist of safe action types for button blocks
+      const SAFE_ACTION_TYPES = ['setState', 'navigate', 'toggleState', 'resetState']
+
+      // Handle button actions - allow only safe declarative actions
+      if (block.type === 'button' && block.action) {
+        if (typeof block.action === 'object' && block.action.type) {
+          // Check if action type is whitelisted
+          if (!SAFE_ACTION_TYPES.includes(block.action.type)) {
+            console.warn(`[VibeFeed Security] Blocked non-whitelisted button action type: ${block.action.type}`)
+            delete sanitized.action
+          }
+          // Remove function call actions
+          if (block.action.fn) {
+            console.warn(`[VibeFeed Security] Blocked button function call action`)
+            delete sanitized.action
+          }
+        } else {
+          // Remove string actions (arbitrary code execution)
+          console.warn(`[VibeFeed Security] Blocked button string action`)
+          delete sanitized.action
+        }
+      } else {
+        // For non-button blocks, remove all action properties
+        delete sanitized.action
+      }
+
+      // Remove other dangerous action properties
+      delete sanitized.actions
+      delete sanitized.onClick
+      delete sanitized.onAction
+
+      // Remove any if/then/else conditionals that could contain code
+      delete sanitized.if
+      delete sanitized.then
+      delete sanitized.else
+
+      // Remove state/watch related properties (quiz manages its own state internally)
+      delete sanitized.init
+      delete sanitized.watch
+      delete sanitized.each
+      delete sanitized.as
+      delete sanitized.template
+
+      // Sanitize string content for XSS
+      for (const key of Object.keys(sanitized)) {
+        if (typeof sanitized[key] === 'string') {
+          sanitized[key] = sanitizeString(sanitized[key])
+        } else if (Array.isArray(sanitized[key])) {
+          sanitized[key] = sanitizeArray(sanitized[key])
+        } else if (typeof sanitized[key] === 'object' && sanitized[key] !== null) {
+          sanitized[key] = sanitizeObject(sanitized[key])
+        }
+      }
+
+      return sanitized
+    }
+
+    function sanitizeString(str) {
+      if (typeof str !== 'string') return str
+
+      let sanitized = str
+
+      // Remove javascript: protocol
+      sanitized = sanitized.replace(/javascript\s*:/gi, '')
+
+      // Remove data: protocol with script content
+      sanitized = sanitized.replace(/data\s*:\s*text\/html/gi, '')
+
+      // Remove event handlers from any inline HTML-like content
+      for (const handler of EVENT_HANDLERS) {
+        const regex = new RegExp(`\\s*${handler}\\s*=\\s*["'][^"']*["']`, 'gi')
+        sanitized = sanitized.replace(regex, '')
+        // Also handle unquoted
+        const regexUnquoted = new RegExp(`\\s*${handler}\\s*=\\s*[^\\s>]+`, 'gi')
+        sanitized = sanitized.replace(regexUnquoted, '')
+      }
+
+      // Remove <script> tags and their content
+      sanitized = sanitized.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      sanitized = sanitized.replace(/<script\b[^>]*>/gi, '')
+      sanitized = sanitized.replace(/<\/script>/gi, '')
+
+      // Remove <style> tags that could contain expressions
+      sanitized = sanitized.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+
+      // Remove <iframe>, <object>, <embed>, <form>
+      sanitized = sanitized.replace(/<(iframe|object|embed|form|input|button)\b[^>]*>/gi, '')
+      sanitized = sanitized.replace(/<\/(iframe|object|embed|form|input|button)>/gi, '')
+
+      // Remove <a> tags with javascript: href
+      sanitized = sanitized.replace(/<a\s+[^>]*href\s*=\s*["']?\s*javascript:[^>]*>/gi, '')
+
+      // Remove svg event handlers and script elements
+      sanitized = sanitized.replace(/<svg\s+[^>]*on\w+\s*=[^>]*>/gi, '<svg>')
+
+      return sanitized
+    }
+
+    function sanitizeArray(arr) {
+      return arr.map(item => {
+        if (typeof item === 'string') {
+          return sanitizeString(item)
+        } else if (Array.isArray(item)) {
+          return sanitizeArray(item)
+        } else if (typeof item === 'object' && item !== null) {
+          return sanitizeObject(item)
+        }
+        return item
+      })
+    }
+
+    function sanitizeObject(obj) {
+      const sanitized = {}
+      for (const key of Object.keys(obj)) {
+        // Skip dangerous keys
+        if (['action', 'actions', 'onClick', 'onAction', 'if', 'then', 'else'].includes(key)) {
+          continue
+        }
+
+        if (typeof obj[key] === 'string') {
+          sanitized[key] = sanitizeString(obj[key])
+        } else if (Array.isArray(obj[key])) {
+          sanitized[key] = sanitizeArray(obj[key])
+        } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+          sanitized[key] = sanitizeObject(obj[key])
+        } else {
+          sanitized[key] = obj[key]
+        }
+      }
+      return sanitized
+    }
+
+    function retryGeneration() {
+      if (lastUserMessage && !isGenerating) {
+        // Clear errors
+        renderErrors = []
+
+        // Re-generate with last message + error context
+        const input = document.getElementById('create-input')
+        input.value = `Fix the rendering errors and regenerate: ${lastUserMessage}`
+        generateVibe()
+      }
+    }
+
+    // Initialize console interception
+    setupConsoleInterception()
+
+    // Avatar gradients
+    const AVATAR_GRADIENTS = [
+      'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+      'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+      'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+      'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+      'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
+      'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+      'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+      'linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)',
+      'linear-gradient(135deg, #cd9cf2 0%, #f6f3ff 100%)'
+    ]
+
+    // Fake posts data
+    const FAKE_POSTS = [
+      {
+        id: 'post-0a',
+        author: 'Luna',
+        time: '30 minutes ago',
+        likes: 15,
+        comments: 3,
+        content: [
+          { "type": "hero", "headline": "JavaScript Knowledge Check", "subhead": "Test your fundamentals!" },
+          { "type": "markdown", "content": "Quick quiz time! How well do you know JavaScript basics?" },
+          { "type": "quiz", "title": "JS Fundamentals", "questions": [
+            { "question": "What keyword declares a constant?", "options": ["var", "let", "const"], "correct": 2 },
+            { "question": "Which is NOT a primitive type?", "options": ["string", "number", "array"], "correct": 2 },
+            { "question": "What does NaN stand for?", "options": ["Not a Number", "Null and None", "New Array Node"], "correct": 0 }
+          ]}
+        ]
+      },
+      {
+        id: 'post-0b',
+        author: 'Dev',
+        time: '1 hour ago',
+        likes: 28,
+        comments: 5,
+        content: [
+          { "type": "hero", "headline": "Bouncing Dots", "subhead": "Simple P5.js sketch ✨" },
+          { "type": "p5js", "code": "let dots = [];\nfunction setup() {\n  createCanvas(400, 250);\n  for (let i = 0; i < 15; i++) dots.push({x: random(width), y: random(height), vx: random(-2,2), vy: random(-2,2), c: color(random(255), random(255), random(255))});\n}\nfunction draw() {\n  background(30);\n  for (let d of dots) {\n    fill(d.c); noStroke(); ellipse(d.x, d.y, 20);\n    d.x += d.vx; d.y += d.vy;\n    if (d.x < 0 || d.x > width) d.vx *= -1;\n    if (d.y < 0 || d.y > height) d.vy *= -1;\n  }\n}", "height": 250 }
+        ]
+      },
+      {
+        id: 'post-1',
+        author: 'Josh',
+        time: '2 hours ago',
+        likes: 42,
+        comments: 8,
+        content: [
+          { "type": "hero", "headline": "Shepherd's Pie Recipe", "subhead": "My grandmother's secret finally revealed!" },
+          { "type": "table", "caption": "Ingredients", "striped": true, "data": [["Item", "Amount"], ["Ground lamb", "500g"], ["Potatoes", "1kg"], ["Carrots", "3 medium"], ["Onion", "1 large"], ["Beef stock", "200ml"]] },
+          { "type": "markdown", "content": "**Pro tip:** Add a layer of cheese under the mashed potatoes for extra richness!" }
+        ]
+      },
+      {
+        id: 'post-2',
+        author: 'Sarah',
+        time: '5 hours ago',
+        likes: 89,
+        comments: 15,
+        content: [
+          { "type": "hero", "headline": "Q4 Goals Update", "subhead": "Crushing it this quarter!" },
+          { "type": "section", "columns": 3, "resources": [
+            { "title": "Revenue", "description": "+32% vs target", "icon": "trending-up" },
+            { "title": "New Users", "description": "12.5k signups", "icon": "users" },
+            { "title": "NPS Score", "description": "72 (up from 61)", "icon": "heart" }
+          ]}
+        ]
+      },
+      {
+        id: 'post-3',
+        author: 'Mike',
+        time: '1 day ago',
+        likes: 156,
+        comments: 23,
+        content: [
+          { "type": "hero", "headline": "My Git Workflow", "subhead": "How I keep my branches clean" },
+          { "type": "mermaid", "content": "graph LR\n  A[feature] --> B{Code Review}\n  B -->|Approved| C[staging]\n  C --> D{QA Pass?}\n  D -->|Yes| E[main]\n  D -->|No| A", "theme": "neutral" }
+        ]
+      },
+      {
+        id: 'post-4',
+        author: 'Emma',
+        time: '2 days ago',
+        likes: 234,
+        comments: 41,
+        content: [
+          { "type": "hero", "headline": "Book Club Pick", "subhead": "The Midnight Library by Matt Haig" },
+          { "type": "markdown", "content": "This month we're reading Matt Haig's beautiful story about second chances.\n\n**Rating:** ⭐⭐⭐⭐⭐\n\n> *\"Between life and death there is a library...\"*\n\nDiscussion thread opens **Friday at 7pm**. Who's joining?" }
+        ]
+      },
+      {
+        id: 'post-5',
+        author: 'Alex',
+        time: '3 days ago',
+        likes: 67,
+        comments: 12,
+        content: [
+          { "type": "hero", "headline": "Startup Metrics", "subhead": "Week 12 - Another week of growth!" },
+          { "type": "frappe-chart", "chartType": "line", "title": "Weekly Active Users", "labels": ["W8", "W9", "W10", "W11", "W12"], "datasets": [{ "name": "WAU", "values": [1200, 1450, 1680, 2100, 2450] }], "height": 250 },
+          { "type": "markdown", "content": "**Key wins:** Launched referral program, saw 40% boost in organic signups." }
+        ]
+      }
+    ]
+
+    // System prompt for vibe generation
+    const VIBE_SYSTEM_PROMPT = `You are a social media post generator for VibeFeed. Generate creative, engaging posts as JSON blocks.
+
+## IMPORTANT RULES
+- FIRST BLOCK MUST BE A HERO - this is the post title/headline that shows in collapsed view
+- Minimum 2 blocks: hero + one content block (quiz, chart, table, etc.)
+- Maximum 5 blocks, but PREFER 2-3 blocks - don't pad with filler content
+- For quizzes: hero + quiz is usually perfect (2 blocks total)
+- Keep it concise! Social media posts should be punchy, not verbose
+
+## SECURITY RESTRICTIONS - CRITICAL
+- NO JavaScript of any kind (no onclick, no event handlers, no script tags)
+- NO "html" blocks - use markdown instead for formatting
+- NO links with javascript: protocol
+- Button blocks ONLY with safe declarative actions (setState, navigate, toggleState, resetState)
+- NO function calls or string expressions in button actions
+
+## CSS Framework
+Use **Pico CSS** (NOT Tailwind). Use Pico classes or inline styles.
+
+## Allowed Block Types (ONLY these)
+
+MARKDOWN: { "type": "markdown", "content": "## Heading\\n\\nText with **bold** and *italic*" }
+
+HERO: { "type": "hero", "headline": "Big Title", "subhead": "Supporting text" }
+
+BUTTON (with safe actions ONLY):
+{
+  "type": "button",
+  "label": "Click Me",
+  "icon": "heart",
+  "action": { "type": "setState", "updates": { "liked": true } }
+}
+
+Safe button actions:
+- setState: { "type": "setState", "updates": { "key": "value" } }
+- toggleState: { "type": "toggleState", "key": "stateKey" }
+- navigate: { "type": "navigate", "path": "/route" }
+- resetState: { "type": "resetState", "keys": ["key1", "key2"] }
+
+SECTION with cards:
+{
+  "type": "section",
+  "title": "Section Title",
+  "columns": 3,
+  "resources": [
+    { "title": "Card 1", "description": "Details", "icon": "zap" }
+  ]
+}
+
+TABLE:
+{
+  "type": "table",
+  "caption": "Title",
+  "striped": true,
+  "data": [["Header1", "Header2"], ["Row1Col1", "Row1Col2"]]
+}
+
+MERMAID diagram:
+{
+  "type": "mermaid",
+  "content": "graph TD\\n  A[Start] --> B[End]",
+  "theme": "neutral"
+}
+
+FRAPPE-CHART:
+{
+  "type": "frappe-chart",
+  "chartType": "bar",
+  "title": "Chart Title",
+  "labels": ["A", "B", "C"],
+  "datasets": [{ "name": "Data", "values": [10, 20, 30] }],
+  "height": 250
+}
+
+P5JS (creative coding - animations, generative art):
+{
+  "type": "p5js",
+  "code": "function setup() { createCanvas(400, 300); } function draw() { background(220); ellipse(mouseX, mouseY, 50, 50); }",
+  "height": 300
+}
+
+P5.js - KEEP IT SIMPLE (KISS):
+- Canvas auto-stretches to full width - just specify height (200-400px)
+- Write SHORT, simple sketches - under 30 lines ideally (more OK for touch support)
+- Focus on ONE cool effect or simple game mechanic
+- Good: bouncing balls, color gradients, mouse trails, simple tap games
+- Don't over-engineer! A working simple sketch > a buggy complex one
+- IMPORTANT: All interactive sketches must support TOUCH!
+  - Use mouseX/mouseY (works for touch too in p5.js)
+  - For click/tap: use mousePressed() which fires on touch
+  - For multi-touch or gestures: use touches[], touchStarted(), touchMoved()
+
+QUIZ (interactive quizzes with auto-scoring):
+⚠️ **ALWAYS use the quiz block for ANY quiz, trivia, or Q&A content!**
+⚠️ **NEVER use inline JavaScript, onclick handlers, or manual state - the quiz block handles everything!**
+
+{
+  "type": "quiz",
+  "title": "Quick Knowledge Check",
+  "questions": [
+    {
+      "question": "What is 2+2?",
+      "options": ["3", "4", "5"],
+      "correct": 1
+    },
+    {
+      "question": "Capital of France?",
+      "options": ["London", "Paris", "Berlin"],
+      "correct": 1
+    }
+  ]
+}
+
+Quiz block features (all automatic - NO custom code needed!):
+- Automatic state management and scoring
+- Progress bar shows current question
+- Results screen at the end with retry option
+- Perfect for educational content, trivia, polls
+- Keep 2-5 questions for social media engagement
+
+DO NOT try to build quizzes with buttons + manual state - use this quiz block!
+
+## Icons (Lucide)
+zap, star, heart, check, user, mail, settings, search, home, trending-up, users, award, rocket, book, coffee, music, camera, globe, play, pause, refresh-cw, plus, minus, sparkles, gamepad-2, brain, code-2
+
+## Example Post Ideas
+
+**Quiz posts (USE "type": "quiz" BLOCK - no custom JavaScript!):**
+- "Test Your Knowledge: [Topic] Edition"
+- "Quick Poll: What's Your [Thing]?"
+- "Trivia Time: Can You Get All 3?"
+- "Challenge: [Topic] True or False"
+
+**P5.js posts:**
+- "Made This Animation in 5 Minutes"
+- "Playing with Generative Art"
+- "Interactive Particle System"
+- "My First P5.js Sketch"
+- "Watch the Colors Dance 🎨"
+
+**Data visualization:**
+- "This Week's Progress" (charts)
+- "Monthly Stats Roundup" (tables + charts)
+- "Process Flow" (mermaid diagrams)
+
+**Mixed content:**
+- Recipe with table of ingredients + markdown instructions
+- Tutorial with mermaid diagram + markdown steps
+- Achievement post with section cards showing metrics
+
+## Rules
+1. Return JSON array ONLY - no markdown fences, no explanations
+2. FIRST BLOCK MUST BE HERO - serves as the post title/headline
+3. **PREFER 2-3 blocks total** - hero + content is often enough. Don't add filler!
+4. For quizzes: just hero + quiz block (2 blocks). No extra markdown needed.
+5. ONLY use block types listed above (NO html, NO code blocks)
+6. Be creative but CONCISE - social media posts should be punchy
+7. Match the vibe of the request (professional, casual, fun, etc.)
+8. **FOR QUIZZES: ALWAYS use "type": "quiz" block - NEVER use inline JavaScript!**`
+
+    // ============================================
+    // Initialization
+    // ============================================
+
+    // Initialize RenderJS
+    Render.init({
+      data: {
+        site: { title: 'VibeFeed' },
+        state: {},
+        pages: [{ path: '/', content: [] }]
+      },
+      target: '#render-dummy',
+      showJsonButton: false
+    })
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) lucide.createIcons()
+
+      // Set user avatar with random gradient
+      const userAvatar = document.getElementById('user-avatar')
+      userAvatar.style.background = getRandomGradient()
+      userAvatar.textContent = 'U'
+
+      // Load theme
+      const savedTheme = localStorage.getItem('vibe-theme')
+      if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme)
+      }
+
+      // Load layout preference (only on non-mobile)
+      const savedLayout = localStorage.getItem('vibe-layout')
+      if (savedLayout === 'grid' && window.innerWidth > 768) {
+        isGridView = true
+        const toggleBtn = document.getElementById('layout-toggle')
+        const feedContainer = document.getElementById('feed')
+        toggleBtn.classList.add('grid-active')
+        toggleBtn.innerHTML = '<i data-lucide="list"></i><span>List</span>'
+        feedContainer.classList.add('grid-view')
+      }
+
+      // Render fake posts
+      renderFeed()
+    })
+
+    // ============================================
+    // Utility Functions
+    // ============================================
+
+    function getRandomGradient() {
+      return AVATAR_GRADIENTS[Math.floor(Math.random() * AVATAR_GRADIENTS.length)]
+    }
+
+    function getAvatarForAuthor(name) {
+      // Deterministic gradient based on name
+      const index = name.charCodeAt(0) % AVATAR_GRADIENTS.length
+      return AVATAR_GRADIENTS[index]
+    }
+
+    function generateUID() {
+      return 'post-' + Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 9)
+    }
+
+    function stripMarkdownFences(text) {
+      // More robust fence stripping - handles various formats
+      let cleaned = text.trim()
+
+      // Remove leading ```json or ``` with optional whitespace/newlines
+      cleaned = cleaned.replace(/^```(?:json|JSON)?\s*\n?/, '')
+
+      // Remove trailing ``` with optional whitespace/newlines
+      cleaned = cleaned.replace(/\n?\s*```\s*$/, '')
+
+      // Also handle case where entire response is wrapped
+      if (cleaned.startsWith('`') && cleaned.endsWith('`')) {
+        cleaned = cleaned.slice(1, -1)
+      }
+
+      // Trim again and try to find JSON array
+      cleaned = cleaned.trim()
+
+      // If it doesn't start with [, try to extract JSON array from response
+      if (!cleaned.startsWith('[')) {
+        const arrayMatch = cleaned.match(/\[[\s\S]*\]/)
+        if (arrayMatch) {
+          cleaned = arrayMatch[0]
+        }
+      }
+
+      return cleaned
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme')
+      const next = current === 'dark' ? 'light' : 'dark'
+      document.documentElement.setAttribute('data-theme', next)
+      localStorage.setItem('vibe-theme', next)
+    }
+
+    function toggleViewMode() {
+      isExpandedView = !isExpandedView
+      const toggleBtn = document.getElementById('view-toggle')
+      const posts = document.querySelectorAll('.post-card')
+
+      if (isExpandedView) {
+        // Expand all posts
+        toggleBtn.classList.add('expanded')
+        toggleBtn.innerHTML = '<i data-lucide="minimize-2"></i><span>Collapse All</span>'
+        posts.forEach(post => post.classList.remove('collapsed'))
+      } else {
+        // Collapse all posts
+        toggleBtn.classList.remove('expanded')
+        toggleBtn.innerHTML = '<i data-lucide="expand"></i><span>Expand All</span>'
+        posts.forEach(post => post.classList.add('collapsed'))
+      }
+
+      if (window.lucide) lucide.createIcons()
+    }
+
+    function toggleLayoutMode() {
+      isGridView = !isGridView
+      const toggleBtn = document.getElementById('layout-toggle')
+      const feedContainer = document.getElementById('feed')
+
+      if (isGridView) {
+        // Switch to grid view
+        toggleBtn.classList.add('grid-active')
+        toggleBtn.innerHTML = '<i data-lucide="list"></i><span>List</span>'
+        feedContainer.classList.add('grid-view')
+      } else {
+        // Switch to list view
+        toggleBtn.classList.remove('grid-active')
+        toggleBtn.innerHTML = '<i data-lucide="layout-grid"></i><span>Grid</span>'
+        feedContainer.classList.remove('grid-view')
+      }
+
+      localStorage.setItem('vibe-layout', isGridView ? 'grid' : 'list')
+      if (window.lucide) lucide.createIcons()
+    }
+
+    function autoResizeCreate(textarea) {
+      textarea.style.height = 'auto'
+      textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px'
+    }
+
+    // ============================================
+    // Feed Rendering
+    // ============================================
+
+    async function renderFeed() {
+      const feed = document.getElementById('feed')
+      feed.innerHTML = ''
+
+      // Create all post shells first, then render content after they're in DOM
+      const postElements = FAKE_POSTS.map(post => {
+        const el = createPostElement(post)
+        feed.appendChild(el)
+        return { el, post }
+      })
+
+      // Now render content for each post (elements are in DOM now)
+      for (const { el, post } of postElements) {
+        const content = el.querySelector('.post-content')
+        await renderPostContent(content, post.content)
+      }
+
+      if (window.lucide) lucide.createIcons()
+    }
+
+    function createPostElement(post) {
+      const article = document.createElement('article')
+      article.className = 'post-card collapsed'  // Start collapsed by default
+      article.dataset.postId = post.id
+
+      // Header
+      const header = document.createElement('div')
+      header.className = 'post-header'
+      header.innerHTML = `
+        <div class="avatar" style="background: ${getAvatarForAuthor(post.author)}">${post.author[0]}</div>
+        <div class="post-author-info">
+          <p class="post-author-name">${post.author}</p>
+          <span class="post-time">${post.time}</span>
+        </div>
+      `
+
+      // Content placeholder - will be rendered after element is in DOM
+      const content = document.createElement('div')
+      content.className = 'post-content'
+      content.innerHTML = '<p style="color: var(--pico-muted-color);">Loading...</p>'
+
+      // Expand indicator (shows when collapsed)
+      const expandIndicator = document.createElement('div')
+      expandIndicator.className = 'expand-indicator'
+      expandIndicator.innerHTML = `<i data-lucide="chevron-down"></i>`
+
+      // Click on card to toggle expand/collapse
+      article.onclick = (e) => {
+        // Don't toggle if clicking on buttons or links
+        if (e.target.closest('button') || e.target.closest('a')) return
+        article.classList.toggle('collapsed')
+      }
+
+      // Engagement bar
+      const engagement = document.createElement('div')
+      engagement.className = 'post-engagement'
+      engagement.innerHTML = `
+        <div class="engagement-stat">
+          <i data-lucide="heart"></i>
+          <span>${post.likes}</span>
+        </div>
+        <div class="engagement-stat">
+          <i data-lucide="message-circle"></i>
+          <span>${post.comments}</span>
+        </div>
+        <div class="engagement-actions">
+          <button class="engagement-btn" onclick="likePost('${post.id}')">
+            <i data-lucide="heart"></i> Like
+          </button>
+          <button class="engagement-btn revibe-btn" onclick="revibePost('${post.id}')">
+            <i data-lucide="refresh-cw"></i> Revibe
+          </button>
+        </div>
+      `
+
+      article.appendChild(header)
+      article.appendChild(content)
+      article.appendChild(expandIndicator)
+      article.appendChild(engagement)
+
+      return article
+    }
+
+    // Counter for unique block IDs
+    let blockIdCounter = 0
+
+    async function renderPostContent(container, blocks) {
+      // Sanitize all blocks before rendering (defense in depth)
+      const safeBlocks = sanitizeVibeBlocks(blocks)
+
+      // Use RenderJS injection to render the blocks
+      container.innerHTML = ''
+
+      for (let i = 0; i < safeBlocks.length; i++) {
+        const block = safeBlocks[i]
+        const blockId = `vibe-block-${++blockIdCounter}`
+        const blockEl = document.createElement('div')
+        blockEl.className = 'vibe-block'
+        blockEl.id = blockId
+        container.appendChild(blockEl)
+
+        try {
+          await Render.inject(`#${blockId}`, block, { mode: 'replace' })
+        } catch (e) {
+          console.error('Error rendering block:', { block, selector: `#${blockId}`, error: e.message })
+          blockEl.innerHTML = `<p style="color: var(--pico-del-color);">Error rendering block</p>`
+        }
+      }
+
+      if (window.lucide) lucide.createIcons()
+    }
+
+    async function addPostToFeed(post, prepend = true) {
+      const feed = document.getElementById('feed')
+      const postEl = createPostElement(post)
+
+      // Add to DOM first
+      if (prepend) {
+        feed.insertBefore(postEl, feed.firstChild)
+      } else {
+        feed.appendChild(postEl)
+      }
+
+      // Now render content (element is in DOM)
+      const content = postEl.querySelector('.post-content')
+      await renderPostContent(content, post.content)
+
+      if (window.lucide) lucide.createIcons()
+
+      // Scroll to top of page and highlight the new post
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+
+      // Add highlight effect
+      postEl.classList.add('highlight')
+      setTimeout(() => {
+        postEl.classList.remove('highlight')
+        postEl.classList.add('highlight-fade')
+      }, 500)
+      setTimeout(() => {
+        postEl.classList.remove('highlight-fade')
+      }, 2500)
+    }
+
+    // ============================================
+    // Post Interactions
+    // ============================================
+
+    function likePost(postId) {
+      const post = FAKE_POSTS.find(p => p.id === postId)
+      if (post) {
+        post.likes++
+        // Update DOM directly instead of re-rendering
+        const postEl = document.querySelector(`[data-post-id="${postId}"]`)
+        if (postEl) {
+          const likeCount = postEl.querySelector('.engagement-stat span')
+          if (likeCount) likeCount.textContent = post.likes
+        }
+      }
+    }
+
+    function revibePost(postId) {
+      const post = FAKE_POSTS.find(p => p.id === postId)
+      if (post) {
+        // Open create mode with source post for revibing
+        openCreateMode(false, null, post)
+      }
+    }
+
+    // ============================================
+    // Create Mode
+    // ============================================
+
+    async function openCreateMode(isEdit = false, existingPost = null, sourcePost = null) {
+      const createMode = document.getElementById('create-mode')
+      const title = document.getElementById('create-title')
+      const messages = document.getElementById('create-messages')
+      const preview = document.getElementById('create-preview')
+      const postBtn = document.getElementById('post-btn')
+
+      // Clear state
+      renderErrors = []
+      lastUserMessage = ''
+
+      createMode.classList.add('active')
+
+      if (isEdit && existingPost) {
+        title.textContent = 'Revibe Post'
+        messages.innerHTML = `
+          <div class="create-message system">
+            Editing ${existingPost.author}'s vibe. Describe how you want to change it!
+          </div>
+        `
+        currentVibeContent = JSON.parse(JSON.stringify(existingPost.content))
+        await renderPreview()
+        postBtn.disabled = false
+      } else if (sourcePost) {
+        // Revibing: copy content to create a new post based on source
+        title.textContent = 'Revibe Post'
+        editingPostId = null
+        currentVibeContent = JSON.parse(JSON.stringify(sourcePost.content))
+        messages.innerHTML = `
+          <div class="create-message system">
+            Revibing ${sourcePost.author}'s vibe! Edit it or post as-is.
+          </div>
+        `
+        await renderPreview()
+        postBtn.disabled = false
+      } else {
+        title.textContent = 'Create Your Vibe'
+        editingPostId = null
+        currentVibeContent = []
+        messages.innerHTML = `
+          <div class="create-message system">
+            Describe your vibe - a recipe, chart, workflow, or anything you want to share!
+          </div>
+        `
+        preview.innerHTML = `
+          <div class="preview-post-card">
+            <div class="preview-placeholder">
+              <i data-lucide="image"></i>
+              <p>Your vibe preview will appear here</p>
+              <small>Start by describing what you want to share</small>
+            </div>
+          </div>
+        `
+        postBtn.disabled = true
+      }
+
+      if (window.lucide) lucide.createIcons()
+      document.getElementById('create-input').focus()
+    }
+
+    function closeCreateMode() {
+      const createMode = document.getElementById('create-mode')
+      createMode.classList.remove('active')
+
+      // Cancel any active stream
+      if (activeStreamReader) {
+        activeStreamReader.cancel()
+        activeStreamReader = null
+      }
+
+      // Reset state
+      isGenerating = false
+      currentVibeContent = []
+      editingPostId = null
+    }
+
+    function handleCreateKeyDown(event) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault()
+        generateVibe()
+      }
+    }
+
+    function addCreateMessage(type, content) {
+      const messages = document.getElementById('create-messages')
+      const msg = document.createElement('div')
+      msg.className = `create-message ${type}`
+      msg.textContent = content
+      messages.appendChild(msg)
+      messages.scrollTop = messages.scrollHeight
+      return msg
+    }
+
+    function showTypingIndicator() {
+      const messages = document.getElementById('create-messages')
+      const indicator = document.createElement('div')
+      indicator.className = 'typing-indicator'
+      indicator.id = 'typing-indicator'
+      indicator.innerHTML = '<span></span><span></span><span></span>'
+      messages.appendChild(indicator)
+      messages.scrollTop = messages.scrollHeight
+    }
+
+    function hideTypingIndicator() {
+      const indicator = document.getElementById('typing-indicator')
+      if (indicator) indicator.remove()
+    }
+
+    // ============================================
+    // Vibe Generation
+    // ============================================
+
+    async function generateVibe() {
+      const input = document.getElementById('create-input')
+      const message = input.value.trim()
+
+      if (!message || isGenerating) return
+
+      // Store for retry
+      lastUserMessage = message
+      renderErrors = []
+
+      // Add user message
+      addCreateMessage('user', message)
+      input.value = ''
+      autoResizeCreate(input)
+
+      // Generate
+      isGenerating = true
+      showTypingIndicator()
+
+      try {
+        await streamVibeGeneration(message)
+      } catch (e) {
+        hideTypingIndicator()
+        addCreateMessage('system', `Error: ${e.message}`)
+      }
+
+      isGenerating = false
+    }
+
+    async function streamVibeGeneration(userMessage) {
+      const url = '/api/claude'
+
+      // Build prompt
+      let userPrompt
+      if (currentVibeContent.length > 0) {
+        const currentJson = JSON.stringify(currentVibeContent, null, 2)
+        userPrompt = `CURRENT POST BLOCKS:\n${currentJson}\n\nREQUEST: ${userMessage}\n\nUpdate the post based on the request. Return the complete updated JSON array (max 5 blocks).`
+      } else {
+        userPrompt = `Create a social media post about: ${userMessage}\n\nReturn a JSON array of blocks (max 5 blocks).`
+      }
+
+      const body = {
+        model: 'claude-sonnet-4-6',
+        max_tokens: 2048,
+        system: VIBE_SYSTEM_PROMPT,
+        messages: [
+          {
+            role: "user",
+            content: userPrompt + "\n\nIMPORTANT: Return ONLY a valid JSON array. No markdown fences, no explanations. Keep it concise: 2-3 blocks preferred (hero + content). Don't add filler."
+          }
+        ],
+        stream: true
+      }
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: { message: response.statusText } }))
+        hideTypingIndicator()
+        addCreateMessage('system', `API Error: ${error.error?.message || 'Unknown error'}`)
+        return
+      }
+
+      // Process SSE stream
+      const reader = response.body.getReader()
+      activeStreamReader = reader
+      const decoder = new TextDecoder()
+      let buffer = ''
+      let fullText = ''
+
+      hideTypingIndicator()
+
+      // Show streaming preview (full height)
+      const preview = document.getElementById('create-preview')
+      preview.innerHTML = `
+        <div class="preview-post-card streaming">
+          <div class="streaming-code-container" style="padding: 1rem; background: #1e1e1e; border-radius: 0.5rem; display: flex; flex-direction: column; height: 100%;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; color: #9cdcfe; font-size: 0.85rem; flex-shrink: 0;">
+              <span class="streaming-dot"></span>
+              <span>Generating vibe...</span>
+            </div>
+            <pre id="streaming-json" style="margin: 0; font-size: 0.8rem; color: #d4d4d4; white-space: pre-wrap; word-break: break-all; flex: 1; overflow-y: auto;"></pre>
+          </div>
+        </div>
+      `
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read()
+
+          if (done) break
+
+          buffer += decoder.decode(value, { stream: true })
+          const lines = buffer.split('\n')
+          buffer = lines.pop() || ''
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6)
+              if (data === '[DONE]') continue
+
+              try {
+                const event = JSON.parse(data)
+
+                if (event.type === 'content_block_delta' && event.delta?.text) {
+                  fullText += event.delta.text
+
+                  // Update streaming display
+                  const streamingEl = document.getElementById('streaming-json')
+                  if (streamingEl) {
+                    streamingEl.textContent = fullText
+                    streamingEl.scrollTop = streamingEl.scrollHeight
+                  }
+                }
+              } catch (e) {
+                // Ignore parse errors for SSE lines
+              }
+            }
+          }
+        }
+      } catch (e) {
+        if (e.name !== 'AbortError') {
+          throw e
+        }
+      }
+
+      activeStreamReader = null
+
+      // Parse final JSON
+      try {
+        const cleanedText = stripMarkdownFences(fullText)
+        const blocks = JSON.parse(cleanedText)
+
+        if (Array.isArray(blocks) && blocks.length > 0) {
+          // Sanitize and enforce max 5 blocks
+          const sanitizedBlocks = sanitizeVibeBlocks(blocks.slice(0, 5))
+
+          if (sanitizedBlocks.length === 0) {
+            throw new Error('All blocks were filtered out by security checks')
+          }
+
+          currentVibeContent = sanitizedBlocks
+
+          // Clear any previous errors before rendering
+          renderErrors = []
+
+          await renderPreviewWithErrorCapture()
+
+          // Check if there were render errors
+          if (renderErrors.length > 0) {
+            addCreateMessage('assistant', 'Vibe generated but had some rendering issues. You can retry or refine it.')
+          } else {
+            document.getElementById('post-btn').disabled = false
+            addCreateMessage('assistant', 'Vibe generated! Preview on the right. You can refine it or post it.')
+          }
+        } else {
+          throw new Error('Invalid response format')
+        }
+      } catch (e) {
+        const errorDetails = `Parse error: ${e.message}\nRaw response: ${fullText.substring(0, 200)}...`
+        console.error('Parse error:', e, fullText)
+
+        // Show error with retry
+        showParseErrorInChat(errorDetails)
+
+        preview.innerHTML = `
+          <div class="preview-post-card">
+            <div class="preview-placeholder">
+              <i data-lucide="alert-circle"></i>
+              <p>Generation failed</p>
+              <small>Try describing your vibe again</small>
+            </div>
+          </div>
+        `
+        if (window.lucide) lucide.createIcons()
+      }
+    }
+
+    function showParseErrorInChat(errorMsg) {
+      const messages = document.getElementById('create-messages')
+      if (!messages) return
+
+      const errorEl = document.createElement('div')
+      errorEl.className = 'create-message error'
+      errorEl.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
+            <i data-lucide="alert-circle" style="width: 1rem; height: 1rem; flex-shrink: 0; margin-top: 2px;"></i>
+            <span style="word-break: break-word; font-size: 0.85rem;">Failed to parse response. The AI may have included extra text.</span>
+          </div>
+          <details style="font-size: 0.75rem; opacity: 0.8;">
+            <summary>Show details</summary>
+            <pre style="margin: 0.5rem 0 0 0; white-space: pre-wrap; word-break: break-all;">${escapeHtml(errorMsg)}</pre>
+          </details>
+          <button class="retry-btn" onclick="retryGeneration()">
+            <i data-lucide="refresh-cw"></i> Retry
+          </button>
+        </div>
+      `
+
+      messages.appendChild(errorEl)
+      messages.scrollTop = messages.scrollHeight
+
+      if (window.lucide) lucide.createIcons({ nodes: [errorEl] })
+    }
+
+    async function renderPreview() {
+      const preview = document.getElementById('create-preview')
+      const userAvatar = document.getElementById('user-avatar')
+      const avatarGradient = userAvatar.style.background
+
+      preview.innerHTML = `
+        <div class="preview-post-card">
+          <div class="post-header">
+            <div class="avatar" style="background: ${avatarGradient}">U</div>
+            <div class="post-author-info">
+              <p class="post-author-name">You</p>
+              <span class="post-time">Just now</span>
+            </div>
+          </div>
+          <div class="post-content" id="preview-content"></div>
+          <div class="post-engagement">
+            <div class="engagement-stat">
+              <i data-lucide="heart"></i>
+              <span>0</span>
+            </div>
+            <div class="engagement-stat">
+              <i data-lucide="message-circle"></i>
+              <span>0</span>
+            </div>
+          </div>
+        </div>
+      `
+
+      const contentEl = document.getElementById('preview-content')
+      await renderPostContent(contentEl, currentVibeContent)
+
+      if (window.lucide) lucide.createIcons()
+    }
+
+    async function renderPreviewWithErrorCapture() {
+      // Clear errors before rendering
+      const errorsBefore = renderErrors.length
+      await renderPreview()
+
+      // Enable post button only if no new errors
+      if (renderErrors.length === errorsBefore) {
+        document.getElementById('post-btn').disabled = false
+      }
+    }
+
+    // ============================================
+    // Post Vibe
+    // ============================================
+
+    async function postVibe() {
+      if (currentVibeContent.length === 0) return
+
+      const userAvatar = document.getElementById('user-avatar')
+
+      if (editingPostId) {
+        // Update existing post
+        const postIndex = FAKE_POSTS.findIndex(p => p.id === editingPostId)
+        if (postIndex !== -1) {
+          FAKE_POSTS[postIndex] = {
+            ...FAKE_POSTS[postIndex],
+            content: currentVibeContent,
+            time: 'Just now (edited)'
+          }
+          await renderFeed()
+        }
+      } else {
+        // Create new post
+        const newPost = {
+          id: generateUID(),
+          author: 'You',
+          time: 'Just now',
+          likes: 0,
+          comments: 0,
+          content: currentVibeContent
+        }
+
+        // Add to array and insert into DOM (don't re-render everything)
+        FAKE_POSTS.unshift(newPost)
+        await addPostToFeed(newPost)
+      }
+
+      closeCreateMode()
+    }
+  </script>
+</body>
+</html>

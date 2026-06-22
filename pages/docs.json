@@ -1,0 +1,140 @@
+{
+  "path": "/docs",
+  "meta": {
+    "title": "Documentation"
+  },
+  "content": [
+    {
+      "type": "hero",
+      "headline": "Documentation",
+      "subhead": "Everything you need to build with DeclarativeWeb"
+    },
+    {
+      "type": "section",
+      "id": "core-docs",
+      "title": "Core Documentation",
+      "columns": 3,
+      "resources": [
+        {
+          "title": "README.md",
+          "description": "Complete guide covering quick start, features, API reference, LLM usage, and troubleshooting. Start here.",
+          "icon": "book",
+          "url": "README.md",
+          "tags": [
+            "start here"
+          ]
+        },
+        {
+          "title": "BLOCKS.md",
+          "description": "Reference guide for all content block types: hero, section, markdown, code, html, and component references. Includes examples.",
+          "icon": "layout",
+          "url": "BLOCKS.md",
+          "tags": [
+            "reference"
+          ]
+        },
+        {
+          "title": "schema.json",
+          "description": "Full JSON Schema validation for site.json structure. Use with VS Code for auto-completion and validation.",
+          "icon": "file-code",
+          "url": "schema.json",
+          "tags": [
+            "schema"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "id": "key-concepts",
+      "title": "Key Concepts",
+      "columns": 2,
+      "resources": [
+        {
+          "title": "Site Structure",
+          "description": "site.json contains: site config, nav, footer, components, functions, and pages. Each page has a path, meta, and content blocks.",
+          "icon": "folder",
+          "tags": [
+            "structure"
+          ]
+        },
+        {
+          "title": "Content Blocks",
+          "description": "Eight block types: hero (headers), section (cards), markdown (text), code (snippets), html (custom), mermaid (diagrams), frappe-chart (data viz), and $ref (components).",
+          "icon": "layers",
+          "tags": [
+            "blocks"
+          ]
+        },
+        {
+          "title": "Navigation Layouts",
+          "description": "Three layouts: horizontal (top bar), vertical (sidebar), or both (sidebar + top actions). Set via nav.layout property.",
+          "icon": "menu",
+          "tags": [
+            "navigation"
+          ]
+        },
+        {
+          "title": "Expression Syntax",
+          "description": "Use double curly braces for dynamic values. Access state, do math, comparisons, ternary operators. Safe evaluation without eval().",
+          "icon": "code",
+          "tags": [
+            "expressions"
+          ]
+        },
+        {
+          "title": "Conditional Rendering",
+          "description": "Use if/then/else to show different content based on state. Nested conditionals supported.",
+          "icon": "git-branch",
+          "tags": [
+            "core"
+          ]
+        },
+        {
+          "title": "State Management",
+          "description": "Reactive state with Render.state. Changes trigger automatic re-renders. Deep object/array support.",
+          "icon": "cpu",
+          "tags": [
+            "core"
+          ]
+        },
+        {
+          "title": "Composable JSON with $import",
+          "description": "Split large site.json files into separate page files. Pages are lazy-loaded on navigation with HTTP caching. Use $import property for external JSON references.",
+          "icon": "file-json",
+          "tags": [
+            "architecture",
+            "performance"
+          ]
+        },
+        {
+          "title": "Theme Customization",
+          "description": "Customize fontSize (50-200%), primaryColor, secondaryColor, and fontFamily in site.theme.",
+          "icon": "palette",
+          "tags": [
+            "theming"
+          ]
+        },
+        {
+          "title": "Error Handling",
+          "description": "Inline error cards for malformed blocks. Helpful messages without breaking the page. Check console for details.",
+          "icon": "alert-circle",
+          "tags": [
+            "debugging"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "markdown",
+      "content": "## Quick Reference\n\n### Minimal site.json\n\n```json\n{\n  \"site\": { \"title\": \"My Site\" },\n  \"pages\": [\n    {\n      \"path\": \"/\",\n      \"content\": [\n        { \"type\": \"hero\", \"headline\": \"Hello!\" }\n      ]\n    }\n  ]\n}\n```\n\n### Composable JSON with $import\n\n**Split large sites** into separate page files for better organization and lazy loading:\n\n```json\n{\n  \"site\": { \"title\": \"My Site\" },\n  \"pages\": [\n    { \"path\": \"/\", \"$import\": \"pages/home.json\" },\n    { \"path\": \"/about\", \"$import\": \"pages/about.json\" },\n    { \"path\": \"/docs\", \"$import\": \"pages/docs.json\" }\n  ]\n}\n```\n\n**Benefits:**\n- Only loads current page JSON on navigation (lazy loading)\n- Reduces initial payload size\n- Better file organization for large sites\n- HTTP caching prevents duplicate requests\n- Fully backward compatible with inline content\n\n**Page file structure** (e.g., `pages/home.json`):\n\n```json\n{\n  \"path\": \"/\",\n  \"meta\": { \"title\": \"Home\" },\n  \"content\": [\n    { \"type\": \"hero\", \"headline\": \"Welcome!\" }\n  ]\n}\n```\n\n### Theme Customization\n\n```json\n\"theme\": {\n  \"fontSize\": 110,\n  \"primaryColor\": \"#3b82f6\",\n  \"secondaryColor\": \"#8b5cf6\",\n  \"fontFamily\": \"'Inter', sans-serif\",\n  \"fontUrl\": \"https://fonts.googleapis.com/css2?family=Inter\"\n}\n```\n\n### Reactive State\n\n```json\n\"state\": {\n  \"count\": 0,\n  \"user\": { \"name\": \"Alice\" }\n}\n```\n\nAccess in templates: `{{state.count}}`, `{{state.user.name}}`\n\nUpdate programmatically: `Render.state.count++`\n\n### Expressions\n\n- Math: `{{state.price * 1.1}}`\n- Comparisons: `{{state.age >= 18}}`\n- Ternary: `{{state.loggedIn ? 'Welcome' : 'Login'}}`\n- Functions: `{{year()}}` (defined in functions object)\n\n### Conditionals\n\n```json\n{\n  \"if\": \"state.loggedIn\",\n  \"then\": { \"type\": \"markdown\", \"content\": \"Welcome!\" },\n  \"else\": { \"type\": \"markdown\", \"content\": \"Please login.\" }\n}\n```"
+    },
+    {
+      "type": "code",
+      "title": "API Methods",
+      "language": "javascript",
+      "description": "Programmatic control via JavaScript",
+      "code": "// Navigate to a page (async for lazy loading)\nawait Render.navigate('/about')\n\n// Toggle theme\nRender.toggleTheme()\n\n// Access reactive state\nconsole.log(Render.state.count)\nRender.state.count++  // Triggers re-render\n\n// View errors\nconsole.log(Render.errors)"
+    }
+  ]
+}

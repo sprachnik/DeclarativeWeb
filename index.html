@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A minimal, LLM-friendly JavaScript library for rendering websites from JSON. Zero build step. Perfect for AI agents.">
+  <title>DeclarativeWeb - Build Websites with Just JSON</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <!-- Pico CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+
+  <!-- Pico CSS Colors -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.colors.min.css">
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- App container -->
+  <div id="app"></div>
+
+  <!-- Dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/frappe-charts@1.2.4/dist/frappe-charts.min.iife.js"></script>
+
+  <!-- DeclarativeWeb Bundle -->
+  <script src="dist/declarativeweb.min.js"></script>
+
+  <!-- Initialize -->
+  <script>
+    Render.init({
+      src: 'showcase.json',
+      target: '#app'
+    })
+  </script>
+</body>
+</html>

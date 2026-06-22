@@ -1,0 +1,759 @@
+{
+  "path": "/demos",
+  "meta": {
+    "title": "Interactive Demos",
+    "description": "Live demonstrations of all DeclarativeWeb features"
+  },
+  "content": [
+    {
+      "type": "hero",
+      "headline": "Interactive Demos",
+      "subhead": "See all features in action. Click buttons, modify state, and watch real-time updates."
+    },
+    {
+      "type": "html",
+      "html": "<div id=\"state-management\"></div>"
+    },
+    {
+      "type": "html",
+      "html": "<div style='display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;'><div style='flex: 1;'><h1 style='margin: 0;'>🎯 State Management Demo</h1><p style='margin-top: 0.5rem;'>DeclarativeWeb includes <strong>reactive state management</strong>. Click the button below to increment the counter. The value updates automatically across the entire page!</p><p style='margin-top: 0.5rem;'><strong>Current Counter Value:</strong> {{state.counter}}</p></div><button onclick=\"document.getElementById('state-demo-code').showModal()\" class='outline' style='padding: 0.5rem 0.75rem; font-size: 0.875rem; white-space: nowrap; height: fit-content; margin-left: 1rem;'><i data-lucide='code' style='width: 1rem; height: 1rem; margin-right: 0.25rem;'></i>Show Code</button></div>"
+    },
+    {
+      "type": "html",
+      "html": "<div style=\"text-align: center; padding: 2rem; background: var(--code-bg); border-radius: 0.5rem; margin: 2rem 0;\"><h3 style=\"margin-top: 0;\">Counter: <span style=\"color: var(--pico-primary); font-size: 2rem; font-weight: 700;\">{{state.counter}}</span></h3><div style=\"display: flex; gap: 1rem; justify-content: center;\"><button onclick=\"Render.state.counter++\">Increment (+1)</button><button onclick=\"Render.state.counter--\" class=\"outline\">Decrement (-1)</button><button onclick=\"Render.state.counter = 0\" class=\"outline secondary\">Reset</button></div></div>"
+    },
+    {
+      "type": "modal",
+      "id": "state-demo-code",
+      "title": "State Management Demo - Code",
+      "size": "large",
+      "content": [
+        {
+          "type": "markdown",
+          "content": "## How It Works\n\nThis demo shows **reactive state management**. When you click the buttons, `Render.state.counter` is modified, triggering automatic re-renders.\n\n### Key Concepts\n\n1. **Reactive State**: `Render.state` is a Proxy that watches for changes\n2. **Auto Re-render**: Any state change triggers `render()` automatically\n3. **Expression Binding**: `{{state.counter}}` displays the current value"
+        },
+        {
+          "type": "code",
+          "title": "JSON Configuration",
+          "language": "json",
+          "code": "{\n  \"type\": \"markdown\",\n  \"content\": \"# State Management Demo\\n\\n**Current Counter Value:** {{state.counter}}\"\n},\n{\n  \"type\": \"html\",\n  \"html\": \"<div style='text-align: center; padding: 2rem;'><h3>Counter: <span style='color: var(--pico-primary);'>{{state.counter}}</span></h3><div style='display: flex; gap: 1rem; justify-content: center;'><button onclick='Render.state.counter++'>Increment (+1)</button><button onclick='Render.state.counter--' class='outline'>Decrement (-1)</button><button onclick='Render.state.counter = 0' class='outline secondary'>Reset</button></div></div>\"\n}"
+        },
+        {
+          "type": "markdown",
+          "content": "### JavaScript API\n\n```javascript\n// Modify state directly\nRender.state.counter++\nRender.state.counter = 0\n\n// State is reactive - UI updates automatically\n```"
+        }
+      ]
+    },
+    {
+      "type": "html",
+      "html": "<div id=\"expressions\"></div>"
+    },
+    {
+      "type": "html",
+      "html": "<div style='display: flex; justify-content: space-between; align-items: flex-start; margin: 3rem 0 1rem 0;'><div style='flex: 1;'><h1 style='margin: 0;'>🔍 Expression Evaluator Demo</h1><p style='margin-top: 0.5rem;'>DeclarativeWeb supports <strong>dynamic expressions</strong> using double curly brace syntax:</p><ul style='margin-top: 0.5rem;'><li><strong>Math</strong>: {{state.counter}} × 2 = {{state.counter * 2}}</li><li><strong>Comparisons</strong>: Counter is {{state.counter > 5 ? 'greater than' : 'less than or equal to'}} 5</li><li><strong>State Access</strong>: Version {{state.version}}</li></ul><p style='margin-top: 0.5rem;'>Expressions are evaluated safely without <code>eval()</code> and update automatically when state changes!</p></div><button onclick=\"document.getElementById('expr-demo-code').showModal()\" class='outline' style='padding: 0.5rem 0.75rem; font-size: 0.875rem; white-space: nowrap; height: fit-content; margin-left: 1rem;'><i data-lucide='code' style='width: 1rem; height: 1rem; margin-right: 0.25rem;'></i>Show Code</button></div>"
+    },
+    {
+      "type": "modal",
+      "id": "expr-demo-code",
+      "title": "Expression Evaluator Demo - Code",
+      "size": "large",
+      "content": [
+        {
+          "type": "markdown",
+          "content": "## How It Works\n\nDeclarativeWeb includes a safe expression evaluator that processes `{{expressions}}` in your content.\n\n### Supported Operations\n\n- **Arithmetic**: `{{state.counter * 2}}`, `{{5 + 3}}`\n- **Comparisons**: `{{state.counter > 5}}`, `{{x === y}}`\n- **Ternary**: `{{condition ? 'yes' : 'no'}}`\n- **State Access**: `{{state.property}}`, `{{site.title}}`"
+        },
+        {
+          "type": "code",
+          "title": "JSON Configuration",
+          "language": "json",
+          "code": "{\n  \"type\": \"markdown\",\n  \"content\": \"# Expression Evaluator\\n\\n- **Math**: {{state.counter}} × 2 = {{state.counter * 2}}\\n- **Comparisons**: Counter is {{state.counter > 5 ? 'greater than' : 'less than or equal to'}} 5\\n- **State Access**: Version {{state.version}}\"\n}"
+        }
+      ]
+    },
+    {
+      "type": "html",
+      "html": "<div id=\"conditionals\"></div>"
+    },
+    {
+      "type": "html",
+      "html": "<div style='display: flex; justify-content: space-between; align-items: flex-start; margin: 3rem 0 1rem 0;'><div style='flex: 1;'><h1 style='margin: 0;'>🎭 Conditional Rendering Demo</h1><p style='margin-top: 0.5rem;'>Below you'll see conditional content based on the counter value. Try clicking the increment button above!</p></div><button onclick=\"document.getElementById('cond-demo-code').showModal()\" class='outline' style='padding: 0.5rem 0.75rem; font-size: 0.875rem; white-space: nowrap; height: fit-content; margin-left: 1rem;'><i data-lucide='code' style='width: 1rem; height: 1rem; margin-right: 0.25rem;'></i>Show Code</button></div>"
+    },
+    {
+      "type": "modal",
+      "id": "cond-demo-code",
+      "title": "Conditional Rendering Demo - Code",
+      "size": "large",
+      "content": [
+        {
+          "type": "markdown",
+          "content": "## How It Works\n\nConditional rendering uses `if/then/else` blocks to show different content based on state.\n\n### Features\n\n- **Simple Conditions**: `\"if\": \"state.counter === 0\"`\n- **Nested Conditionals**: `else` can contain another `if/then/else`\n- **Any Block Type**: `then` and `else` can contain any block (html, markdown, etc.)\n- **Expressions**: Supports comparisons, logical operators (`&&`, `||`)"
+        },
+        {
+          "type": "code",
+          "title": "JSON Configuration",
+          "language": "json",
+          "code": "{\n  \"if\": \"state.counter === 0\",\n  \"then\": {\n    \"type\": \"html\",\n    \"html\": \"<div>Counter is zero!</div>\"\n  },\n  \"else\": {\n    \"if\": \"state.counter > 0 && state.counter <= 5\",\n    \"then\": {\n      \"type\": \"html\",\n      \"html\": \"<div>Counter is between 1-5</div>\"\n    },\n    \"else\": {\n      \"type\": \"html\",\n      \"html\": \"<div>Counter is greater than 5!</div>\"\n    }\n  }\n}"
+        }
+      ]
+    },
+    {
+      "if": "state.counter === 0",
+      "then": {
+        "type": "html",
+        "html": "<div style=\"padding: 1.5rem; background: var(--warning-bg); border: 2px solid var(--warning-color); border-radius: 0.5rem; margin: 1rem 0;\"><strong>⚠️ Counter is zero!</strong><p>Click the increment button above to see this message change.</p></div>"
+      },
+      "else": {
+        "if": "state.counter > 0 && state.counter <= 5",
+        "then": {
+          "type": "html",
+          "html": "<div style=\"padding: 1.5rem; background: var(--code-bg); border: 2px solid var(--pico-primary); border-radius: 0.5rem; margin: 1rem 0;\"><strong>✅ Counter is between 1-5</strong><p>Current value: <strong>{{state.counter}}</strong>. Keep clicking!</p></div>"
+        },
+        "else": {
+          "type": "html",
+          "html": "<div style=\"padding: 1.5rem; background: var(--code-bg); border: 2px solid var(--pico-secondary); border-radius: 0.5rem; margin: 1rem 0;\"><strong>🎉 Counter is greater than 5!</strong><p>You've reached <strong>{{state.counter}}</strong>. Great job!</p></div>"
+        }
+      }
+    },
+    {
+      "type": "html",
+      "html": "<div id=\"loops\"></div>"
+    },
+    {
+      "type": "html",
+      "html": "<div style='display: flex; justify-content: space-between; align-items: flex-start; margin: 3rem 0 1rem 0;'><div style='flex: 1;'><h1 style='margin: 0;'>🔄 Loop Rendering Demo</h1><p style='margin-top: 0.5rem;'>Create dynamic lists that update automatically. Add items to see them appear instantly!</p></div><button onclick=\"document.getElementById('loop-demo-code').showModal()\" class='outline' style='padding: 0.5rem 0.75rem; font-size: 0.875rem; white-space: nowrap; height: fit-content; margin-left: 1rem;'><i data-lucide='code' style='width: 1rem; height: 1rem; margin-right: 0.25rem;'></i>Show Code</button></div>"
+    },
+    {
+      "type": "modal",
+      "id": "loop-demo-code",
+      "title": "Loop Rendering Demo - Code",
+      "size": "large",
+      "content": [
+        {
+          "type": "markdown",
+          "content": "## How It Works\n\nLoop rendering iterates over arrays and renders content for each item.\n\n### Features\n\n- **Array Iteration**: `\"each\": \"state.tasks\"`\n- **Item Access**: Use `{{item}}` in templates\n- **Index Access**: Use `{{index}}` for position\n- **Nested Blocks**: Loop content can be any block type\n- **Custom Functions**: Create helper functions for complex rendering"
+        },
+        {
+          "type": "code",
+          "title": "Using Custom Functions",
+          "language": "json",
+          "code": "// In functions object:\n\"renderTasks\": \"(tasks) => tasks.map((task, i) => `<li>${i + 1}. ${task} <button onclick='...' >✕</button></li>`).join('')\"\n\n// In content:\n{\n  \"type\": \"html\",\n  \"html\": \"<ul>{{renderTasks(state.tasks)}}</ul>\"\n}"
+        }
+      ]
+    },
+    {
+      "type": "html",
+      "html": "<div style=\"padding: 2rem; background: var(--code-bg); border-radius: 0.5rem; margin: 2rem 0;\"><h4 style=\"margin-top: 0;\">Task List ({{state.tasks.length}} items)</h4><input type=\"text\" id=\"task-input\" placeholder=\"Enter a task...\" style=\"margin-bottom: 1rem;\" onkeypress=\"if (event.key === 'Enter') { const input = event.target; if (input.value.trim()) { Render.state.tasks = [...Render.state.tasks, input.value.trim()]; input.value = ''; } }\" /><button onclick=\"const input = document.getElementById('task-input'); if (input.value.trim()) { Render.state.tasks = [...Render.state.tasks, input.value.trim()]; input.value = ''; }\">Add Task</button><button onclick=\"Render.state.tasks = []\" class=\"outline secondary\" style=\"margin-left: 0.5rem;\">Clear All</button></div>"
+    },
+    {
+      "if": "state.tasks.length === 0",
+      "then": {
+        "type": "html",
+        "html": "<div style=\"padding: 1.5rem; text-align: center; color: var(--text-muted); background: var(--code-bg); border-radius: 0.5rem; margin: 1rem 0;\"><p style=\"margin: 0;\">📝 No tasks yet. Add one above to see loop rendering in action!</p></div>"
+      },
+      "else": {
+        "type": "html",
+        "html": "<div style=\"padding: 1.5rem; background: var(--pico-background-color); border: 1px solid var(--card-border); border-radius: 0.5rem; margin: 1rem 0;\"><h4 style=\"margin-top: 0;\">Your Tasks:</h4><ul>{{renderTasks(state.tasks)}}</ul></div>"
+      }
+    },
+    {
+      "type": "html",
+      "html": "<div id=\"themes\"></div>"
+    },
+    {
+      "type": "html",
+      "html": "<div style='display: flex; justify-content: space-between; align-items: flex-start; margin: 3rem 0 1rem 0;'><div style='flex: 1;'><h1 style='margin: 0;'>🎨 PicoCSS Color Theme Picker</h1><p style='margin-top: 0.5rem;'>Choose from PicoCSS's beautiful built-in color schemes. Each theme has carefully crafted light and dark modes!</p></div><button onclick=\"document.getElementById('theme-demo-code').showModal()\" class='outline' style='padding: 0.5rem 0.75rem; font-size: 0.875rem; white-space: nowrap; height: fit-content; margin-left: 1rem;'><i data-lucide='code' style='width: 1rem; height: 1rem; margin-right: 0.25rem;'></i>Show Code</button></div>"
+    },
+    {
+      "type": "modal",
+      "id": "theme-demo-code",
+      "title": "Color Theme Picker - Code",
+      "size": "large",
+      "content": [
+        {
+          "type": "markdown",
+          "content": "## How It Works\n\nDeclarativeWeb includes 18 built-in PicoCSS color themes that apply CSS variables dynamically.\n\n### Implementation\n\n1. **State Property**: `state.colorTheme` stores current theme\n2. **CSS Variables**: Themes set `--pico-primary`, `--pico-primary-hover`, etc.\n3. **Instant Updates**: Changing state applies theme immediately\n4. **Visual Feedback**: Buttons use ternary expressions for selected state"
+        },
+        {
+          "type": "code",
+          "title": "Button with Visual Feedback",
+          "language": "json",
+          "code": "{\n  \"type\": \"html\",\n  \"html\": \"<button onclick='Render.state.colorTheme = \\\"purple\\\"' class='{{state.colorTheme === \\\"purple\\\" ? \\\"\\\" : \\\"outline\\\"}}'>🟣 Purple</button>\"\n}"
+        },
+        {
+          "type": "markdown",
+          "content": "### Available Themes\n\n`default`, `red`, `pink`, `fuchsia`, `purple`, `violet`, `indigo`, `blue`, `cyan`, `jade`, `green`, `lime`, `yellow`, `amber`, `pumpkin`, `orange`, `zinc`, `slate`"
+        }
+      ]
+    },
+    {
+      "type": "html",
+      "html": "<div style=\"padding: 2rem; background: var(--code-bg); border-radius: 0.5rem; margin: 2rem 0;\"><h4 style=\"margin-top: 0;\">Current Theme: <span style=\"color: var(--pico-primary); font-weight: 700; text-transform: capitalize;\">{{state.colorTheme}}</span></h4><p style=\"color: var(--text-muted); margin-bottom: 1.5rem;\">Select a color scheme below. Changes apply instantly!</p><div style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.75rem;\"><button onclick=\"Render.state.colorTheme = 'default'\" style=\"padding: 0.75rem; font-size: 0.9rem;\" class=\"{{state.colorTheme === 'default' ? '' : 'outline'}}\">🔵 Azure</button><button onclick=\"Render.state.colorTheme = 'red'\" style=\"padding: 0.75rem; font-size: 0.9rem;\" class=\"{{state.colorTheme === 'red' ? '' : 'outline'}}\">🔴 Red</button><button onclick=\"Render.state.colorTheme = 'pink'\" style=\"padding: 0.75rem; font-size: 0.9rem;\" class=\"{{state.colorTheme === 'pink' ? '' : 'outline'}}\">🌸 Pink</button><button onclick=\"Render.state.colorTheme = 'fuchsia'\" style=\"padding: 0.75rem; font-size: 0.9rem;\" class=\"{{state.colorTheme === 'fuchsia' ? '' : 'outline'}}\">💜 Fuchsia</button><button onclick=\"Render.state.colorTheme = 'purple'\" style=\"padding: 0.75rem; font-size: 0.9rem;\" class=\"{{state.colorTheme === 'purple' ? '' : 'outline'}}\">🟣 Purple</button><button onclick=\"Render.state.colorTheme = 'violet'\" style=\"padding: 0.75rem; font-size: 0.9rem;\" class=\"{{state.colorTheme === 'violet' ? '' : 'outline'}}\">🟪 Violet</button><button onclick=\"Render.state.colorTheme = 'indigo'\" style=\"padding: 0.75rem; font-size: 0.9rem;\" class=\"{{state.colorTheme === 'indigo' ? '' : 'outline'}}\">💙 Indigo</button><button onclick=\"Render.state.colorTheme = 'blue'\" style=\"padding: 0.75rem; font-size: 0.9rem;\" class=\"{{state.colorTheme === 'blue' ? '' : 'outline'}}\">🔷 Blue</button><button onclick=\"Render.state.colorTheme = 'cyan'\" style=\"padding: 0.75rem; font-size: 0.9rem;\" class=\"{{state.colorTheme === 'cyan' ? '' : 'outline'}}\">🩵 Cyan</button><button onclick=\"Render.state.colorTheme = 'jade'\" style=\"padding: 0.75rem; font-size: 0.9rem;\" class=\"{{state.colorTheme === 'jade' ? '' : 'outline'}}\">💚 Jade</button><button onclick=\"Render.state.colorTheme = 'green'\" style=\"padding: 0.75rem; font-size: 0.9rem;\" class=\"{{state.colorTheme === 'green' ? '' : 'outline'}}\">🟢 Green</button><button onclick=\"Render.state.colorTheme = 'lime'\" style=\"padding: 0.75rem; font-size: 0.9rem;\" class=\"{{state.colorTheme === 'lime' ? '' : 'outline'}}\">🍋 Lime</button><button onclick=\"Render.state.colorTheme = 'yellow'\" style=\"padding: 0.75rem; font-size: 0.9rem;\" class=\"{{state.colorTheme === 'yellow' ? '' : 'outline'}}\">🟡 Yellow</button><button onclick=\"Render.state.colorTheme = 'amber'\" style=\"padding: 0.75rem; font-size: 0.9rem;\" class=\"{{state.colorTheme === 'amber' ? '' : 'outline'}}\">🟠 Amber</button><button onclick=\"Render.state.colorTheme = 'pumpkin'\" style=\"padding: 0.75rem; font-size: 0.9rem;\" class=\"{{state.colorTheme === 'pumpkin' ? '' : 'outline'}}\">🎃 Pumpkin</button><button onclick=\"Render.state.colorTheme = 'orange'\" style=\"padding: 0.75rem; font-size: 0.9rem;\" class=\"{{state.colorTheme === 'orange' ? '' : 'outline'}}\">🧡 Orange</button><button onclick=\"Render.state.colorTheme = 'zinc'\" style=\"padding: 0.75rem; font-size: 0.9rem;\" class=\"{{state.colorTheme === 'zinc' ? '' : 'outline'}}\">⚪ Zinc</button><button onclick=\"Render.state.colorTheme = 'slate'\" style=\"padding: 0.75rem; font-size: 0.9rem;\" class=\"{{state.colorTheme === 'slate' ? '' : 'outline'}}\">⚫ Slate</button></div></div>"
+    },
+    {
+      "type": "html",
+      "html": "<div id=\"buttons\"></div>"
+    },
+    {
+      "type": "html",
+      "html": "<div style='display: flex; justify-content: space-between; align-items: flex-start; margin: 3rem 0 1rem 0;'><div style='flex: 1;'><h1 style='margin: 0;'>🔘 Button Block Demo</h1><p style='margin-top: 0.5rem;'>Declarative buttons with actions. Cleaner than HTML buttons and perfect for LLM generation!</p></div><button onclick=\"document.getElementById('button-demo-code').showModal()\" class='outline' style='padding: 0.5rem 0.75rem; font-size: 0.875rem; white-space: nowrap; height: fit-content; margin-left: 1rem;'><i data-lucide='code' style='width: 1rem; height: 1rem; margin-right: 0.25rem;'></i>Show Code</button></div>"
+    },
+    {
+      "type": "modal",
+      "id": "button-demo-code",
+      "title": "Button Block Demo - Code",
+      "size": "large",
+      "content": [
+        {
+          "type": "markdown",
+          "content": "## How It Works\n\nThe button block provides a declarative way to create buttons with actions.\n\n### Features\n\n- **Variants**: Default, `secondary`, `contrast`, `outline`\n- **Actions**: String expressions or function calls with args\n- **Icons**: Lucide icons via the `icon` property\n- **Disabled State**: Static boolean or dynamic expression"
+        },
+        {
+          "type": "code",
+          "title": "JSON Configuration",
+          "language": "json",
+          "code": "// Basic button with inline action\n{\n  \"type\": \"button\",\n  \"label\": \"Increment\",\n  \"action\": \"Render.state.counter++\"\n}\n\n// Button with variant and function call\n{\n  \"type\": \"button\",\n  \"label\": \"Submit\",\n  \"variant\": \"contrast\",\n  \"action\": {\"fn\": \"handleSubmit\", \"args\": []}\n}\n\n// Button with icon\n{\n  \"type\": \"button\",\n  \"label\": \"Add Item\",\n  \"icon\": \"plus\",\n  \"variant\": \"outline\",\n  \"action\": {\"fn\": \"addItem\", \"args\": [\"New\"]}\n}"
+        }
+      ]
+    },
+    {
+      "type": "html",
+      "html": "<div style=\"padding: 2rem; background: var(--code-bg); border-radius: 0.5rem; margin: 2rem 0;\"><h4 style=\"margin-top: 0;\">Button Variants</h4><p style=\"color: var(--text-muted); margin-bottom: 1.5rem;\">Click any button to modify the counter (currently: <strong style=\"color: var(--pico-primary);\">{{state.counter}}</strong>)</p><div style=\"display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;\"></div></div>"
+    },
+    {
+      "type": "button",
+      "label": "Default (+1)",
+      "action": "Render.state.counter++"
+    },
+    {
+      "type": "button",
+      "label": "Secondary (-1)",
+      "variant": "secondary",
+      "action": "Render.state.counter--"
+    },
+    {
+      "type": "button",
+      "label": "Contrast (×2)",
+      "variant": "contrast",
+      "action": "Render.state.counter = Render.state.counter * 2"
+    },
+    {
+      "type": "button",
+      "label": "Outline (Reset)",
+      "variant": "outline",
+      "action": "Render.state.counter = 0"
+    },
+    {
+      "type": "html",
+      "html": "<div style=\"padding: 1.5rem; background: var(--code-bg); border-radius: 0.5rem; margin: 2rem 0;\"><h4 style=\"margin-top: 0;\">Buttons with Icons</h4><div style=\"display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 1rem;\"></div></div>"
+    },
+    {
+      "type": "button",
+      "label": "Add",
+      "icon": "plus",
+      "action": "Render.state.counter++"
+    },
+    {
+      "type": "button",
+      "label": "Remove",
+      "icon": "minus",
+      "variant": "outline",
+      "action": "Render.state.counter--"
+    },
+    {
+      "type": "button",
+      "label": "Refresh",
+      "icon": "refresh-cw",
+      "variant": "secondary",
+      "action": "Render.state.counter = 0"
+    },
+    {
+      "type": "html",
+      "html": "<div id=\"tables\"></div>"
+    },
+    {
+      "type": "html",
+      "html": "<div style='display: flex; justify-content: space-between; align-items: flex-start; margin: 3rem 0 1rem 0;'><div style='flex: 1;'><h1 style='margin: 0;'>📊 Table Block Demo</h1><p style='margin-top: 0.5rem;'>Display tabular data from CSV strings or JSON arrays. Uses Pico CSS table styling.</p></div><button onclick=\"document.getElementById('table-demo-code').showModal()\" class='outline' style='padding: 0.5rem 0.75rem; font-size: 0.875rem; white-space: nowrap; height: fit-content; margin-left: 1rem;'><i data-lucide='code' style='width: 1rem; height: 1rem; margin-right: 0.25rem;'></i>Show Code</button></div>"
+    },
+    {
+      "type": "modal",
+      "id": "table-demo-code",
+      "title": "Table Block Demo - Code",
+      "size": "large",
+      "content": [
+        {
+          "type": "markdown",
+          "content": "## How It Works\n\nThe table block renders tabular data with Pico CSS styling. Supports three data formats.\n\n### Features\n\n- **CSV String**: First row is header, comma-separated values\n- **JSON Array of Arrays**: First array is header\n- **JSON Array of Objects**: Keys become headers\n- **Styling**: `striped` for alternating rows, `caption` for title"
+        },
+        {
+          "type": "code",
+          "title": "JSON Configuration",
+          "language": "json",
+          "code": "// CSV format\n{\n  \"type\": \"table\",\n  \"caption\": \"Team Members\",\n  \"striped\": true,\n  \"data\": \"Name,Role,Status\\nAlice,Engineer,Active\\nBob,Designer,Active\"\n}\n\n// JSON array of arrays\n{\n  \"type\": \"table\",\n  \"data\": [\n    [\"Product\", \"Price\", \"Stock\"],\n    [\"Widget A\", \"$10\", 50],\n    [\"Widget B\", \"$15\", 30]\n  ]\n}\n\n// JSON array of objects\n{\n  \"type\": \"table\",\n  \"data\": [\n    {\"name\": \"Alice\", \"score\": 95},\n    {\"name\": \"Bob\", \"score\": 87}\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "caption": "Team Directory (CSV Format)",
+      "striped": true,
+      "data": "Name,Role,Department,Status\nAlice Chen,Senior Engineer,Engineering,Active\nBob Smith,Product Designer,Design,Active\nCarol Johnson,Project Manager,Operations,On Leave\nDavid Lee,DevOps Engineer,Engineering,Active"
+    },
+    {
+      "type": "table",
+      "caption": "Product Inventory (JSON Array)",
+      "data": [
+        [
+          "Product",
+          "Category",
+          "Price",
+          "In Stock"
+        ],
+        [
+          "Laptop Pro",
+          "Electronics",
+          "$1,299",
+          "Yes"
+        ],
+        [
+          "Wireless Mouse",
+          "Accessories",
+          "$49",
+          "Yes"
+        ],
+        [
+          "USB-C Hub",
+          "Accessories",
+          "$79",
+          "No"
+        ],
+        [
+          "Monitor 27\"",
+          "Electronics",
+          "$399",
+          "Yes"
+        ]
+      ]
+    },
+    {
+      "type": "table",
+      "caption": "Monthly Sales (JSON Objects)",
+      "striped": true,
+      "data": [
+        {
+          "month": "January",
+          "revenue": "$12,450",
+          "orders": 156,
+          "growth": "+12%"
+        },
+        {
+          "month": "February",
+          "revenue": "$14,200",
+          "orders": 178,
+          "growth": "+14%"
+        },
+        {
+          "month": "March",
+          "revenue": "$15,800",
+          "orders": 195,
+          "growth": "+11%"
+        }
+      ]
+    },
+    {
+      "type": "html",
+      "html": "<div id=\"modals\"></div>"
+    },
+    {
+      "type": "html",
+      "html": "<div style='display: flex; justify-content: space-between; align-items: flex-start; margin: 3rem 0 1rem 0;'><div style='flex: 1;'><h1 style='margin: 0;'>💬 Modal Dialogs</h1><p style='margin-top: 0.5rem;'>Create accessible modal dialogs with customizable content, sizes, and triggers.</p></div><button onclick=\"document.getElementById('modal-demo-code').showModal()\" class='outline' style='padding: 0.5rem 0.75rem; font-size: 0.875rem; white-space: nowrap; height: fit-content; margin-left: 1rem;'><i data-lucide='code' style='width: 1rem; height: 1rem; margin-right: 0.25rem;'></i>Show Code</button></div>"
+    },
+    {
+      "type": "modal",
+      "id": "modal-demo-code",
+      "title": "Modal Dialog Demo - Code",
+      "size": "large",
+      "content": [
+        {
+          "type": "markdown",
+          "content": "## How It Works\n\nModals use the native HTML `<dialog>` element for accessibility and modern browser support.\n\n### Features\n\n- **Trigger Button**: Configurable label and icon\n- **Three Sizes**: `small` (400px), `medium` (600px), `large` (900px)\n- **Nested Content**: Supports any block types inside\n- **Optional Footer**: Add action buttons\n- **Backdrop**: Blur effect with click-outside-to-close"
+        },
+        {
+          "type": "code",
+          "title": "JSON Configuration",
+          "language": "json",
+          "code": "{\n  \"type\": \"modal\",\n  \"id\": \"my-modal\",\n  \"title\": \"Welcome!\",\n  \"trigger\": {\n    \"label\": \"Open Modal\",\n    \"icon\": \"message-square\"\n  },\n  \"size\": \"medium\",\n  \"content\": [\n    {\n      \"type\": \"markdown\",\n      \"content\": \"# Hello!\\n\\nThis is modal content.\"\n    }\n  ],\n  \"footer\": \"<button onclick='document.getElementById(\\\"my-modal\\\").close()'>Close</button>\"\n}"
+        }
+      ]
+    },
+    {
+      "type": "modal",
+      "id": "demo-modal",
+      "title": "Welcome to Modals!",
+      "trigger": {
+        "label": "Open Modal",
+        "icon": "message-square"
+      },
+      "size": "medium",
+      "content": [
+        {
+          "type": "markdown",
+          "content": "Modals are perfect for:\n\n- **Forms** - User input and data collection\n- **Confirmations** - Important decisions\n- **Details** - Additional information\n- **Media** - Images and videos\n\nThis modal uses the native `<dialog>` element for accessibility!"
+        },
+        {
+          "type": "html",
+          "html": "<div style=\"padding: 1rem; background: var(--pico-primary-focus); border-left: 3px solid var(--pico-primary); border-radius: 0.25rem; margin-top: 1rem;\"><strong>💡 Tip:</strong> Modals support all block types including nested modals, conditionals, and loops!</div>"
+        }
+      ],
+      "footer": "<button onclick=\"document.getElementById('demo-modal').close()\">Got it!</button>"
+    },
+    {
+      "type": "markdown",
+      "content": "# 🎨 All Content Block Types\n\nDeclarativeWeb supports 12 block types. Here's a showcase of each:"
+    },
+    {
+      "type": "section",
+      "title": "Block Types",
+      "columns": 3,
+      "resources": [
+        {
+          "title": "Hero Block",
+          "description": "Large headers with CTAs. Perfect for landing pages.",
+          "icon": "layout",
+          "tags": [
+            "blocks"
+          ]
+        },
+        {
+          "title": "Section Block",
+          "description": "Grid of resource cards. Responsive columns.",
+          "icon": "grid",
+          "tags": [
+            "blocks"
+          ]
+        },
+        {
+          "title": "Markdown Block",
+          "description": "GitHub-flavored markdown with code support.",
+          "icon": "file-text",
+          "tags": [
+            "blocks"
+          ]
+        },
+        {
+          "title": "Code Block",
+          "description": "Syntax-highlighted code snippets.",
+          "icon": "code",
+          "tags": [
+            "blocks"
+          ]
+        },
+        {
+          "title": "Button Block",
+          "description": "Declarative buttons with safe actions. LLM-friendly.",
+          "icon": "mouse-pointer-click",
+          "path": "/demos#buttons",
+          "tags": [
+            "blocks",
+            "interactive"
+          ]
+        },
+        {
+          "title": "Table Block",
+          "description": "Tabular data from CSV or JSON arrays.",
+          "icon": "table",
+          "path": "/demos#tables",
+          "tags": [
+            "blocks"
+          ]
+        },
+        {
+          "title": "HTML Block",
+          "description": "Custom HTML with {{expression}} support.",
+          "icon": "brackets",
+          "tags": [
+            "blocks"
+          ]
+        },
+        {
+          "title": "Modal Block",
+          "description": "Accessible dialogs with native <dialog> element.",
+          "icon": "message-square",
+          "tags": [
+            "blocks"
+          ]
+        },
+        {
+          "title": "P5.js Block",
+          "description": "Creative coding with P5.js. Build animations, games, and generative art.",
+          "icon": "sparkles",
+          "tags": [
+            "blocks",
+            "interactive",
+            "new"
+          ]
+        },
+        {
+          "title": "Quiz Block",
+          "description": "Interactive quizzes with automatic state management and scoring.",
+          "icon": "help-circle",
+          "tags": [
+            "blocks",
+            "interactive",
+            "new"
+          ]
+        },
+        {
+          "title": "Mermaid Diagrams",
+          "description": "Flowcharts, sequence diagrams, ERDs using Mermaid DSL.",
+          "icon": "git-branch",
+          "tags": [
+            "blocks",
+            "diagrams"
+          ]
+        },
+        {
+          "title": "Component Refs",
+          "description": "Reusable templates with $ref.",
+          "icon": "puzzle",
+          "tags": [
+            "blocks"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "title": "Example: Conditional Rendering",
+      "language": "json",
+      "description": "Show different content based on state",
+      "code": "{\n  \"if\": \"state.counter > 5\",\n  \"then\": {\n    \"type\": \"markdown\",\n    \"content\": \"Counter is high!\"\n  },\n  \"else\": {\n    \"type\": \"markdown\",\n    \"content\": \"Counter is low.\"\n  }\n}"
+    },
+    {
+      "type": "markdown",
+      "content": "# 📚 Responsive Grid System\n\nControl column layouts for mobile, tablet, and desktop:"
+    },
+    {
+      "type": "section",
+      "title": "Responsive Grid Example",
+      "subtitle": "1 column mobile, 2 tablet, 4 desktop",
+      "columns": {
+        "mobile": 1,
+        "tablet": 2,
+        "desktop": 4
+      },
+      "resources": [
+        {
+          "title": "Item 1",
+          "description": "Resize your browser to see the grid adapt!",
+          "icon": "smartphone",
+          "tags": [
+            "mobile"
+          ]
+        },
+        {
+          "title": "Item 2",
+          "description": "Tablet shows 2 columns.",
+          "icon": "tablet",
+          "tags": [
+            "tablet"
+          ]
+        },
+        {
+          "title": "Item 3",
+          "description": "Desktop shows 4 columns.",
+          "icon": "monitor",
+          "tags": [
+            "desktop"
+          ]
+        },
+        {
+          "title": "Item 4",
+          "description": "Fully responsive!",
+          "icon": "layout",
+          "tags": [
+            "responsive"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "html",
+      "html": "<div id=\"diagrams\"></div>"
+    },
+    {
+      "type": "markdown",
+      "content": "# 📊 Mermaid Diagrams\n\nCreate flowcharts, sequence diagrams, ERDs, and more using Mermaid DSL:"
+    },
+    {
+      "type": "mermaid",
+      "content": "graph TD\n  A[User Request] --> B{Valid?}\n  B -->|Yes| C[Process Data]\n  B -->|No| D[Return Error]\n  C --> E[Save to DB]\n  E --> F[Send Response]\n  D --> F",
+      "theme": "neutral"
+    },
+    {
+      "type": "code",
+      "title": "Mermaid Block Example",
+      "language": "json",
+      "description": "Flowchart with decision nodes",
+      "code": "{\n  \"type\": \"mermaid\",\n  \"content\": \"graph TD\\n  A[Start] --> B{Decision}\\n  B -->|Yes| C[Action]\\n  B -->|No| D[End]\",\n  \"theme\": \"neutral\"\n}"
+    },
+    {
+      "type": "html",
+      "html": "<div id=\"charts\"></div>"
+    },
+    {
+      "type": "markdown",
+      "content": "# 📈 Data Visualization\n\nCreate interactive charts with Frappe Charts:"
+    },
+    {
+      "type": "frappe-chart",
+      "chartType": "bar",
+      "title": "Quarterly Revenue 2024",
+      "labels": [
+        "Q1",
+        "Q2",
+        "Q3",
+        "Q4"
+      ],
+      "datasets": [
+        {
+          "name": "Revenue",
+          "values": [
+            120000,
+            180000,
+            140000,
+            220000
+          ]
+        },
+        {
+          "name": "Expenses",
+          "values": [
+            80000,
+            95000,
+            105000,
+            110000
+          ]
+        }
+      ],
+      "height": 350
+    },
+    {
+      "type": "code",
+      "title": "Frappe Chart Example",
+      "language": "json",
+      "description": "Multi-dataset bar chart",
+      "code": "{\n  \"type\": \"frappe-chart\",\n  \"chartType\": \"bar\",\n  \"title\": \"Sales Data\",\n  \"labels\": [\"Jan\", \"Feb\", \"Mar\"],\n  \"datasets\": [\n    {\n      \"name\": \"Revenue\",\n      \"values\": [120, 180, 140]\n    }\n  ]\n}"
+    },
+    {
+      "type": "frappe-chart",
+      "chartType": "line",
+      "title": "User Growth Metrics",
+      "labels": [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun"
+      ],
+      "datasets": [
+        {
+          "name": "Active Users",
+          "values": [
+            850,
+            920,
+            1050,
+            1200,
+            1350,
+            1500
+          ]
+        },
+        {
+          "name": "New Signups",
+          "values": [
+            120,
+            145,
+            180,
+            210,
+            195,
+            225
+          ]
+        }
+      ]
+    },
+    {
+      "type": "html",
+      "html": "<div id=\"p5js\"></div>"
+    },
+    {
+      "type": "markdown",
+      "content": "# ✨ P5.js Creative Coding\n\nEmbed interactive P5.js sketches for animations, games, and generative art:"
+    },
+    {
+      "type": "p5js",
+      "code": "function setup() {\n  createCanvas(400, 400);\n}\n\nfunction draw() {\n  background(220);\n  \n  // Draw circle that follows mouse\n  fill(100, 150, 255);\n  noStroke();\n  ellipse(mouseX, mouseY, 50, 50);\n  \n  // Draw grid\n  stroke(200);\n  for (let i = 0; i < width; i += 50) {\n    line(i, 0, i, height);\n    line(0, i, width, i);\n  }\n}",
+      "width": 400,
+      "height": 400
+    },
+    {
+      "type": "code",
+      "title": "P5.js Block Example",
+      "language": "json",
+      "description": "Interactive mouse-following animation",
+      "code": "{\n  \"type\": \"p5js\",\n  \"code\": \"function setup() { createCanvas(400, 400); }\\n\\nfunction draw() { background(220); ellipse(mouseX, mouseY, 50, 50); }\",\n  \"width\": 400,\n  \"height\": 400\n}"
+    },
+    {
+      "type": "p5js",
+      "code": "let particles = [];\n\nfunction setup() {\n  createCanvas(400, 300);\n  for (let i = 0; i < 50; i++) {\n    particles.push({\n      x: random(width),\n      y: random(height),\n      vx: random(-2, 2),\n      vy: random(-2, 2),\n      size: random(3, 8)\n    });\n  }\n}\n\nfunction draw() {\n  background(20, 20, 40);\n  \n  for (let p of particles) {\n    // Draw particle\n    fill(150, 200, 255);\n    noStroke();\n    ellipse(p.x, p.y, p.size);\n    \n    // Update position\n    p.x += p.vx;\n    p.y += p.vy;\n    \n    // Bounce off edges\n    if (p.x < 0 || p.x > width) p.vx *= -1;\n    if (p.y < 0 || p.y > height) p.vy *= -1;\n  }\n}",
+      "width": 400,
+      "height": 300
+    },
+    {
+      "type": "html",
+      "html": "<div id=\"quiz\"></div>"
+    },
+    {
+      "type": "markdown",
+      "content": "# 🎯 Interactive Quiz\n\nCreate self-contained quizzes with automatic state management:"
+    },
+    {
+      "type": "quiz",
+      "title": "JavaScript Fundamentals Quiz",
+      "questions": [
+        {
+          "question": "What does 'const' mean in JavaScript?",
+          "options": [
+            "A constant variable that cannot be reassigned",
+            "A constructor function",
+            "A console command"
+          ],
+          "correct": 0
+        },
+        {
+          "question": "Which of these is a loop structure?",
+          "options": [
+            "if statement",
+            "for loop",
+            "switch statement"
+          ],
+          "correct": 1
+        },
+        {
+          "question": "What does JSON stand for?",
+          "options": [
+            "JavaScript Object Notation",
+            "Java Standard Object Network",
+            "JavaScript Online Navigator"
+          ],
+          "correct": 0
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "title": "Quiz Block Example",
+      "language": "json",
+      "description": "Quiz with automatic state management and scoring",
+      "code": "{\n  \"type\": \"quiz\",\n  \"title\": \"JavaScript Quiz\",\n  \"questions\": [\n    {\n      \"question\": \"What does 'const' mean?\",\n      \"options\": [\n        \"Constant variable\",\n        \"Constructor\",\n        \"Console\"\n      ],\n      \"correct\": 0\n    },\n    {\n      \"question\": \"Which is a loop?\",\n      \"options\": [\n        \"if\",\n        \"for\",\n        \"switch\"\n      ],\n      \"correct\": 1\n    }\n  ]\n}"
+    }
+  ]
+}

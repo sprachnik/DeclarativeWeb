@@ -1,0 +1,72 @@
+{
+  "path": "/examples",
+  "meta": {
+    "title": "Example Templates",
+    "description": "Downloadable JSON templates"
+  },
+  "content": [
+    {
+      "type": "hero",
+      "headline": "Example JSON Templates",
+      "subhead": "Download these example JSON files to get started quickly"
+    },
+    {
+      "type": "section",
+      "title": "Available Templates",
+      "columns": 3,
+      "resources": [
+        {
+          "title": "Landing Page",
+          "description": "Simple SaaS landing page with hero, features, and pricing.",
+          "icon": "home",
+          "url": "examples/example-landing.json",
+          "tags": [
+            "template"
+          ]
+        },
+        {
+          "title": "Documentation Site",
+          "description": "Technical docs with sidebar navigation and code examples.",
+          "icon": "book-open",
+          "url": "examples/example-docs.json",
+          "tags": [
+            "template"
+          ]
+        },
+        {
+          "title": "Blog",
+          "description": "Blog with article cards and component reuse.",
+          "icon": "pen-tool",
+          "url": "examples/example-blog.json",
+          "tags": [
+            "template"
+          ]
+        },
+        {
+          "title": "Blog with API",
+          "description": "Complete blog with API data fetching, conditionals, and loops.",
+          "icon": "database",
+          "url": "examples/blog-v2.json",
+          "tags": [
+            "API",
+            "example"
+          ]
+        },
+        {
+          "title": "Interactive App",
+          "description": "Full-featured app with state management, watchers, and actions.",
+          "icon": "activity",
+          "url": "examples/phase2-demo.json",
+          "tags": [
+            "interactive",
+            "example"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "markdown",
+      "content": "## How to Use Templates\n\n1. Click any template link above to download the JSON\n2. Copy the JSON content\n3. Replace your `site.json` with the template\n4. Refresh your browser to see the new site\n5. Customize as needed!\n\nAll templates are fully functional examples you can learn from and build upon."
+    }
+  ]
+}

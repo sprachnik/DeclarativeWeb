@@ -1,0 +1,229 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, master, develop, 'claude/**' ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build bundle
+      run: npm run build
+
+    - name: Verify bundle is up to date
+      run: |
+        if [ -n "$(git status dist/ --porcelain)" ]; then
+          echo "❌ Error: Committed bundle is out of date!"
+          echo ""
+          echo "The dist/ folder differs from a fresh build."
+          echo "Please run 'npm run build' locally and commit the changes."
+          echo ""
+          echo "Changed files:"
+          git status dist/ --porcelain
+          echo ""
+          git diff --stat dist/
+          exit 1
+        fi
+        echo "✓ Bundle is up to date"
+
+    - name: Run tests
+      id: test
+      run: |
+        npm run test:ci 2>&1 | tee test-output.log
+        TEST_EXIT_CODE=${PIPESTATUS[0]}
+        echo "exit_code=$TEST_EXIT_CODE" >> $GITHUB_OUTPUT
+        exit $TEST_EXIT_CODE
+      continue-on-error: true
+      timeout-minutes: 15
+
+    - name: Create test summary
+      if: always()
+      run: |
+        echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        if [ "${{ steps.test.outputs.exit_code }}" == "0" ]; then
+          echo "✅ **All tests passed!**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Extract test counts
+          if grep -q "Tests:" test-output.log; then
+            grep "Tests:" test-output.log | tail -1 >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Extract coverage summary
+          if grep -q "All files" test-output.log; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Coverage" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            grep -A 3 "All files" test-output.log | head -4 >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+        else
+          echo "❌ **Tests failed**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Check for memory errors
+          if grep -q "out of memory\|Maximum call stack size exceeded" test-output.log; then
+            echo "### ⚠️ Memory Error Detected" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Tests crashed due to insufficient memory." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Possible solutions:**" >> $GITHUB_STEP_SUMMARY
+            echo "- Increase heap size in package.json (currently 6GB)" >> $GITHUB_STEP_SUMMARY
+            echo "- Run tests serially (--runInBand is enabled)" >> $GITHUB_STEP_SUMMARY
+            echo "- Skip memory-intensive tests in CI" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Extract failure information
+          if grep -q "FAIL" test-output.log; then
+            echo "### Failed Tests" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            grep "FAIL\|●\|Expected\|Received" test-output.log | head -100 >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Extract test counts
+          if grep -q "Tests:" test-output.log; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            grep "Tests:" test-output.log | tail -1 >> $GITHUB_STEP_SUMMARY
+          fi
+        fi
+
+        # Always show Node version
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Node.js:** ${{ matrix.node-version }}" >> $GITHUB_STEP_SUMMARY
+
+        # Fail the step if tests failed
+        if [ "${{ steps.test.outputs.exit_code }}" != "0" ]; then
+          echo ""
+          echo "❌ Tests failed with exit code: ${{ steps.test.outputs.exit_code }}"
+          echo "See test-output.log or summary above for details"
+          exit 1
+        fi
+
+    - name: Upload coverage reports
+      if: matrix.node-version == '20.x'
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./coverage/coverage-final.json
+        flags: unittests
+        name: codecov-umbrella
+
+    - name: Check coverage thresholds
+      if: matrix.node-version == '20.x'
+      run: |
+        echo "Checking coverage thresholds..."
+        node -e "
+          const coverage = require('./coverage/coverage-summary.json');
+          const total = coverage.total;
+          const thresholds = {
+            lines: 70,
+            statements: 70,
+            functions: 70,
+            branches: 55
+          };
+
+          console.log('Coverage Summary:');
+          console.log('  Lines:', total.lines.pct + '%', '(threshold:', thresholds.lines + '%)');
+          console.log('  Statements:', total.statements.pct + '%', '(threshold:', thresholds.statements + '%)');
+          console.log('  Functions:', total.functions.pct + '%', '(threshold:', thresholds.functions + '%)');
+          console.log('  Branches:', total.branches.pct + '%', '(threshold:', thresholds.branches + '%)');
+
+          const failed = [];
+          if (total.lines.pct < thresholds.lines) failed.push('lines');
+          if (total.statements.pct < thresholds.statements) failed.push('statements');
+          if (total.functions.pct < thresholds.functions) failed.push('functions');
+          if (total.branches.pct < thresholds.branches) failed.push('branches');
+
+          if (failed.length > 0) {
+            console.error('Coverage threshold failed for:', failed.join(', '));
+            process.exit(1);
+          }
+
+          console.log('✓ All coverage thresholds met!');
+        "
+
+    - name: Inject build metadata
+      if: matrix.node-version == '20.x'
+      run: |
+        echo "Injecting build metadata into JSON files..."
+        node -e "
+          const fs = require('fs');
+          const buildId = process.env.GITHUB_RUN_ID;
+          const buildDate = new Date().toISOString();
+
+          // Files to update
+          const files = ['site.json', 'showcase.json'];
+
+          files.forEach(file => {
+            if (fs.existsSync(file)) {
+              const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+
+              // Inject build metadata into site object
+              if (data.site) {
+                data.site.buildId = buildId;
+                data.site.buildDate = buildDate;
+
+                fs.writeFileSync(file, JSON.stringify(data, null, 2) + '\n');
+                console.log('✓ Updated', file, 'with build metadata');
+              }
+            }
+          });
+
+          console.log('Build ID:', buildId);
+          console.log('Build Date:', buildDate);
+        "
+      env:
+        GITHUB_RUN_ID: ${{ github.run_id }}
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+
+    - name: Validate JSON files
+      run: |
+        echo "Validating JSON files..."
+        for file in *.json examples/*.json; do
+          if [ -f "$file" ]; then
+            echo "Checking $file..."
+            node -e "JSON.parse(require('fs').readFileSync('$file', 'utf8'))" || exit 1
+          fi
+        done
+        echo "✓ All JSON files are valid!"
+
+    - name: Check file permissions
+      run: |
+        echo "Checking for executable JS files (should not be executable)..."
+        find . -name "*.js" -executable -not -path "./node_modules/*" -not -path "./.git/*" | while read file; do
+          echo "WARNING: $file is executable"
+        done

@@ -1,0 +1,473 @@
+{
+  "$schema": "./schema.json",
+  "site": {
+    "title": "LearnHub",
+    "description": "Modern online learning platform for students and educators",
+    "base": "/",
+    "defaultTheme": "light",
+    "state": {
+      "version": "2.1.0",
+      "studentCount": 12500,
+      "courseCount": 450
+    }
+  },
+  "nav": {
+    "layout": "horizontal",
+    "logo": {
+      "text": "LearnHub",
+      "icon": "graduation-cap",
+      "url": "/"
+    },
+    "links": [
+      { "label": "Home", "path": "/" },
+      { "label": "Courses", "path": "/courses" },
+      { "label": "Features", "path": "/features" },
+      { "label": "Pricing", "path": "/pricing" },
+      { "label": "About", "path": "/about" }
+    ],
+    "actions": [
+      { "type": "theme-toggle" },
+      {
+        "type": "link",
+        "label": "Sign In",
+        "path": "/signin"
+      },
+      {
+        "type": "link",
+        "label": "Get Started",
+        "url": "/signup",
+        "icon": "arrow-right"
+      }
+    ]
+  },
+  "footer": {
+    "text": "© {{year()}} LearnHub. Empowering education worldwide. Version {{state.version}}",
+    "links": [
+      { "label": "Privacy Policy", "path": "/privacy" },
+      { "label": "Terms of Service", "path": "/terms" },
+      { "label": "Support", "path": "/support" },
+      { "label": "GitHub", "path": "https://github.com/learnhub/platform" }
+    ]
+  },
+  "components": {
+    "stat-card": "<article class=\"resource-card\" style=\"text-align: center;\"><h2 style=\"color: var(--pico-primary); margin: 0;\">{{value}}</h2><p style=\"margin: 0.5rem 0 0; color: var(--text-muted);\">{{label}}</p></article>",
+    "cta-button": "<a href=\"{{url}}\" role=\"button\" class=\"{{style}}\">{{label}}</a>"
+  },
+  "functions": {
+    "year": "() => new Date().getFullYear()",
+    "upper": "(str) => str.toUpperCase()",
+    "formatNumber": "(num) => num.toLocaleString()"
+  },
+  "pages": [
+    {
+      "path": "/",
+      "meta": {
+        "title": "Home",
+        "description": "Transform your learning journey with LearnHub - the modern platform for online education"
+      },
+      "content": [
+        {
+          "type": "hero",
+          "headline": "Transform Your Learning Journey",
+          "subhead": "Join thousands of students and educators using LearnHub to unlock their full potential through interactive courses, live sessions, and personalized learning paths.",
+          "cta": {
+            "label": "Start Learning Free",
+            "path": "/courses"
+          },
+          "secondaryCta": {
+            "label": "Watch Demo",
+            "url": "https://demo.learnhub.com",
+            "icon": "play-circle"
+          }
+        },
+        {
+          "type": "section",
+          "id": "stats",
+          "columns": 3,
+          "resources": [
+            {
+              "$ref": "stat-card",
+              "value": "12,500+",
+              "label": "Active Students"
+            },
+            {
+              "$ref": "stat-card",
+              "value": "450+",
+              "label": "Expert-Led Courses"
+            },
+            {
+              "$ref": "stat-card",
+              "value": "95%",
+              "label": "Completion Rate"
+            }
+          ]
+        },
+        {
+          "type": "section",
+          "id": "features",
+          "title": "Everything You Need to Succeed",
+          "description": "Our platform combines cutting-edge technology with proven pedagogy to deliver exceptional learning experiences.",
+          "columns": {
+            "mobile": 1,
+            "tablet": 2,
+            "desktop": 3
+          },
+          "resources": [
+            {
+              "title": "Interactive Lessons",
+              "description": "Engage with multimedia content, real-time quizzes, and hands-on coding exercises that adapt to your learning pace.",
+              "icon": "book-open",
+              "url": "/features/lessons",
+              "tags": ["video", "interactive", "adaptive"]
+            },
+            {
+              "title": "Live Virtual Classrooms",
+              "description": "Join scheduled sessions with expert instructors, ask questions in real-time, and collaborate with peers worldwide.",
+              "icon": "video",
+              "url": "/features/live",
+              "tags": ["live", "instructors", "Q&A"]
+            },
+            {
+              "title": "Progress Analytics",
+              "description": "Track your learning journey with detailed insights, completion metrics, and personalized recommendations.",
+              "icon": "trending-up",
+              "url": "/features/analytics",
+              "tags": ["tracking", "insights", "data"]
+            },
+            {
+              "title": "Peer Collaboration",
+              "description": "Connect with study groups, share notes, and work on projects together in our integrated collaboration spaces.",
+              "icon": "users",
+              "url": "/features/collaboration",
+              "tags": ["community", "groups", "social"]
+            },
+            {
+              "title": "Industry Certifications",
+              "description": "Earn recognized certificates upon course completion to boost your resume and showcase your new skills.",
+              "icon": "award",
+              "url": "/features/certificates",
+              "tags": ["certificates", "credentials", "career"]
+            },
+            {
+              "title": "Mobile Learning",
+              "description": "Access your courses anytime, anywhere with our native mobile apps for iOS and Android devices.",
+              "icon": "smartphone",
+              "url": "/features/mobile",
+              "tags": ["mobile", "offline", "apps"]
+            }
+          ]
+        },
+        {
+          "type": "markdown",
+          "content": "## Trusted by Leading Organizations\n\nLearnHub partners with top universities, corporations, and educational institutions to deliver world-class learning experiences. Our platform is used by students from over 150 countries and has facilitated more than 2 million course completions."
+        },
+        {
+          "type": "html",
+          "html": "<div style=\"background: var(--code-bg); padding: 3rem 2rem; border-radius: 0.5rem; text-align: center; margin: 2rem 0;\"><h2>Ready to Get Started?</h2><p style=\"color: var(--text-muted); margin-bottom: 1.5rem;\">Join our community of learners today. No credit card required.</p><div style=\"display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;\"><a href=\"/signup\" role=\"button\">Create Free Account</a><a href=\"/courses\" role=\"button\" class=\"outline\">Browse Courses</a></div></div>"
+        }
+      ]
+    },
+    {
+      "path": "/courses",
+      "meta": {
+        "title": "Courses",
+        "description": "Explore our comprehensive catalog of expert-led courses across technology, business, design, and more"
+      },
+      "content": [
+        {
+          "type": "hero",
+          "headline": "Explore Our Course Catalog",
+          "subhead": "From beginner to advanced, find courses that match your goals and learning style."
+        },
+        {
+          "type": "section",
+          "id": "popular-courses",
+          "title": "Popular Courses",
+          "description": "Our most enrolled courses this month",
+          "columns": 4,
+          "resources": [
+            {
+              "title": "Web Development Bootcamp",
+              "description": "Master HTML, CSS, JavaScript, and modern frameworks like React. Build 10 real-world projects from scratch.",
+              "icon": "code",
+              "url": "/courses/web-dev",
+              "tags": ["beginner", "12 weeks"]
+            },
+            {
+              "title": "Data Science Fundamentals",
+              "description": "Learn Python, statistics, machine learning, and data visualization. Work with real datasets and case studies.",
+              "icon": "database",
+              "url": "/courses/data-science",
+              "tags": ["intermediate", "10 weeks"]
+            },
+            {
+              "title": "UX/UI Design Principles",
+              "description": "Design beautiful, user-centered interfaces. Learn Figma, prototyping, user research, and design systems.",
+              "icon": "palette",
+              "url": "/courses/ux-design",
+              "tags": ["beginner", "8 weeks"]
+            },
+            {
+              "title": "Digital Marketing Strategy",
+              "description": "Master SEO, content marketing, social media, and analytics. Create campaigns that drive real results.",
+              "icon": "megaphone",
+              "url": "/courses/marketing",
+              "tags": ["beginner", "6 weeks"]
+            },
+            {
+              "title": "Cloud Architecture AWS",
+              "description": "Design scalable cloud solutions on AWS. Cover EC2, S3, Lambda, and infrastructure as code with Terraform.",
+              "icon": "cloud",
+              "url": "/courses/aws",
+              "tags": ["advanced", "14 weeks"]
+            },
+            {
+              "title": "Mobile App Development",
+              "description": "Build native iOS and Android apps with React Native. Publish apps to the App Store and Google Play.",
+              "icon": "smartphone",
+              "url": "/courses/mobile",
+              "tags": ["intermediate", "10 weeks"]
+            },
+            {
+              "title": "Cybersecurity Essentials",
+              "description": "Protect systems and networks from threats. Learn ethical hacking, encryption, and security best practices.",
+              "icon": "shield",
+              "url": "/courses/cybersecurity",
+              "tags": ["intermediate", "8 weeks"]
+            },
+            {
+              "title": "Project Management Pro",
+              "description": "Lead successful projects using Agile, Scrum, and traditional methodologies. Prepare for PMP certification.",
+              "icon": "briefcase",
+              "url": "/courses/project-mgmt",
+              "tags": ["beginner", "6 weeks"]
+            }
+          ]
+        },
+        {
+          "type": "section",
+          "id": "learning-paths",
+          "title": "Structured Learning Paths",
+          "description": "Curated sequences of courses designed to take you from beginner to professional",
+          "columns": 3,
+          "resources": [
+            {
+              "title": "Full-Stack Developer",
+              "description": "Complete path covering frontend, backend, databases, and deployment. 6 courses, 32 weeks total.",
+              "icon": "layers",
+              "url": "/paths/fullstack",
+              "tags": ["career path"]
+            },
+            {
+              "title": "Data Analyst",
+              "description": "Excel, SQL, Python, and Tableau. Learn to analyze data and create compelling visualizations. 4 courses.",
+              "icon": "bar-chart",
+              "url": "/paths/data-analyst",
+              "tags": ["career path"]
+            },
+            {
+              "title": "Product Manager",
+              "description": "Strategy, roadmapping, user research, and launch planning. Build products users love. 5 courses.",
+              "icon": "rocket",
+              "url": "/paths/product",
+              "tags": ["career path"]
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "title": "Sample Course API",
+          "language": "javascript",
+          "description": "Integrate LearnHub courses into your own platform",
+          "code": "import { LearnHub } from '@learnhub/sdk';\n\nconst client = new LearnHub({\n  apiKey: process.env.LEARNHUB_KEY\n});\n\n// Fetch course catalog\nconst courses = await client.courses.list({\n  category: 'technology',\n  level: 'beginner',\n  limit: 10\n});\n\n// Enroll user in course\nawait client.enrollments.create({\n  userId: 'user_123',\n  courseId: courses[0].id\n});\n\nconsole.log('Enrollment successful!');"
+        }
+      ]
+    },
+    {
+      "path": "/features",
+      "meta": {
+        "title": "Features",
+        "description": "Discover the powerful features that make LearnHub the best choice for online learning"
+      },
+      "content": [
+        {
+          "type": "hero",
+          "headline": "Built for Modern Learning",
+          "subhead": "Every feature designed to enhance your educational experience"
+        },
+        {
+          "type": "section",
+          "id": "platform-features",
+          "title": "Platform Capabilities",
+          "columns": 2,
+          "resources": [
+            {
+              "title": "Adaptive Learning Engine",
+              "description": "Our AI-powered system adjusts content difficulty and pacing based on your performance, ensuring optimal challenge and retention.",
+              "icon": "brain"
+            },
+            {
+              "title": "Offline Access",
+              "description": "Download course materials and videos to learn on-the-go without internet connection. Sync progress when you reconnect.",
+              "icon": "download"
+            },
+            {
+              "title": "Multi-Language Support",
+              "description": "Access courses in 12 languages with auto-generated subtitles and localized content. Learn in your preferred language.",
+              "icon": "globe"
+            },
+            {
+              "title": "Integrated Code Editor",
+              "description": "Write, run, and debug code directly in the browser. Supports 20+ programming languages with instant feedback.",
+              "icon": "terminal"
+            },
+            {
+              "title": "Discussion Forums",
+              "description": "Get help from instructors and peers in course-specific forums. Search thousands of answered questions.",
+              "icon": "message-circle"
+            },
+            {
+              "title": "Calendar Integration",
+              "description": "Sync live sessions and deadlines with Google Calendar, Outlook, or Apple Calendar. Never miss a class.",
+              "icon": "calendar"
+            }
+          ]
+        },
+        {
+          "type": "markdown",
+          "content": "## For Educators\n\nLearnHub provides comprehensive tools for course creators:\n\n- **Course Builder**: Intuitive drag-and-drop interface for creating engaging lessons\n- **Student Analytics**: Track engagement, completion rates, and performance metrics\n- **Grading Tools**: Automated quizzes and manual assignment review workflows\n- **Revenue Sharing**: Earn competitive rates on course sales with monthly payouts\n- **Community Management**: Moderation tools and student communication features\n\n[Become an Instructor](/teach) and share your expertise with thousands of learners."
+        },
+        {
+          "type": "code",
+          "title": "Embed Courses on Your Site",
+          "language": "html",
+          "description": "White-label integration for corporate training",
+          "code": "<!-- Add to your page -->\n<div id=\"learnhub-embed\"></div>\n\n<script src=\"https://embed.learnhub.com/v2/widget.js\"></script>\n<script>\n  LearnHubEmbed.init({\n    target: '#learnhub-embed',\n    organizationId: 'org_abc123',\n    courseId: 'course_xyz789',\n    theme: 'custom',\n    colors: {\n      primary: '#007bff',\n      background: '#ffffff'\n    }\n  });\n</script>"
+        }
+      ]
+    },
+    {
+      "path": "/pricing",
+      "meta": {
+        "title": "Pricing",
+        "description": "Choose the plan that fits your learning goals and budget"
+      },
+      "content": [
+        {
+          "type": "hero",
+          "headline": "Flexible Pricing for Every Learner",
+          "subhead": "Start free, upgrade when you're ready. No hidden fees."
+        },
+        {
+          "type": "section",
+          "id": "pricing-tiers",
+          "title": "Choose Your Plan",
+          "columns": 3,
+          "resources": [
+            {
+              "title": "Free",
+              "description": "Perfect for exploring the platform. Access to 50+ free courses, community forums, and basic progress tracking. Limited to 2 active courses.",
+              "icon": "gift",
+              "tags": ["$0/month"]
+            },
+            {
+              "title": "Pro",
+              "description": "Unlimited access to our entire course library. Download for offline viewing, earn certificates, and access priority support.",
+              "icon": "zap",
+              "tags": ["$29/month"]
+            },
+            {
+              "title": "Teams",
+              "description": "For organizations. Includes Pro features plus admin dashboard, team analytics, custom branding, and dedicated account manager.",
+              "icon": "users",
+              "tags": ["$99/month"]
+            }
+          ]
+        },
+        {
+          "type": "markdown",
+          "content": "## Frequently Asked Questions\n\n### Can I switch plans anytime?\nYes! Upgrade or downgrade your plan at any time. Changes take effect immediately and we'll prorate any charges.\n\n### Do you offer student discounts?\nAbsolutely. Students get 50% off Pro plans with valid .edu email verification.\n\n### What's your refund policy?\nWe offer a 30-day money-back guarantee on all paid plans. If you're not satisfied, we'll refund your payment in full.\n\n### Is there a commitment?\nNo long-term contracts required. Cancel anytime with one click. Your access continues until the end of your billing period.\n\n### Can I pay annually?\nYes! Annual plans save you 20% compared to monthly billing. Pay $279/year for Pro instead of $348."
+        }
+      ]
+    },
+    {
+      "path": "/about",
+      "meta": {
+        "title": "About Us",
+        "description": "Learn about LearnHub's mission to democratize education worldwide"
+      },
+      "content": [
+        {
+          "type": "hero",
+          "headline": "Education for Everyone, Everywhere",
+          "subhead": "Our mission is to make high-quality education accessible to anyone with an internet connection."
+        },
+        {
+          "type": "markdown",
+          "content": "## Our Story\n\nFounded in 2019, LearnHub was born from a simple observation: traditional education wasn't keeping pace with the modern world. Technology was advancing rapidly, but learning resources remained fragmented, expensive, and inaccessible to millions.\n\nWe set out to change that.\n\nStarting with just 10 courses and a small team of passionate educators, we've grown into a global platform serving over 12,500 students across 150 countries. But our mission remains unchanged: **democratize access to world-class education**.\n\n## Our Values\n\n### Accessibility First\nEducation should never be a privilege. We keep our pricing affordable and offer generous scholarships to students in need.\n\n### Quality Over Quantity\nEvery course is carefully vetted, designed by industry experts, and continuously updated to reflect current best practices.\n\n### Community-Driven\nLearning is social. We foster connections between students, encourage peer collaboration, and maintain active discussion forums.\n\n### Lifelong Learning\nEducation doesn't stop at graduation. We support continuous skill development throughout your career journey."
+        },
+        {
+          "type": "section",
+          "id": "team",
+          "title": "Leadership Team",
+          "description": "Meet the people building the future of education",
+          "columns": 4,
+          "resources": [
+            {
+              "title": "Sarah Chen",
+              "description": "CEO & Co-Founder. Former educator with 15 years experience. MIT graduate passionate about ed-tech innovation.",
+              "icon": "user"
+            },
+            {
+              "title": "Marcus Rodriguez",
+              "description": "CTO & Co-Founder. Built scalable platforms at Google. Stanford CS. Believes technology can transform learning.",
+              "icon": "user"
+            },
+            {
+              "title": "Aisha Patel",
+              "description": "VP of Content. Oversees curriculum development. Former Coursera. 20+ years in instructional design.",
+              "icon": "user"
+            },
+            {
+              "title": "James O'Brien",
+              "description": "VP of Engineering. Leads product and infrastructure teams. Ex-Amazon. Open source contributor.",
+              "icon": "user"
+            }
+          ]
+        },
+        {
+          "type": "section",
+          "id": "impact",
+          "title": "Our Impact",
+          "columns": 4,
+          "resources": [
+            {
+              "title": "150+ Countries",
+              "description": "Students learning from every corner of the globe",
+              "icon": "globe"
+            },
+            {
+              "title": "2M+ Completions",
+              "description": "Course certificates earned by our community",
+              "icon": "award"
+            },
+            {
+              "title": "$5M Scholarships",
+              "description": "Financial aid provided to students in need",
+              "icon": "heart"
+            },
+            {
+              "title": "500+ Instructors",
+              "description": "Expert educators creating content",
+              "icon": "users"
+            }
+          ]
+        },
+        {
+          "type": "html",
+          "html": "<div style=\"background: linear-gradient(135deg, var(--pico-primary) 0%, #0056b3 100%); color: white; padding: 3rem 2rem; border-radius: 0.5rem; text-align: center; margin: 2rem 0;\"><h2 style=\"color: white;\">Join Our Mission</h2><p style=\"margin-bottom: 1.5rem; opacity: 0.9;\">We're hiring! Join our team and help us democratize education worldwide.</p><a href=\"/careers\" role=\"button\" style=\"background: white; color: var(--pico-primary);\">View Open Positions</a></div>"
+        }
+      ]
+    }
+  ]
+}

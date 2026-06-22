@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logging out... - VibeFeed</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      text-align: center;
+    }
+    .message {
+      color: var(--pico-muted-color);
+      font-size: 1.25rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="message">Logging out...</div>
+
+  <script src="js/supabase.js"></script>
+  <script>
+    async function logout() {
+      try {
+        await supabaseClient.auth.signOut()
+      } catch (e) {
+        console.error('Logout error:', e)
+      }
+      window.location.href = 'login'
+    }
+    logout()
+  </script>
+</body>
+</html>

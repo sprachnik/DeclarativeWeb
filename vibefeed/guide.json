@@ -1,0 +1,84 @@
+{
+  "site": { "title": "VibeFeed Guide" },
+  "state": {},
+  "pages": [{
+    "path": "/",
+    "content": [
+      {
+        "type": "hero",
+        "headline": "Welcome to VibeFeed!",
+        "subhead": "Share your vibe with the world"
+      },
+      {
+        "type": "markdown",
+        "content": "## What's a \"Vibe\"?\n\nYou know that feeling when you want to share something cool — a recipe you love, a quiz idea, a comparison you think is funny, or just something creative? That's a **vibe**.\n\nOn VibeFeed, a vibe is a creative post that can be more than just text. It can be interactive — quizzes people can take, charts they can explore, or guides they can follow. Think of it as social media meets creativity.\n\n**The best part?** You don't need to be technical. Just describe what you want, and AI creates it for you."
+      },
+      {
+        "type": "section",
+        "title": "How It Works",
+        "columns": 3,
+        "resources": [
+          {
+            "title": "1. Tap \"Vibe!\"",
+            "description": "Hit the purple button to start creating",
+            "icon": "sparkles"
+          },
+          {
+            "title": "2. Describe It",
+            "description": "Type what you want in plain English — no code needed",
+            "icon": "message-circle"
+          },
+          {
+            "title": "3. Share It",
+            "description": "Preview, tweak if needed, and post for others to enjoy",
+            "icon": "send"
+          }
+        ]
+      },
+      {
+        "type": "markdown",
+        "content": "## Ideas to Get You Started\n\nNot sure what to create? Here are some prompts you can try:"
+      },
+      {
+        "type": "table",
+        "striped": true,
+        "data": [
+          ["Type", "What to Say"],
+          ["Recipe", "\"My favorite pasta recipe with garlic bread tips\""],
+          ["Quiz", "\"A fun quiz about 90s movies\""],
+          ["Chart", "\"Compare coffee drinks by caffeine\""],
+          ["Guide", "\"Beginner's guide to houseplants\""],
+          ["Comparison", "\"iPhone vs Android — the fun version\""],
+          ["List", "\"Top 10 work-from-home tips\""],
+          ["Flowchart", "\"What should I watch on Netflix tonight?\""],
+          ["Game", "\"Would you rather questions for road trips\""]
+        ]
+      },
+      {
+        "type": "markdown",
+        "content": "## Tips for Great Vibes\n\n**Be specific** — \"A 30-minute pasta recipe for beginners\" works better than just \"make a recipe\"\n\n**Add personality** — Want it funny? Sarcastic? Wholesome? Just say so!\n\n**Keep chatting** — After your vibe appears, you can ask for changes like \"make the title catchier\" or \"add more questions\"\n\n**Add photos** — Tap the camera icon to include your own images\n\n**Update your bio** — Your profile bio helps inform how vibes are generated for you (language, tone, interests)\n\n**Want movement?** — Ask for \"animations\" or \"interactive\" to get dynamic content like games or animated charts\n\n**Quote yourself** — If you want specific text used exactly as you wrote it, say \"quote me verbatim\" or \"use my exact words\""
+      },
+      {
+        "type": "markdown",
+        "content": "## A Quick Note\n\nSometimes vibes don't come out perfect — and that's totally fine! AI is creative but not flawless. If something looks weird or doesn't work right, just try again or tweak your description. The fun is in the experimentation.\n\nDon't stress about getting it \"right.\" Just vibe with it."
+      },
+      {
+        "type": "section",
+        "title": "Ready?",
+        "columns": 2,
+        "resources": [
+          {
+            "title": "Create Your First Vibe",
+            "description": "Jump in and make something fun",
+            "icon": "rocket"
+          },
+          {
+            "title": "See What Others Made",
+            "description": "Get inspired by the community",
+            "icon": "compass"
+          }
+        ]
+      }
+    ]
+  }]
+}

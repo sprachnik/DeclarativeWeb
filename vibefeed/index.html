@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VibeFeed - Create and Share Interactive Content</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.colors.min.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    }
+
+    /* Header */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: white;
+      text-decoration: none;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    /* Hero */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .hero-content {
+      max-width: 700px;
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+      color: white;
+      line-height: 1.1;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 2rem;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .hero-cta a {
+      padding: 1rem 2rem;
+      font-size: 1.125rem;
+    }
+
+    /* Features */
+    .features {
+      background: var(--pico-card-background-color);
+      padding: 4rem 2rem;
+    }
+
+    .features-grid {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+
+    .feature {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .feature-icon {
+      width: 3rem;
+      height: 3rem;
+      margin: 0 auto 1rem;
+      color: var(--pico-primary);
+    }
+
+    .feature h3 {
+      margin-bottom: 0.5rem;
+    }
+
+    .feature p {
+      color: var(--pico-muted-color);
+      margin: 0;
+    }
+
+    /* Examples */
+    .examples {
+      padding: 4rem 2rem;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .examples h2 {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .example-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .example-card {
+      background: var(--pico-card-background-color);
+      border-radius: 0.5rem;
+      overflow: hidden;
+      transition: transform 0.2s;
+    }
+
+    .example-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .example-preview {
+      background: var(--pico-secondary-background);
+      padding: 2rem;
+      text-align: center;
+      font-size: 3rem;
+    }
+
+    .example-info {
+      padding: 1rem;
+    }
+
+    .example-info h4 {
+      margin: 0 0 0.25rem;
+    }
+
+    .example-info p {
+      margin: 0;
+      color: var(--pico-muted-color);
+      font-size: 0.875rem;
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--pico-card-background-color);
+      border-top: 1px solid var(--pico-muted-border-color);
+      padding: 2rem;
+      text-align: center;
+      color: var(--pico-muted-color);
+    }
+
+    /* Mobile */
+    @media (max-width: 600px) {
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+
+      .hero p {
+        font-size: 1rem;
+      }
+
+      .header {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <a href="#" class="header-logo">
+      <span id="logo-emoji">🎨</span>
+      VibeFeed
+    </a>
+    <div class="header-actions" id="header-actions">
+      <a href="login" role="button" class="secondary outline">Log In</a>
+      <a href="login" role="button" class="contrast">Sign Up</a>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Create Interactive Content with AI</h1>
+      <p id="hero-subtitle">VibeFeed lets you create quizzes, games, visualizations, and more using natural language. Share your creations with the world.</p>
+      <div class="hero-cta">
+        <a href="login" role="button" class="contrast">Get Started Free</a>
+        <a href="../vibefeed.html" role="button" class="secondary outline">Try the Creator</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="features-grid">
+      <div class="feature">
+        <i data-lucide="sparkles" class="feature-icon"></i>
+        <h3>AI-Powered Creation</h3>
+        <p>Describe what you want in plain English. Our AI turns your ideas into interactive content.</p>
+      </div>
+      <div class="feature">
+        <i data-lucide="share-2" class="feature-icon"></i>
+        <h3>Share Instantly</h3>
+        <p>Every vibe gets a unique link. Share on social media or embed anywhere.</p>
+      </div>
+      <div class="feature">
+        <i data-lucide="users" class="feature-icon"></i>
+        <h3>Build Community</h3>
+        <p>Follow creators, like vibes, and discover trending content from the community.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="examples">
+    <h2>What Can You Create?</h2>
+    <div class="example-grid">
+      <div class="example-card">
+        <div class="example-preview">📝</div>
+        <div class="example-info">
+          <h4>Quizzes</h4>
+          <p>Interactive quizzes with instant feedback</p>
+        </div>
+      </div>
+      <div class="example-card">
+        <div class="example-preview">🎮</div>
+        <div class="example-info">
+          <h4>Games</h4>
+          <p>Simple p5.js games and animations</p>
+        </div>
+      </div>
+      <div class="example-card">
+        <div class="example-preview">📊</div>
+        <div class="example-info">
+          <h4>Charts</h4>
+          <p>Data visualizations and infographics</p>
+        </div>
+      </div>
+      <div class="example-card">
+        <div class="example-preview">🔀</div>
+        <div class="example-info">
+          <h4>Diagrams</h4>
+          <p>Flowcharts, mind maps, and more</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>Built with DeclarativeWeb &middot; Powered by Claude</p>
+  </footer>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/index.js"></script>
+</body>
+</html>

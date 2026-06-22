@@ -1,0 +1,690 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://declarativeweb.dev/schema.json",
+  "title": "DeclarativeWeb Site Schema",
+  "description": "JSON schema for render.js static site configuration",
+  "type": "object",
+  "required": ["site", "pages"],
+  "properties": {
+    "site": {
+      "type": "object",
+      "description": "Global site configuration",
+      "required": ["title"],
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Site title used in meta tags and browser title"
+        },
+        "description": {
+          "type": "string",
+          "description": "Site description for SEO meta tags"
+        },
+        "base": {
+          "type": "string",
+          "description": "Base URL path for the site",
+          "default": "/"
+        },
+        "defaultTheme": {
+          "type": "string",
+          "enum": ["light", "dark"],
+          "description": "Default theme preference",
+          "default": "light"
+        },
+        "theme": {
+          "type": "object",
+          "description": "Theme customization options",
+          "properties": {
+            "fontUrl": {
+              "type": "string",
+              "description": "Google Fonts or custom font CDN URL"
+            },
+            "fontFamily": {
+              "type": "string",
+              "description": "CSS font-family value (e.g., 'Inter, sans-serif')"
+            },
+            "fontSize": {
+              "type": "number",
+              "description": "Font size scale percentage (e.g., 100 for default, 110 for 10% larger, 90 for 10% smaller)",
+              "default": 100,
+              "minimum": 50,
+              "maximum": 200
+            },
+            "primaryColor": {
+              "type": "string",
+              "description": "Primary brand color (hex, rgb, or hsl)"
+            },
+            "secondaryColor": {
+              "type": "string",
+              "description": "Secondary brand color (hex, rgb, or hsl)"
+            }
+          }
+        },
+        "state": {
+          "type": "object",
+          "description": "Initial reactive state object accessible via {{state.key}}"
+        }
+      }
+    },
+    "nav": {
+      "type": "object",
+      "description": "Navigation configuration",
+      "properties": {
+        "layout": {
+          "type": "string",
+          "enum": ["horizontal", "vertical", "both"],
+          "description": "Navigation layout style",
+          "default": "horizontal"
+        },
+        "logo": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string",
+              "description": "Logo text"
+            },
+            "icon": {
+              "type": "string",
+              "description": "Lucide icon name"
+            },
+            "url": {
+              "type": "string",
+              "description": "Logo link URL",
+              "default": "/"
+            }
+          }
+        },
+        "links": {
+          "type": "array",
+          "description": "Navigation links",
+          "items": {
+            "type": "object",
+            "required": ["label", "path"],
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              },
+              "icon": {
+                "type": "string",
+                "description": "Optional Lucide icon name"
+              }
+            }
+          }
+        },
+        "actions": {
+          "type": "array",
+          "description": "Navigation action buttons",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "description": "Theme toggle button",
+                "required": ["type"],
+                "properties": {
+                  "type": {
+                    "const": "theme-toggle"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "description": "Link button",
+                "required": ["type", "label"],
+                "properties": {
+                  "type": {
+                    "const": "link"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "icon": {
+                    "type": "string"
+                  },
+                  "external": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "footer": {
+      "type": "object",
+      "description": "Footer configuration",
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "Footer text (supports {{interpolation}})"
+        },
+        "links": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["label", "path"],
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "type": "object",
+      "description": "Reusable component templates. IMPORTANT: Each component must be an HTML string, NOT an object. Example: { \"card\": \"<div>{{title}}</div>\" }",
+      "additionalProperties": {
+        "type": "string",
+        "description": "HTML template string with {{mustache}} syntax. Must be a string, not an object with type/html properties."
+      }
+    },
+    "functions": {
+      "type": "object",
+      "description": "Custom JavaScript functions callable via {{funcName()}}",
+      "additionalProperties": {
+        "type": "string",
+        "description": "JavaScript function code as string"
+      }
+    },
+    "injections": {
+      "type": "array",
+      "description": "Component injections for non-routed content. Inject blocks into any DOM element without routing.",
+      "items": {
+        "type": "object",
+        "required": ["target", "block"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for this injection"
+          },
+          "target": {
+            "type": "string",
+            "description": "CSS selector for injection target (e.g., '#sidebar', '.banner-slot')"
+          },
+          "block": {
+            "description": "Block definition (same format as page content blocks)",
+            "type": "object"
+          },
+          "mode": {
+            "type": "string",
+            "enum": ["replace", "append", "prepend"],
+            "default": "replace",
+            "description": "How to inject into target element"
+          },
+          "reactive": {
+            "type": "boolean",
+            "default": true,
+            "description": "Re-render when state changes"
+          },
+          "if": {
+            "type": "string",
+            "description": "Conditional expression (renders only if true, e.g., 'state.isLoggedIn')"
+          },
+          "onMount": {
+            "type": "array",
+            "description": "Actions to execute when injection mounts (e.g., fetch data)",
+            "items": {
+              "type": "object",
+              "required": ["type"],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["fetch", "setState", "navigate", "resetState", "logout"],
+                  "description": "Action type"
+                }
+              }
+            }
+          },
+          "onUnmount": {
+            "type": "array",
+            "description": "Actions to execute when injection is destroyed",
+            "items": {
+              "type": "object"
+            }
+          },
+          "fetch": {
+            "type": "object",
+            "description": "Auto-fetch data on mount (shorthand for onMount fetch action)",
+            "required": ["url", "saveAs"],
+            "properties": {
+              "url": {
+                "type": "string",
+                "description": "API endpoint URL"
+              },
+              "method": {
+                "type": "string",
+                "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"],
+                "default": "GET"
+              },
+              "saveAs": {
+                "type": "string",
+                "description": "State key to save fetched data"
+              },
+              "headers": {
+                "type": "object",
+                "description": "HTTP headers"
+              },
+              "params": {
+                "type": "object",
+                "description": "Query params (GET) or request body (POST/PUT/PATCH)"
+              }
+            }
+          },
+          "loading": {
+            "type": "object",
+            "description": "Block to show while onMount actions execute"
+          },
+          "error": {
+            "type": "object",
+            "description": "Block to show if onMount actions fail"
+          }
+        }
+      }
+    },
+    "pages": {
+      "type": "array",
+      "description": "Site pages",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["path"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "URL path for this page"
+          },
+          "$import": {
+            "type": "string",
+            "description": "Path to JSON file containing page content (lazy loaded on navigation)"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          },
+          "content": {
+            "type": "array",
+            "description": "Content blocks for this page (alternative to $import)",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "description": "Component reference",
+                  "required": ["$ref"],
+                  "properties": {
+                    "$ref": {
+                      "type": "string",
+                      "description": "Component name from components object"
+                    }
+                  },
+                  "additionalProperties": true
+                },
+                {
+                  "type": "object",
+                  "description": "HTML block",
+                  "required": ["type", "html"],
+                  "properties": {
+                    "type": {
+                      "const": "html"
+                    },
+                    "html": {
+                      "type": "string",
+                      "description": "Raw HTML content (supports {{interpolation}})"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "description": "Markdown block",
+                  "required": ["type", "content"],
+                  "properties": {
+                    "type": {
+                      "const": "markdown"
+                    },
+                    "content": {
+                      "type": "string",
+                      "description": "Markdown content"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "description": "Hero block",
+                  "required": ["type", "headline"],
+                  "properties": {
+                    "type": {
+                      "const": "hero"
+                    },
+                    "headline": {
+                      "type": "string"
+                    },
+                    "subhead": {
+                      "type": "string"
+                    },
+                    "cta": {
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "path": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "secondaryCta": {
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "path": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "icon": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "description": "Section with resource cards",
+                  "required": ["type"],
+                  "properties": {
+                    "type": {
+                      "const": "section"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "columns": {
+                      "oneOf": [
+                        {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 6,
+                          "description": "Number of columns (1-6)"
+                        },
+                        {
+                          "type": "object",
+                          "description": "Responsive column configuration",
+                          "properties": {
+                            "mobile": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "tablet": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "desktop": {
+                              "type": "integer",
+                              "minimum": 1
+                            }
+                          }
+                        }
+                      ],
+                      "default": 3
+                    },
+                    "gridTemplate": {
+                      "type": "string",
+                      "description": "Custom CSS grid-template-columns value"
+                    },
+                    "resources": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["title", "description"],
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "icon": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          },
+                          "tags": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "description": "Code block",
+                  "required": ["type", "code"],
+                  "properties": {
+                    "type": {
+                      "const": "code"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "language": {
+                      "type": "string",
+                      "default": "text"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "description": "Watch block - execute actions when condition becomes true",
+                  "required": ["type", "if", "actions"],
+                  "properties": {
+                    "type": {
+                      "const": "watch"
+                    },
+                    "if": {
+                      "type": "string",
+                      "description": "Condition expression to evaluate"
+                    },
+                    "actions": {
+                      "type": "array",
+                      "description": "Actions to execute when condition is true",
+                      "items": {
+                        "type": "object",
+                        "required": ["type"],
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": ["fetch", "setState", "navigate", "resetState", "logout"],
+                            "description": "Action type"
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "URL for fetch action"
+                          },
+                          "method": {
+                            "type": "string",
+                            "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"],
+                            "default": "GET"
+                          },
+                          "headers": {
+                            "type": "object",
+                            "description": "HTTP headers for fetch action"
+                          },
+                          "body": {
+                            "type": "object",
+                            "description": "Request body for fetch action"
+                          },
+                          "saveAs": {
+                            "type": "string",
+                            "description": "State key to save fetch result"
+                          },
+                          "updates": {
+                            "type": "object",
+                            "description": "State updates for setState action"
+                          },
+                          "path": {
+                            "type": "string",
+                            "description": "Route path for navigate action"
+                          },
+                          "keys": {
+                            "type": "array",
+                            "items": { "type": "string" },
+                            "description": "State keys to reset for resetState action"
+                          }
+                        }
+                      }
+                    },
+                    "once": {
+                      "type": "boolean",
+                      "default": false,
+                      "description": "If true, only fires the first time condition becomes true"
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "Unique identifier for this watch block"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "description": "Mermaid diagram block - renders diagrams from Mermaid DSL",
+                  "required": ["type", "content"],
+                  "properties": {
+                    "type": {
+                      "const": "mermaid"
+                    },
+                    "content": {
+                      "type": "string",
+                      "description": "Mermaid DSL content. Start with diagram type: graph TD, sequenceDiagram, erDiagram, stateDiagram-v2, gantt",
+                      "examples": [
+                        "graph TD\n  A[Start] --> B{Decision}\n  B -->|Yes| C[Do thing]\n  B -->|No| D[Other thing]"
+                      ]
+                    },
+                    "theme": {
+                      "type": "string",
+                      "enum": ["default", "dark", "neutral", "forest"],
+                      "default": "neutral",
+                      "description": "Mermaid diagram theme"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "description": "Frappe Chart block - renders clean minimal charts for data visualization",
+                  "required": ["type", "chartType", "labels", "datasets"],
+                  "properties": {
+                    "type": {
+                      "const": "frappe-chart"
+                    },
+                    "chartType": {
+                      "type": "string",
+                      "enum": ["line", "bar", "pie", "percentage", "heatmap"],
+                      "description": "Chart type: line for trends over time, bar for comparisons, pie for proportions, percentage for stacked proportions"
+                    },
+                    "title": {
+                      "type": "string",
+                      "maxLength": 60,
+                      "description": "Chart title"
+                    },
+                    "labels": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "maxLength": 20
+                      },
+                      "minItems": 2,
+                      "description": "X-axis labels. Keep short."
+                    },
+                    "datasets": {
+                      "type": "array",
+                      "minItems": 1,
+                      "maxItems": 6,
+                      "items": {
+                        "type": "object",
+                        "required": ["values"],
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "maxLength": 30,
+                            "description": "Dataset name"
+                          },
+                          "values": {
+                            "type": "array",
+                            "items": {
+                              "type": "number"
+                            },
+                            "description": "Data values - must match labels array length"
+                          }
+                        }
+                      },
+                      "description": "Chart datasets (max 6 for visual clarity)"
+                    },
+                    "colors": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "description": "Optional hex colors for each dataset"
+                    },
+                    "height": {
+                      "type": "integer",
+                      "minimum": 150,
+                      "maximum": 600,
+                      "default": 300,
+                      "description": "Chart height in pixels"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

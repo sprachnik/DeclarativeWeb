@@ -1,0 +1,128 @@
+{
+  "path": "/",
+  "meta": {
+    "title": "Home",
+    "description": "JSON-driven static site framework"
+  },
+  "content": [
+    {
+      "type": "hero",
+      "headline": "Build Websites with Just JSON",
+      "subhead": "A minimal, LLM-friendly framework for rendering static sites. Zero build step. Pure HTML + JS. Perfect for AI agents.",
+      "cta": {
+        "label": "Try Live Editor",
+        "url": "/demo.html"
+      },
+      "secondaryCta": {
+        "label": "View Interactive Demos",
+        "path": "/demos",
+        "icon": "play-circle"
+      }
+    },
+    {
+      "type": "section",
+      "id": "core-features",
+      "title": "Core Features",
+      "subtitle": "Everything you need in one framework",
+      "columns": {
+        "mobile": 1,
+        "tablet": 2,
+        "desktop": 4
+      },
+      "resources": [
+        {
+          "title": "LLM-Optimized",
+          "description": "Designed for AI agents to modify. Edit only site.json—never touch HTML, CSS, or JS.",
+          "icon": "brain",
+          "tags": [
+            "AI-friendly"
+          ]
+        },
+        {
+          "title": "Zero Build Tools",
+          "description": "No npm, webpack, or complicated setup. Just open index.html in your browser.",
+          "icon": "zap",
+          "tags": [
+            "simple"
+          ]
+        },
+        {
+          "title": "Reactive State",
+          "description": "Deep reactive state management with watchers, actions, and automatic re-rendering.",
+          "icon": "cpu",
+          "path": "/demos#state-management",
+          "tags": [
+            "interactive"
+          ]
+        },
+        {
+          "title": "Expression Engine",
+          "description": "Safe expression evaluation with double curly brace syntax. Arithmetic, comparisons, ternary operators.",
+          "icon": "code-2",
+          "path": "/demos#expressions",
+          "tags": [
+            "dynamic"
+          ]
+        },
+        {
+          "title": "Conditional Rendering",
+          "description": "Show/hide blocks with if/then/else logic. Perfect for auth, empty states, and more.",
+          "icon": "git-branch",
+          "path": "/demos#conditionals",
+          "tags": [
+            "core"
+          ]
+        },
+        {
+          "title": "Loop Rendering",
+          "description": "Iterate over arrays with {{each}}. Loop metadata (index, first, last, length).",
+          "icon": "repeat",
+          "path": "/demos#loops",
+          "tags": [
+            "core"
+          ]
+        },
+        {
+          "title": "Data Fetching",
+          "description": "Fetch from REST APIs with caching, transforms, and batch requests.",
+          "icon": "database",
+          "tags": [
+            "API"
+          ]
+        },
+        {
+          "title": "Action Chains",
+          "description": "Execute action workflows (setState, fetch, navigate). Complete workflows with one call.",
+          "icon": "play",
+          "tags": [
+            "advanced"
+          ]
+        },
+        {
+          "title": "Composable JSON",
+          "description": "Split large sites into page files with $import. Lazy loading with HTTP caching for optimal performance.",
+          "icon": "file-json",
+          "path": "/docs",
+          "tags": [
+            "architecture"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "title": "Quick Start",
+      "language": "html",
+      "description": "Create index.html and you're ready to go",
+      "code": "<!DOCTYPE html>\n<html lang=\"en\" data-theme=\"light\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>My Site</title>\n  <link rel=\"icon\" type=\"image/svg+xml\" href=\"favicon.svg\">\n  <link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css\">\n  <link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.colors.min.css\">\n  <link rel=\"stylesheet\" href=\"styles.css\">\n</head>\n<body>\n  <div id=\"app\"></div>\n  <script src=\"https://cdn.jsdelivr.net/npm/marked/marked.min.js\"></script>\n  <script src=\"https://unpkg.com/lucide@latest\"></script>\n  <script src=\"expression-evaluator.js\"></script>\n  <script src=\"conditional-renderer.js\"></script>\n  <script src=\"loop-renderer.js\"></script>\n  <script src=\"render.js\"></script>\n  <script>\n    Render.init({ src: 'site.json', target: '#app' })\n  </script>\n</body>\n</html>"
+    },
+    {
+      "type": "markdown",
+      "content": "## Theme Customization\n\n### PicoCSS Color Themes\n\nDeclarativeWeb includes built-in support for **18 PicoCSS color themes**. Change themes using reactive state:\n\n```javascript\nRender.state.colorTheme = 'purple'  // Instant theme change!\n```\n\nAvailable themes: `default`, `red`, `pink`, `fuchsia`, `purple`, `violet`, `indigo`, `blue`, `cyan`, `jade`, `green`, `lime`, `yellow`, `amber`, `pumpkin`, `orange`, `zinc`, `slate`\n\n### Custom Theme Settings (Advanced)\n\nFor deeper customization, define theme settings in `site.json`:\n\n```json\n\"theme\": {\n  \"fontSize\": 100,\n  \"primaryColor\": \"#3b82f6\",\n  \"secondaryColor\": \"#8b5cf6\",\n  \"fontFamily\": \"Inter, sans-serif\"\n}\n```\n\n- **Font Size**: Scale from 50% to 200%\n- **Primary/Secondary Colors**: Custom brand colors (hex values)\n- **Font Family**: Google Fonts or custom web fonts\n\nChanges apply instantly across the entire site!"
+    },
+    {
+      "type": "html",
+      "html": "<div style=\"background: var(--code-bg); padding: 3rem 2rem; border-radius: 0.5rem; text-align: center; margin: 2rem 0;\"><h2>Ready to Explore?</h2><p style=\"color: var(--text-muted); margin-bottom: 1.5rem;\">Check out the interactive demos to see all features in action</p><div style=\"display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;\"><a href=\"/demos\" role=\"button\" data-route>Interactive Demos</a><a href=\"/demo.html\" role=\"button\" class=\"outline\">Live Editor</a></div></div>"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Theme Test</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.colors.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- DeclarativeWeb Bundle -->
+  <script src="dist/declarativeweb.min.js"></script>
+  <script>
+    Render.init({ src: 'showcase.json', target: '#app' }).then(() => {
+      console.log('Initial state:', Render.state)
+      console.log('colorTheme:', Render.state.colorTheme)
+
+      // Navigate to demos
+      setTimeout(() => {
+        Render.navigate('/demos')
+        console.log('Navigated to /demos')
+        console.log('State after navigation:', Render.state)
+      }, 1000)
+    })
+  </script>
+</body>
+</html>

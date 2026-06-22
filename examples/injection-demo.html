@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeclarativeWeb Component Injection Demo</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    .demo-section {
+      margin: 2rem 0;
+      padding: 1.5rem;
+      border: 1px solid var(--muted-border-color);
+      border-radius: 0.5rem;
+    }
+    .injection-target {
+      min-height: 100px;
+      padding: 1rem;
+      border: 2px dashed var(--muted-border-color);
+      border-radius: 0.5rem;
+      margin: 1rem 0;
+    }
+    .demo-controls button {
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <!-- Load dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/frappe-charts@1.2.4/dist/frappe-charts.min.iife.js"></script>
+
+  <!-- DeclarativeWeb Bundle -->
+  <script src="../dist/declarativeweb.min.js"></script>
+
+  <script>
+    // Initialize DeclarativeWeb with injection demo
+    Render.init({
+      data: {
+        site: {
+          title: 'Component Injection Demo',
+          description: 'Demonstrating component injection without routing',
+          state: {
+            counter: 0,
+            users: [],
+            showBanner: true
+          }
+        },
+        nav: {
+          logo: { text: 'Injection Demo', icon: 'zap' },
+          links: []
+        },
+        components: {
+          'demo-card': `
+            <article>
+              <header><strong>{{title}}</strong></header>
+              <p>{{content}}</p>
+            </article>
+          `
+        },
+        pages: [
+          {
+            path: '/',
+            content: [
+              {
+                type: 'hero',
+                title: 'Component Injection Demo',
+                subtitle: 'Inject components anywhere without routing'
+              },
+              {
+                type: 'html',
+                content: `
+                  <div class="demo-section">
+                    <h2>Demo 1: Basic Injection</h2>
+                    <p>Inject a simple component into the target below.</p>
+                    <div class="demo-controls">
+                      <button onclick="demo1Inject()">Inject Card</button>
+                      <button onclick="demo1Update()" class="secondary">Update Card</button>
+                      <button onclick="demo1Destroy()" class="outline">Destroy Card</button>
+                    </div>
+                    <div id="demo1-target" class="injection-target">
+                      <em>Target area - click "Inject Card" to inject a component</em>
+                    </div>
+                  </div>
+
+                  <div class="demo-section">
+                    <h2>Demo 2: Reactive State</h2>
+                    <p>Injected components automatically re-render when state changes.</p>
+                    <div class="demo-controls">
+                      <button onclick="demo2Setup()">Setup Counter</button>
+                      <button onclick="demo2Increment()" class="secondary">Increment</button>
+                      <button onclick="demo2Reset()" class="outline">Reset</button>
+                    </div>
+                    <div id="demo2-target" class="injection-target">
+                      <em>Click "Setup Counter" to inject a reactive counter</em>
+                    </div>
+                  </div>
+
+                  <div class="demo-section">
+                    <h2>Demo 3: Data Fetching</h2>
+                    <p>Inject components that fetch data on mount with loading/error states.</p>
+                    <div class="demo-controls">
+                      <button onclick="demo3Fetch()">Fetch Users</button>
+                      <button onclick="demo3Clear()" class="outline">Clear</button>
+                    </div>
+                    <div id="demo3-target" class="injection-target">
+                      <em>Click "Fetch Users" to inject a component that fetches data</em>
+                    </div>
+                  </div>
+
+                  <div class="demo-section">
+                    <h2>Demo 4: Multiple Injections</h2>
+                    <p>Inject multiple components into different targets.</p>
+                    <div class="demo-controls">
+                      <button onclick="demo4InjectAll()">Inject All</button>
+                      <button onclick="demo4ClearAll()" class="outline">Clear All</button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                      <div id="demo4-target1" class="injection-target">Target 1</div>
+                      <div id="demo4-target2" class="injection-target">Target 2</div>
+                    </div>
+                  </div>
+
+                  <div class="demo-section">
+                    <h2>Demo 5: Conditional Injection</h2>
+                    <p>Show/hide components based on state.</p>
+                    <div class="demo-controls">
+                      <button onclick="demo5ToggleBanner()">Toggle Banner</button>
+                    </div>
+                    <div id="demo5-target" class="injection-target">
+                      <em>Click "Toggle Banner" to show/hide conditional content</em>
+                    </div>
+                    <p>Banner state: <code>{{state.showBanner}}</code></p>
+                  </div>
+                `
+              }
+            ]
+          }
+        ]
+      },
+      target: '#app'
+    })
+
+    // Store injection IDs
+    let injectionIds = {}
+
+    // ========================================================================
+    // Demo 1: Basic Injection
+    // ========================================================================
+    function demo1Inject() {
+      const id = Render.inject('#demo1-target', {
+        $ref: 'demo-card',
+        title: 'Injected Card',
+        content: 'This card was injected programmatically!'
+      })
+      injectionIds.demo1 = id
+      console.log('Demo 1: Injected with ID:', id)
+    }
+
+    function demo1Update() {
+      if (!injectionIds.demo1) {
+        alert('Please inject a card first!')
+        return
+      }
+      Render.updateInjection(injectionIds.demo1, {
+        $ref: 'demo-card',
+        title: 'Updated Card',
+        content: 'This card was updated at ' + new Date().toLocaleTimeString()
+      })
+      console.log('Demo 1: Updated injection')
+    }
+
+    function demo1Destroy() {
+      if (!injectionIds.demo1) {
+        alert('No card to destroy!')
+        return
+      }
+      Render.destroyInjection(injectionIds.demo1)
+      delete injectionIds.demo1
+      console.log('Demo 1: Destroyed injection')
+    }
+
+    // ========================================================================
+    // Demo 2: Reactive State
+    // ========================================================================
+    function demo2Setup() {
+      Render.state.counter = 0
+      const id = Render.inject('#demo2-target', {
+        type: 'html',
+        content: `
+          <article>
+            <h3>Reactive Counter</h3>
+            <p style="font-size: 2rem; font-weight: bold;">{{state.counter}}</p>
+            <small>This updates automatically when state changes</small>
+          </article>
+        `
+      }, {
+        reactive: true
+      })
+      injectionIds.demo2 = id
+      console.log('Demo 2: Setup reactive counter')
+    }
+
+    function demo2Increment() {
+      Render.state.counter++
+      console.log('Demo 2: Incremented counter to', Render.state.counter)
+    }
+
+    function demo2Reset() {
+      Render.state.counter = 0
+      console.log('Demo 2: Reset counter')
+    }
+
+    // ========================================================================
+    // Demo 3: Data Fetching
+    // ========================================================================
+    function demo3Fetch() {
+      const id = Render.inject('#demo3-target', {
+        type: 'html',
+        content: `
+          <article>
+            <h3>Fetched Users</h3>
+            <ul>
+              {{#each state.users}}
+                <li>{{this.name}} ({{this.email}})</li>
+              {{/each}}
+            </ul>
+            <small>Total: {{state.users.length}} users</small>
+          </article>
+        `
+      }, {
+        onMount: [
+          {
+            type: 'fetch',
+            url: 'https://jsonplaceholder.typicode.com/users?_limit=5',
+            saveAs: 'users'
+          }
+        ],
+        loading: {
+          type: 'html',
+          content: '<article><p>⏳ Loading users...</p></article>'
+        },
+        error: {
+          type: 'html',
+          content: '<article><p>❌ Failed to load users</p></article>'
+        }
+      })
+      injectionIds.demo3 = id
+      console.log('Demo 3: Fetching users with ID:', id)
+    }
+
+    function demo3Clear() {
+      if (injectionIds.demo3) {
+        Render.destroyInjection(injectionIds.demo3)
+        delete injectionIds.demo3
+        console.log('Demo 3: Cleared users')
+      }
+    }
+
+    // ========================================================================
+    // Demo 4: Multiple Injections
+    // ========================================================================
+    function demo4InjectAll() {
+      const id1 = Render.inject('#demo4-target1', {
+        $ref: 'demo-card',
+        title: 'Card 1',
+        content: 'First injected card'
+      })
+
+      const id2 = Render.inject('#demo4-target2', {
+        $ref: 'demo-card',
+        title: 'Card 2',
+        content: 'Second injected card'
+      })
+
+      injectionIds.demo4 = [id1, id2]
+      console.log('Demo 4: Injected multiple cards')
+    }
+
+    function demo4ClearAll() {
+      if (injectionIds.demo4) {
+        injectionIds.demo4.forEach(id => Render.destroyInjection(id))
+        delete injectionIds.demo4
+        console.log('Demo 4: Cleared all cards')
+      }
+    }
+
+    // ========================================================================
+    // Demo 5: Conditional Injection
+    // ========================================================================
+    function demo5ToggleBanner() {
+      Render.state.showBanner = !Render.state.showBanner
+
+      // Clear existing
+      if (injectionIds.demo5) {
+        Render.destroyInjection(injectionIds.demo5)
+        delete injectionIds.demo5
+      }
+
+      // Inject based on state
+      if (Render.state.showBanner) {
+        const id = Render.inject('#demo5-target', {
+          type: 'html',
+          content: `
+            <article style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+              <h3>🎉 Special Banner</h3>
+              <p>This banner is conditionally shown based on state!</p>
+            </article>
+          `
+        })
+        injectionIds.demo5 = id
+      }
+
+      console.log('Demo 5: Toggled banner to', Render.state.showBanner)
+    }
+
+    // Log initial state
+    console.log('Injection Demo Ready!')
+    console.log('Try the interactive demos above')
+    console.log('Access Render API:', Render)
+  </script>
+</body>
+</html>

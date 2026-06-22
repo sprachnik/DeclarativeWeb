@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Debug - VibeFeed</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <style>
+    body { padding: 2rem; }
+    .container { max-width: 800px; margin: 0 auto; }
+    .debug-box { background: #1a1a1a; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.875rem; }
+    .success { color: #4ade80; }
+    .error { color: #f87171; }
+    .warning { color: #fbbf24; }
+    h3 { margin-top: 2rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Quiz Completion Debug Tool</h1>
+    <p>This page will help diagnose why quiz completions aren't showing properly.</p>
+
+    <h3>Step 1: Check Dependencies</h3>
+    <div id="dependencies-check" class="debug-box">Checking...</div>
+
+    <h3>Step 2: Check Database Connection</h3>
+    <div id="db-check" class="debug-box">Checking...</div>
+
+    <h3>Step 3: Check quiz_completions Table</h3>
+    <div id="table-check" class="debug-box">Checking...</div>
+
+    <h3>Step 4: Check API Functions</h3>
+    <div id="api-check" class="debug-box">Checking...</div>
+
+    <h3>Step 5: Test Data Insertion</h3>
+    <button onclick="testInsertion()" id="test-btn">Test Quiz Completion Save</button>
+    <div id="insertion-check" class="debug-box">Click button to test...</div>
+
+    <h3>Instructions</h3>
+    <div class="debug-box">
+      <p>If any checks fail:</p>
+      <ol>
+        <li><strong>Dependencies missing:</strong> Make sure supabase.js is loaded</li>
+        <li><strong>Database connection failed:</strong> Check Supabase credentials in js/supabase-config.js</li>
+        <li><strong>Table doesn't exist:</strong> Run the SQL migration I provided</li>
+        <li><strong>API functions missing:</strong> Make sure js/supabase.js has the quiz API</li>
+        <li><strong>Insertion fails:</strong> Check console for detailed error</li>
+      </ol>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script>
+    async function checkDependencies() {
+      const box = document.getElementById('dependencies-check')
+      const checks = []
+
+      // Check Supabase
+      if (typeof supabase === 'undefined' && typeof window.supabaseClient === 'undefined') {
+        checks.push('<span class="error">✗ Supabase library not loaded</span>')
+      } else {
+        checks.push('<span class="success">✓ Supabase library loaded</span>')
+      }
+
+      // Check API
+      if (typeof window.api === 'undefined') {
+        checks.push('<span class="error">✗ API object not found</span>')
+      } else {
+        checks.push('<span class="success">✓ API object found</span>')
+      }
+
+      // Check quizzes API
+      if (typeof window.api?.quizzes === 'undefined') {
+        checks.push('<span class="error">✗ api.quizzes not found</span>')
+      } else {
+        checks.push('<span class="success">✓ api.quizzes found</span>')
+      }
+
+      // Check specific functions
+      const requiredFunctions = ['saveCompletion', 'getStats', 'getTopScores']
+      requiredFunctions.forEach(fn => {
+        if (typeof window.api?.quizzes?.[fn] === 'function') {
+          checks.push(`<span class="success">✓ api.quizzes.${fn}() exists</span>`)
+        } else {
+          checks.push(`<span class="error">✗ api.quizzes.${fn}() missing</span>`)
+        }
+      })
+
+      box.innerHTML = checks.join('<br>')
+    }
+
+    async function checkDatabase() {
+      const box = document.getElementById('db-check')
+
+      try {
+        const { data, error } = await supabaseClient.from('users').select('count').limit(1)
+
+        if (error) {
+          box.innerHTML = `<span class="error">✗ Database connection failed: ${error.message}</span>`
+        } else {
+          box.innerHTML = '<span class="success">✓ Database connection working</span>'
+        }
+      } catch (err) {
+        box.innerHTML = `<span class="error">✗ Database error: ${err.message}</span>`
+      }
+    }
+
+    async function checkTable() {
+      const box = document.getElementById('table-check')
+
+      try {
+        // Try to query the quiz_completions table
+        const { data, error } = await supabaseClient
+          .from('quiz_completions')
+          .select('count')
+          .limit(1)
+
+        if (error) {
+          if (error.code === '42P01') {
+            box.innerHTML = `<span class="error">✗ Table "quiz_completions" does NOT exist<br>You need to run the SQL migration!</span>`
+          } else {
+            box.innerHTML = `<span class="error">✗ Error querying table: ${error.message}</span>`
+          }
+        } else {
+          box.innerHTML = '<span class="success">✓ Table "quiz_completions" exists</span>'
+
+          // Also check row count
+          const { count } = await supabaseClient
+            .from('quiz_completions')
+            .select('*', { count: 'exact', head: true })
+
+          box.innerHTML += `<br><span class="warning">Current completions in database: ${count || 0}</span>`
+        }
+      } catch (err) {
+        box.innerHTML = `<span class="error">✗ Error: ${err.message}</span>`
+      }
+    }
+
+    async function checkAPI() {
+      const box = document.getElementById('api-check')
+      const checks = []
+
+      // Check if we're logged in
+      const user = await auth.getUser()
+      if (user) {
+        checks.push(`<span class="success">✓ Logged in as: ${user.email}</span>`)
+      } else {
+        checks.push(`<span class="warning">⚠ Not logged in (required for saving completions)</span>`)
+      }
+
+      box.innerHTML = checks.join('<br>')
+    }
+
+    async function testInsertion() {
+      const box = document.getElementById('insertion-check')
+      const btn = document.getElementById('test-btn')
+
+      btn.disabled = true
+      box.innerHTML = '<span class="warning">Testing...</span>'
+
+      try {
+        // Check if logged in
+        const user = await auth.getUser()
+        if (!user) {
+          box.innerHTML = '<span class="error">✗ You must be logged in to test insertion</span>'
+          btn.disabled = false
+          return
+        }
+
+        // Create test completion data
+        const testData = {
+          score: 7,
+          totalQuestions: 10,
+          percentage: 70,
+          answers: [
+            { questionIndex: 0, selected: 1, correct: true },
+            { questionIndex: 1, selected: 0, correct: false }
+          ]
+        }
+
+        // Get a test vibe ID (first public vibe)
+        const { data: vibes } = await supabaseClient
+          .from('vibes')
+          .select('id')
+          .eq('is_public', true)
+          .limit(1)
+          .single()
+
+        if (!vibes) {
+          box.innerHTML = '<span class="error">✗ No public vibes found to test with</span>'
+          btn.disabled = false
+          return
+        }
+
+        // Try to save
+        const result = await api.quizzes.saveCompletion(vibes.id, testData)
+
+        box.innerHTML = `
+          <span class="success">✓ Successfully saved test completion!</span><br>
+          <pre>${JSON.stringify(result, null, 2)}</pre>
+        `
+      } catch (error) {
+        box.innerHTML = `
+          <span class="error">✗ Failed to save completion:</span><br>
+          <span class="error">${error.message}</span><br>
+          <pre>${error.stack || ''}</pre>
+        `
+        console.error('Full error:', error)
+      } finally {
+        btn.disabled = false
+      }
+    }
+
+    // Run all checks on load
+    window.addEventListener('load', async () => {
+      await checkDependencies()
+      await checkDatabase()
+      await checkTable()
+      await checkAPI()
+    })
+  </script>
+</body>
+</html>

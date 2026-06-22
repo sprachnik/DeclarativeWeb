@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlayVibe — Make a game by tapping!</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.colors.min.css">
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    .pv-shell {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .pv-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.25rem 0.5rem;
+    }
+
+    .pv-logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #667eea 0%, #f66c86 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .pv-header small {
+      color: var(--pico-muted-color);
+      font-size: 0.8rem;
+    }
+
+    /* --- Slot picker --- */
+    .pv-slots {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+    }
+
+    @media (max-width: 640px) {
+      .pv-slots { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .pv-slot {
+      background: white;
+      border: 3px solid #e0e0e8;
+      border-radius: 1.5rem;
+      padding: 1rem 0.75rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+      min-height: 130px;
+      justify-content: center;
+    }
+
+    .pv-slot:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(102,126,234,0.18);
+      border-color: #667eea;
+    }
+
+    .pv-slot.filled {
+      border-color: #667eea;
+      background: linear-gradient(135deg, #f6f8ff 0%, #fff5fa 100%);
+    }
+
+    .pv-slot.jiggle {
+      animation: jiggle 0.4s ease;
+      border-color: #f66c86;
+    }
+
+    @keyframes jiggle {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+
+    .pv-slot-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #888;
+    }
+
+    .pv-slot-emoji {
+      font-size: 2.75rem;
+      line-height: 1;
+    }
+
+    .pv-slot-text {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #333;
+      min-height: 1.1em;
+    }
+
+    /* --- Action row --- */
+    .pv-actions {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .pv-make {
+      flex: 1;
+      min-width: 200px;
+      max-width: 400px;
+      padding: 1.1rem 1.5rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 2rem;
+      background: linear-gradient(135deg, #667eea 0%, #f66c86 100%);
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(102,126,234,0.4);
+      transition: transform 0.15s, box-shadow 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .pv-make:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102,126,234,0.5);
+    }
+
+    .pv-make:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .pv-icon-btn {
+      padding: 0.85rem 1rem;
+      font-size: 1.1rem;
+      border: 2px solid #e0e0e8;
+      border-radius: 2rem;
+      background: white;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .pv-icon-btn:hover {
+      border-color: #667eea;
+      transform: translateY(-2px);
+    }
+
+    /* --- Game area --- */
+    .pv-game-area {
+      flex: 1;
+      background: white;
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      min-height: 200px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      position: relative;
+    }
+
+    .pv-placeholder {
+      text-align: center;
+      color: #999;
+      padding: 2rem 1rem;
+    }
+
+    .pv-placeholder .big-emoji {
+      font-size: 4rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .pv-placeholder p {
+      font-size: 1rem;
+      margin: 0.25rem 0;
+    }
+
+    /* Streaming indicator */
+    .pv-loading {
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+
+    .pv-loading .spinner {
+      font-size: 3.5rem;
+      animation: bounce 1.2s ease-in-out infinite;
+      display: inline-block;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-15px) scale(1.1); }
+    }
+
+    .pv-loading p {
+      margin-top: 1rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .pv-after-actions {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+
+    /* --- Modal / Sheet --- */
+    .pv-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 1000;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @media (min-width: 640px) {
+      .pv-modal-backdrop { align-items: center; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .pv-modal-backdrop.hidden { display: none; }
+
+    .pv-sheet {
+      background: white;
+      width: 100%;
+      max-width: 600px;
+      border-radius: 1.5rem 1.5rem 0 0;
+      padding: 1.5rem;
+      max-height: 80vh;
+      overflow-y: auto;
+      animation: slideUp 0.25s ease;
+    }
+
+    @media (min-width: 640px) {
+      .pv-sheet { border-radius: 1.5rem; }
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .pv-sheet h3 {
+      margin: 0 0 1rem;
+      text-align: center;
+      font-size: 1.1rem;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .pv-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.6rem;
+    }
+
+    @media (min-width: 480px) {
+      .pv-options { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    .pv-option {
+      background: #f7f7fb;
+      border: 2px solid transparent;
+      border-radius: 1rem;
+      padding: 0.85rem 0.5rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.12s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .pv-option:hover {
+      background: #eef0ff;
+      border-color: #667eea;
+      transform: scale(1.05);
+    }
+
+    .pv-option:active {
+      transform: scale(0.95);
+    }
+
+    .pv-option-emoji {
+      font-size: 2.25rem;
+      line-height: 1;
+    }
+
+    .pv-option-text {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #555;
+    }
+
+    /* Quiz / game block styling tweaks for kid-friendly look */
+    .pv-game-area .quiz-block button,
+    .pv-game-area button {
+      font-size: 1.1rem;
+      padding: 0.85rem 1.25rem;
+      border-radius: 1rem;
+    }
+
+    .pv-game-area h1, .pv-game-area h2 {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="pv-shell">
+    <div class="pv-header">
+      <div class="pv-logo">🎮 PlayVibe</div>
+      <small>tap to make a game!</small>
+    </div>
+
+    <!-- Slot picker -->
+    <div class="pv-slots" id="slots">
+      <div class="pv-slot" data-slot="who" onclick="openSlot('who')">
+        <div class="pv-slot-label">Who</div>
+        <div class="pv-slot-emoji">❓</div>
+        <div class="pv-slot-text">tap to choose</div>
+      </div>
+      <div class="pv-slot" data-slot="where" onclick="openSlot('where')">
+        <div class="pv-slot-label">Where</div>
+        <div class="pv-slot-emoji">❓</div>
+        <div class="pv-slot-text">tap to choose</div>
+      </div>
+      <div class="pv-slot" data-slot="learn" onclick="openSlot('learn')">
+        <div class="pv-slot-label">Learn</div>
+        <div class="pv-slot-emoji">❓</div>
+        <div class="pv-slot-text">tap to choose</div>
+      </div>
+      <div class="pv-slot" data-slot="style" onclick="openSlot('style')">
+        <div class="pv-slot-label">Style</div>
+        <div class="pv-slot-emoji">❓</div>
+        <div class="pv-slot-text">tap to choose</div>
+      </div>
+    </div>
+
+    <!-- Action row -->
+    <div class="pv-actions">
+      <button class="pv-icon-btn" onclick="surpriseMe()" title="Random slots">
+        <span style="font-size: 1.4rem">🎲</span>
+        <span>Surprise me</span>
+      </button>
+      <button class="pv-make" id="make-btn" onclick="makeGame()">
+        <span>▶</span>
+        <span>Make my game!</span>
+      </button>
+    </div>
+
+    <!-- Game area -->
+    <div class="pv-game-area" id="game-area">
+      <div class="pv-placeholder">
+        <div class="big-emoji">🎨</div>
+        <p><strong>Pick a who, where, what to learn, and a style.</strong></p>
+        <p>Then tap <em>Make my game!</em></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Picker sheet -->
+  <div class="pv-modal-backdrop hidden" id="picker" onclick="closeSlot(event)">
+    <div class="pv-sheet" onclick="event.stopPropagation()">
+      <h3 id="picker-title">Pick one</h3>
+      <div class="pv-options" id="picker-options"></div>
+    </div>
+  </div>
+
+  <!-- Render dummy for DeclarativeWeb init -->
+  <div id="render-dummy" style="display: none;"></div>
+
+  <!-- Deps -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="dist/declarativeweb.min.js"></script>
+
+  <script>
+    // --- Slot options ---
+    const OPTIONS = {
+      who: [
+        { e: '🐙', t: 'octopus' },
+        { e: '🦁', t: 'lion' },
+        { e: '🐉', t: 'dragon' },
+        { e: '🤖', t: 'robot' },
+        { e: '🐱', t: 'cat' },
+        { e: '🦄', t: 'unicorn' },
+        { e: '🐧', t: 'penguin' },
+        { e: '🦖', t: 'dinosaur' },
+        { e: '🧙', t: 'wizard' },
+        { e: '👻', t: 'ghost' },
+        { e: '🐝', t: 'bee' },
+        { e: '🦊', t: 'fox' }
+      ],
+      where: [
+        { e: '🏰', t: 'castle' },
+        { e: '🚀', t: 'space' },
+        { e: '🌊', t: 'ocean' },
+        { e: '🌳', t: 'forest' },
+        { e: '🏝️', t: 'island' },
+        { e: '🌋', t: 'volcano' },
+        { e: '🏜️', t: 'desert' },
+        { e: '❄️', t: 'arctic' },
+        { e: '🏙️', t: 'city' },
+        { e: '🎪', t: 'circus' },
+        { e: '🕸️', t: 'haunted house' },
+        { e: '🎮', t: 'game world' }
+      ],
+      learn: [
+        { e: '➕', t: 'adding' },
+        { e: '➖', t: 'taking away' },
+        { e: '✖️', t: 'times tables' },
+        { e: '🔤', t: 'spelling' },
+        { e: '🎨', t: 'colours' },
+        { e: '🔷', t: 'shapes' },
+        { e: '⏰', t: 'clocks' },
+        { e: '🌍', t: 'countries' },
+        { e: '🐾', t: 'animals' },
+        { e: '🎵', t: 'music notes' },
+        { e: '💰', t: 'money' },
+        { e: '📏', t: 'measuring' }
+      ],
+      style: [
+        { e: '🤣', t: 'silly' },
+        { e: '🌈', t: 'cute' },
+        { e: '👻', t: 'spooky' },
+        { e: '🚀', t: 'epic' },
+        { e: '🎉', t: 'party' },
+        { e: '✨', t: 'magical' },
+        { e: '🦸', t: 'heroic' },
+        { e: '🐾', t: 'animal kingdom' }
+      ]
+    }
+
+    const SLOT_TITLES = {
+      who: 'Who is the star?',
+      where: 'Where is it set?',
+      learn: 'What to learn?',
+      style: 'Pick a vibe!'
+    }
+
+    // --- State ---
+    const picks = { who: null, where: null, learn: null, style: null }
+    let activeSlot = null
+    let isGenerating = false
+    let currentInjection = null
+
+    // --- Init DeclarativeWeb (needed so Render.inject works) ---
+    Render.init({
+      data: {
+        site: { title: 'PlayVibe' },
+        state: { score: 0 },
+        pages: [{ path: '/', content: [] }]
+      },
+      target: '#render-dummy',
+      showJsonButton: false
+    })
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) lucide.createIcons()
+    })
+
+    // --- Slot picker ---
+    function openSlot(slot) {
+      if (isGenerating) return
+      activeSlot = slot
+      document.getElementById('picker-title').textContent = SLOT_TITLES[slot]
+      const grid = document.getElementById('picker-options')
+      grid.innerHTML = OPTIONS[slot].map((opt, i) =>
+        `<div class="pv-option" onclick="pickOption(${i})">
+           <div class="pv-option-emoji">${opt.e}</div>
+           <div class="pv-option-text">${opt.t}</div>
+         </div>`
+      ).join('')
+      document.getElementById('picker').classList.remove('hidden')
+    }
+
+    function closeSlot(event) {
+      // Only close if backdrop itself was clicked (not children)
+      if (event && event.target.id !== 'picker') return
+      document.getElementById('picker').classList.add('hidden')
+    }
+
+    function pickOption(index) {
+      const opt = OPTIONS[activeSlot][index]
+      picks[activeSlot] = opt
+      const slotEl = document.querySelector(`.pv-slot[data-slot="${activeSlot}"]`)
+      slotEl.classList.add('filled')
+      slotEl.querySelector('.pv-slot-emoji').textContent = opt.e
+      slotEl.querySelector('.pv-slot-text').textContent = opt.t
+      document.getElementById('picker').classList.add('hidden')
+    }
+
+    function surpriseMe() {
+      for (const slot of ['who', 'where', 'learn', 'style']) {
+        const opts = OPTIONS[slot]
+        const opt = opts[Math.floor(Math.random() * opts.length)]
+        picks[slot] = opt
+        const slotEl = document.querySelector(`.pv-slot[data-slot="${slot}"]`)
+        slotEl.classList.add('filled')
+        slotEl.querySelector('.pv-slot-emoji').textContent = opt.e
+        slotEl.querySelector('.pv-slot-text').textContent = opt.t
+      }
+    }
+
+    // --- Make game ---
+    async function makeGame() {
+      if (isGenerating) return
+
+      // Jiggle any empty slots
+      const empties = []
+      for (const slot of ['who', 'where', 'learn', 'style']) {
+        if (!picks[slot]) {
+          const el = document.querySelector(`.pv-slot[data-slot="${slot}"]`)
+          el.classList.remove('jiggle')
+          void el.offsetWidth // reflow to restart animation
+          el.classList.add('jiggle')
+          empties.push(slot)
+        }
+      }
+      if (empties.length) return
+
+      isGenerating = true
+      document.getElementById('make-btn').disabled = true
+
+      const gameArea = document.getElementById('game-area')
+      gameArea.innerHTML = `
+        <div class="pv-loading">
+          <div class="spinner">${picks.who.e}</div>
+          <p>Making your ${picks.style.t} game...</p>
+        </div>
+      `
+
+      try {
+        const blocks = await streamGame()
+        if (blocks && blocks.length) {
+          await renderGame(blocks)
+        } else {
+          showError("Couldn't make a game this time. Try again?")
+        }
+      } catch (e) {
+        console.error(e)
+        showError(e.message || 'Something went wrong')
+      }
+
+      isGenerating = false
+      document.getElementById('make-btn').disabled = false
+    }
+
+    function showError(msg) {
+      const gameArea = document.getElementById('game-area')
+      gameArea.innerHTML = `
+        <div class="pv-placeholder">
+          <div class="big-emoji">😿</div>
+          <p><strong>${msg}</strong></p>
+          <div class="pv-after-actions">
+            <button class="pv-icon-btn" onclick="makeGame()">
+              <span style="font-size: 1.3rem">🔄</span>
+              <span>Try again</span>
+            </button>
+          </div>
+        </div>
+      `
+    }
+
+    // --- Streaming Claude call ---
+    const SYSTEM_PROMPT = `You are a game designer making short, fun educational games for young children (ages 5-9).
+
+Return a DeclarativeWeb JSON array of blocks ONLY. No markdown fences, no explanations.
+
+Use these block types:
+- state: First block. Initializes state. Example: { "type": "state", "init": { "score": 0 } }
+- hero: Title card. { "type": "hero", "headline": "...", "subhead": "..." }
+- markdown: Story/instruction text. { "type": "markdown", "content": "..." }
+- quiz: Question/answer game with auto state management. ALWAYS use this for any Q&A.
+  {
+    "type": "quiz",
+    "title": "...",
+    "questions": [
+      { "question": "...", "options": ["a", "b", "c"], "correct": 1 }
+    ]
+  }
+
+RULES for kid-friendly games:
+- 5 questions in the quiz, no more
+- Questions ≤ 8 words each
+- Include emoji in question text and option labels where it helps
+- Theme EVERY question around the chosen character and setting (e.g. the octopus in space counts moons, not abstract numbers)
+- Keep options short (single number, single word, or short phrase)
+- Tone matches the style word (silly = jokes, spooky = ghosts/bats, epic = adventure, cute = soft + friendly)
+- Always start with a hero block themed to character + setting
+- Always start with a state block first
+- After the quiz, include a celebration markdown block
+
+DO NOT use inline JavaScript, onclick handlers, or HTML blocks. Use ONLY the block types listed above.`
+
+    async function streamGame() {
+      const userPrompt = `Make a short educational game.
+Character: ${picks.who.e} ${picks.who.t}
+Setting: ${picks.where.e} ${picks.where.t}
+Topic to teach: ${picks.learn.e} ${picks.learn.t}
+Vibe: ${picks.style.e} ${picks.style.t}
+
+Return a JSON array of blocks. 5 quiz questions, all themed around the character and setting.`
+
+      const body = {
+        model: 'claude-sonnet-4-6',
+        max_tokens: 4096,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: userPrompt }],
+        stream: true
+      }
+
+      const response = await fetch('/api/claude', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}))
+        throw new Error(err.error?.message || err.error || `HTTP ${response.status}`)
+      }
+
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+      let fullText = ''
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        buffer += decoder.decode(value, { stream: true }).replace(/\r\n/g, '\n')
+        const lines = buffer.split('\n')
+        buffer = lines.pop() || ''
+
+        for (const line of lines) {
+          const t = line.trim()
+          if (!t.startsWith('data:')) continue
+          const payload = t.slice(5).trim()
+          if (!payload || payload === '[DONE]') continue
+          try {
+            const evt = JSON.parse(payload)
+            if (evt.type === 'content_block_delta' && evt.delta?.type === 'text_delta') {
+              fullText += evt.delta.text
+            }
+          } catch (e) {
+            // skip malformed SSE line
+          }
+        }
+      }
+
+      // Strip markdown fences and parse
+      const cleaned = fullText
+        .replace(/^```(?:json)?\s*\n?/gm, '')
+        .replace(/\n?```\s*$/gm, '')
+        .trim()
+
+      let parsed
+      try {
+        parsed = JSON.parse(cleaned)
+      } catch (e) {
+        console.error('Parse failed. Raw text:', fullText)
+        throw new Error("The game didn't come out quite right. Try again?")
+      }
+
+      // Some models wrap responses
+      if (parsed && !Array.isArray(parsed)) {
+        for (const k of ['blocks', 'content', 'items', 'components']) {
+          if (Array.isArray(parsed[k])) { parsed = parsed[k]; break }
+        }
+      }
+      if (!Array.isArray(parsed)) {
+        throw new Error("The game didn't come out quite right. Try again?")
+      }
+      return parsed
+    }
+
+    // --- Render the game ---
+    async function renderGame(blocks) {
+      const gameArea = document.getElementById('game-area')
+
+      // Destroy previous injection if any
+      if (currentInjection) {
+        try { Render.destroyInjection(currentInjection) } catch (e) {}
+        currentInjection = null
+      }
+
+      gameArea.innerHTML = ''
+
+      // Reset state from the state block so quiz starts fresh
+      const stateBlock = blocks.find(b => b.type === 'state' && b.init)
+      if (stateBlock) {
+        for (const [k, v] of Object.entries(stateBlock.init)) {
+          Render.state[k] = v
+        }
+      }
+
+      try {
+        currentInjection = await Render.inject('#game-area', blocks)
+      } catch (e) {
+        console.error('Render failed:', e)
+        showError(`Couldn't render: ${e.message}`)
+        return
+      }
+
+      // Append re-roll / change-slots row
+      const row = document.createElement('div')
+      row.className = 'pv-after-actions'
+      row.innerHTML = `
+        <button class="pv-icon-btn" onclick="makeGame()">
+          <span style="font-size: 1.3rem">🎲</span>
+          <span>Again!</span>
+        </button>
+        <button class="pv-icon-btn" onclick="scrollToTop()">
+          <span style="font-size: 1.3rem">🔀</span>
+          <span>Change slots</span>
+        </button>
+      `
+      gameArea.appendChild(row)
+
+      if (window.lucide) lucide.createIcons()
+
+      // Scroll game into view
+      setTimeout(() => {
+        gameArea.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 100)
+    }
+
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  </script>
+</body>
+</html>

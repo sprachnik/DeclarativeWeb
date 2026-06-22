@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vibe! - VibeFeed</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.colors.min.css">
+  <link rel="stylesheet" href="../styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/frappe-charts@1.2.4/dist/frappe-charts.min.iife.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      background: var(--pico-background-color);
+    }
+
+    /* Header */
+    .create-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 1rem;
+      background: var(--pico-card-background-color);
+      border-bottom: 1px solid var(--pico-muted-border-color);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--pico-muted-color);
+      text-decoration: none;
+      padding: 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.9rem;
+    }
+
+    .back-btn:hover {
+      background: var(--pico-secondary-background);
+      color: var(--pico-color);
+    }
+
+    .back-btn i {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    .page-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .post-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      font-weight: 600;
+      border-radius: 2rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .post-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .post-btn i {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    /* Main Layout */
+    .create-layout {
+      display: flex;
+      height: calc(100vh - 75px);
+    }
+
+    /* Chat Panel */
+    .chat-panel {
+      width: 33%;
+      min-width: 320px;
+      max-width: 50%;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--pico-muted-border-color);
+      background: var(--pico-card-background-color);
+    }
+
+    .chat-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--pico-muted-border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-direction: row-reverse;
+    }
+
+    .chat-header h3 {
+      margin: 0;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .chat-header i {
+      width: 1.125rem;
+      height: 1.125rem;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      padding-bottom: 0;
+      margin-bottom: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .chat-message {
+      max-width: 90%;
+      padding: 0.75rem 1rem;
+      border-radius: 1rem;
+      line-height: 1.5;
+      font-size: 0.9rem;
+    }
+
+    .chat-message.user {
+      align-self: flex-end;
+      background: var(--pico-primary);
+      color: var(--pico-primary-inverse);
+      border-bottom-right-radius: 0.25rem;
+    }
+
+    .chat-message.assistant {
+      align-self: flex-start;
+      background: var(--pico-secondary-background);
+      border-bottom-left-radius: 0.25rem;
+      color: var(--pico-contrast);
+    }
+
+    .chat-message.system {
+      align-self: center;
+      background: var(--pico-muted-border-color);
+      color: var(--pico-contrast);
+      font-size: 0.85rem;
+      padding: 0.5rem 1rem;
+    }
+
+    .chat-message.error {
+      align-self: flex-start;
+      background: var(--pico-del-background-color);
+      color: var(--pico-del-color);
+      max-width: 95%;
+    }
+
+    .error-fix-btn {
+      margin-top: 0.5rem;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.85rem;
+      background: var(--pico-primary);
+      color: var(--pico-primary-inverse);
+      border: none;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: background 0.2s;
+    }
+
+    .error-fix-btn:hover {
+      background: var(--pico-primary-hover);
+    }
+
+    .error-fix-btn i {
+      width: 14px;
+      height: 14px;
+    }
+
+    .chat-input-container {
+      padding: 1rem;
+      border-top: 1px solid var(--pico-muted-border-color);
+    }
+
+    .chat-input-wrapper {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-end;
+    }
+
+    .chat-input-wrapper textarea {
+      flex: 1;
+      resize: none;
+      min-height: 2.5rem;
+      max-height: 120px;
+      padding: 0.5rem 1rem;
+      border-radius: 1.5rem;
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    .chat-input-wrapper button {
+      width: 2.5rem;
+      height: 2.5rem;
+      padding: 0;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      color: white;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .chat-input-wrapper button:hover:not(:disabled) {
+      transform: scale(1.05);
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+    }
+
+    .chat-input-wrapper button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      filter: grayscale(50%);
+    }
+
+    .chat-input-wrapper button i {
+      width: 1.1rem;
+      height: 1.1rem;
+    }
+
+    .chat-input-wrapper button.upload-btn {
+      background: var(--pico-secondary-background);
+      border: 1px solid var(--pico-muted-border-color);
+      color: var(--pico-color);
+    }
+
+    .chat-input-wrapper button.upload-btn:hover:not(:disabled) {
+      background: var(--pico-primary-background);
+      border-color: var(--pico-primary);
+      color: var(--pico-primary);
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+    }
+
+    /* Starter idea buttons */
+    .starter-ideas {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      padding: 0;
+    }
+
+    .starter-idea-btn {
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      background: var(--pico-secondary-background);
+      color: var(--pico-color);
+      border: 1px solid var(--pico-muted-border-color);
+      border-radius: 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .starter-idea-btn:hover {
+      background: var(--pico-primary-background);
+      border-color: var(--pico-primary);
+      color: var(--pico-primary);
+      transform: translateY(-1px);
+    }
+
+    @media (max-width: 768px) {
+      .starter-idea-btn {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+      }
+    }
+
+    /* Desktop: margin below chat input */
+    @media (min-width: 769px) {
+      .chat-input-wrapper {
+        margin-bottom: 2rem;
+      }
+    }
+
+    /* Typing indicator */
+    .typing-indicator {
+      display: flex;
+      gap: 0.25rem;
+      padding: 0.75rem 1rem;
+      align-self: flex-start;
+      background: var(--pico-secondary-background);
+      border-radius: 1rem;
+    }
+
+    .typing-indicator span {
+      width: 6px;
+      height: 6px;
+      background: var(--pico-muted-color);
+      border-radius: 50%;
+      animation: typing 1.4s infinite;
+    }
+
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-3px); opacity: 1; }
+    }
+
+    /* Preview Panel */
+    .preview-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .preview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-direction: row-reverse;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--pico-muted-border-color);
+      background: var(--pico-card-background-color);
+    }
+
+    .preview-header h3 {
+      margin: 0;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .preview-header i {
+      width: 1.125rem;
+      height: 1.125rem;
+    }
+
+    .preview-content {
+      flex: 1;
+      padding: 1rem;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 0;
+    }
+
+    .preview-card {
+      width: 100%;
+      max-width: 600px;
+      max-height: 100%;
+      background: var(--pico-card-background-color);
+      border-radius: 1rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .preview-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--pico-muted-border-color);
+      flex-shrink: 0;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: white;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .preview-card-body {
+      padding: 1.25rem;
+      overflow-y: auto;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .vibe-block > *:first-child {
+      margin-top: 0;
+    }
+
+    .vibe-block > *:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Uploaded images in vibes */
+    .vibe-block img {
+      max-height: 400px;
+      max-width: 100%;
+      width: auto;
+      height: auto;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .preview-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 300px;
+      color: var(--pico-muted-color);
+      text-align: center;
+    }
+
+    .preview-placeholder i {
+      width: 3rem;
+      height: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    /* Tags Section */
+    .tags-section {
+      padding: 0.75rem 1rem;
+      border-top: 1px solid var(--pico-muted-border-color);
+      background: var(--pico-background-color);
+      flex-shrink: 0;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+
+    .tags-section h4 {
+      margin: 0 0 0.375rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--pico-muted-color);
+    }
+
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .tag {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      background: var(--pico-primary-background);
+      color: var(--pico-primary);
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.85rem;
+    }
+
+    .tag-remove {
+      background: none;
+      border: none;
+      color: inherit;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      opacity: 0.7;
+    }
+
+    .tag-remove:hover {
+      opacity: 1;
+    }
+
+    .tag-input {
+      border: none;
+      background: transparent;
+      padding: 0.25rem;
+      font-size: 0.85rem;
+      color: var(--pico-color);
+      min-width: 80px;
+    }
+
+    .tag-input:focus {
+      outline: none;
+    }
+
+    /* Streaming block display */
+    .streaming-blocks-container {
+      padding: 0;
+    }
+
+    .block-loader {
+      padding: 1.5rem;
+      background: linear-gradient(135deg, var(--pico-primary-background) 0%, var(--pico-secondary-background) 100%);
+      border-radius: 0.75rem;
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      min-height: 100px;
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { opacity: 0.7; }
+      50% { opacity: 1; }
+      100% { opacity: 0.7; }
+    }
+
+    .block-loader-icon {
+      font-size: 2rem;
+      animation: bounce 1s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    .block-loader-text {
+      font-size: 0.9rem;
+      color: var(--pico-muted-color);
+      text-align: center;
+    }
+
+    .block-loader-spinner {
+      width: 24px;
+      height: 24px;
+      border: 3px solid var(--pico-muted-border-color);
+      border-top-color: var(--pico-primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    .streaming-complete-block {
+      margin-bottom: 1rem;
+    }
+
+    .streaming-complete-block:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Retry button */
+    .retry-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.375rem 0.75rem;
+      font-size: 0.75rem;
+      background: var(--pico-primary);
+      color: var(--pico-primary-inverse);
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+    }
+
+    .retry-btn:hover {
+      opacity: 0.9;
+    }
+
+    .retry-btn i {
+      width: 0.875rem;
+      height: 0.875rem;
+    }
+
+    /* Visibility toggle */
+    .visibility-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    .visibility-toggle select {
+      padding: 0.25rem 1.75rem 0.25rem 0.5rem;
+      font-size: 0.85rem;
+      margin: 0;
+      margin-left: 0.25rem;
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .create-layout {
+        flex-direction: column;
+        height: calc(100vh - 60px);
+        height: calc(100dvh - 60px);
+      }
+
+      .chat-panel {
+        width: 100%;
+        max-width: 100%;
+        height: calc(100vh - 60px);
+        height: calc(100dvh - 60px);
+        border-right: none;
+        border-bottom: none;
+        transition: height 0.3s ease, opacity 0.3s ease;
+      }
+
+      .chat-panel.hidden {
+        height: 0;
+        min-height: 0;
+        overflow: hidden;
+        opacity: 0;
+      }
+
+      .preview-panel {
+        height: 0;
+        min-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: height 0.3s ease, opacity 0.3s ease;
+      }
+
+      .preview-panel.visible {
+        height: calc(100vh - 60px);
+        height: calc(100dvh - 60px);
+        opacity: 1;
+      }
+
+      .mobile-toggle-btn {
+        display: flex !important;
+      }
+
+      /* Ensure chat input is always visible */
+      .chat-input-container {
+        position: sticky;
+        bottom: 0;
+        background: var(--pico-card-background-color);
+        z-index: 10;
+      }
+    }
+
+    .mobile-toggle-btn {
+      display: none;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.375rem 0.75rem;
+      font-size: 0.8rem;
+      background: var(--pico-secondary-background);
+      border: 1px solid var(--pico-muted-border-color);
+      border-radius: 1.5rem;
+      cursor: pointer;
+      color: var(--pico-color);
+      transition: all 0.2s;
+    }
+
+    .mobile-toggle-btn:hover {
+      background: var(--pico-primary-focus);
+      border-color: var(--pico-primary);
+    }
+
+    .mobile-toggle-btn i {
+      width: 0.9rem;
+      height: 0.9rem;
+    }
+
+    /* Reduce hero padding */
+    .vibe-block .hero,
+    .vibe-block > section:first-child {
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+    }
+
+    .vibe-block .hero h1,
+    .vibe-block .hero h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .vibe-block .hero p {
+      font-size: 0.95rem;
+    }
+
+    /* Upgrade Banner */
+    .upgrade-banner {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      font-size: 0.85rem;
+    }
+
+    .upgrade-banner .upgrade-btn {
+      padding: 0.25rem 0.6rem;
+      font-size: 0.75rem;
+      background: white;
+      color: #667eea;
+      border: none;
+      border-radius: 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .upgrade-banner .dismiss-btn {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 0 0.25rem;
+      opacity: 0.8;
+    }
+
+    /* Usage badge */
+    .usage-badge {
+      background: var(--pico-secondary-background);
+      color: var(--pico-color);
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .usage-badge.low {
+      background: rgba(255, 107, 107, 0.2);
+      color: #ff6b6b;
+    }
+  </style>
+</head>
+<body>
+  <!-- Upgrade Banner (shown for free users) -->
+  <div class="upgrade-banner" id="upgrade-banner" style="display: none;">
+    <span>🚀 Get 100 generations/day & more blocks with Premium!</span>
+    <a href="app#billing" class="upgrade-btn">Upgrade</a>
+    <button class="dismiss-btn" onclick="dismissUpgradeBanner()" title="Dismiss">×</button>
+  </div>
+  <!-- Header -->
+  <header class="create-header">
+    <div class="header-left">
+      <a href="app" class="back-btn">
+        <i data-lucide="arrow-left"></i>
+        <span>Back</span>
+      </a>
+      <span class="page-title">
+        <i data-lucide="sparkles"></i>
+        Vibe!
+      </span>
+    </div>
+    <div class="header-right">
+      <span class="usage-badge" id="usage-badge" style="display: none;">0/10</span>
+      <div class="visibility-toggle">
+        <i data-lucide="globe" style="width: 1rem; height: 1rem;"></i>
+        <select id="visibility">
+          <option value="public">Public</option>
+          <option value="private">Private</option>
+        </select>
+      </div>
+      <button class="post-btn" id="post-btn" onclick="postVibe()" disabled>
+        <i data-lucide="send"></i>
+        <span>Post!</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <div class="create-layout">
+    <!-- Chat Panel -->
+    <div class="chat-panel">
+      <div class="chat-header">
+        <button class="mobile-toggle-btn" onclick="toggleMobileView('preview')" title="Show preview">
+          <i data-lucide="eye"></i>
+          <span>Preview</span>
+        </button>
+        <h3><i data-lucide="message-circle"></i> Describe Your Vibe</h3>
+      </div>
+      <div class="chat-messages" id="chat-messages">
+        <!-- Initial message will be set by JavaScript based on plan -->
+      </div>
+      <div class="chat-input-container">
+        <div id="image-preview-container" style="display: none; padding: 0.5rem 0; margin-bottom: 0.5rem;">
+          <div style="position: relative; display: inline-block;">
+            <img id="image-preview" style="max-width: 200px; max-height: 200px; border-radius: 0.5rem; border: 1px solid var(--pico-muted-border-color);">
+            <button onclick="clearImage()" style="position: absolute; top: -8px; right: -8px; width: 24px; height: 24px; padding: 0; border-radius: 50%; background: var(--pico-del-color); color: white; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+              <i data-lucide="x" style="width: 14px; height: 14px;"></i>
+            </button>
+          </div>
+        </div>
+        <div class="starter-ideas" id="starter-ideas"></div>
+        <div class="chat-input-wrapper">
+          <input type="file" id="image-input" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+          <button onclick="document.getElementById('image-input').click()" class="upload-btn" title="Upload photo">
+            <i data-lucide="image"></i>
+          </button>
+          <textarea
+            id="chat-input"
+            placeholder="Describe your vibe..."
+            rows="1"
+            onkeydown="handleKeyDown(event)"
+            oninput="autoResize(this); updateGenerateButtonState()"
+          ></textarea>
+          <button onclick="generateVibe()" id="generate-btn" title="Generate">
+            <i data-lucide="sparkles"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preview Panel -->
+    <div class="preview-panel">
+      <div class="preview-header">
+        <button class="mobile-toggle-btn" onclick="toggleMobileView('chat')" title="Show chat">
+          <i data-lucide="message-circle"></i>
+          <span>Chat</span>
+        </button>
+        <h3><i data-lucide="eye"></i> Preview</h3>
+      </div>
+      <div class="preview-content" id="preview-content">
+        <div class="preview-card">
+          <div class="preview-placeholder">
+            <i data-lucide="image"></i>
+            <p>Your vibe preview will appear here</p>
+            <small>Start by describing what you want to share</small>
+          </div>
+        </div>
+      </div>
+      <div class="tags-section">
+        <h4>Tags (auto-generated, click to remove)</h4>
+        <div class="tags-container" id="tags-container">
+          <input
+            type="text"
+            class="tag-input"
+            id="tag-input"
+            placeholder="Add tags..."
+            onkeydown="handleTagInput(event)"
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden element for RenderJS -->
+  <div id="render-dummy" style="display: none;"></div>
+
+  <!-- Dependencies -->
+  <script src="../dist/declarativeweb.min.js"></script>
+  <script src="js/supabase.js"></script>
+
+  <!-- Create Page Scripts (order matters for dependencies) -->
+  <script src="js/create-state.js"></script>
+  <script src="js/create-security.js"></script>
+  <script src="js/create-streaming.js"></script>
+  <script src="js/create-ui.js"></script>
+  <script src="js/create-image.js"></script>
+  <script src="js/create-vibe.js"></script>
+  <script src="js/create-init.js"></script>
+</body>
+</html>

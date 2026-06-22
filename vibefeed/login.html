@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - VibeFeed</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.colors.min.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 540px;
+      padding: 1rem;
+    }
+
+    .login-card {
+      background: var(--pico-card-background-color);
+      border-radius: 1rem;
+      padding: 2.5rem 2rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    @media (min-width: 576px) {
+      .login-card {
+        padding: 2.5rem 3rem;
+      }
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .login-header h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .login-header p {
+      color: var(--pico-muted-color);
+      margin: 0;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 1.5rem 0;
+      color: var(--pico-muted-color);
+      font-size: 0.875rem;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--pico-muted-border-color);
+    }
+
+    .divider span {
+      padding: 0 1rem;
+    }
+
+    .oauth-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      padding: 0.875rem 1.5rem;
+      font-weight: 500;
+    }
+
+    .oauth-btn svg {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    .google-btn {
+      background: #fff;
+      color: #333;
+      border: 1px solid var(--pico-muted-border-color);
+    }
+
+    .google-btn:hover {
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    .form-footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.875rem;
+    }
+
+    .form-footer a {
+      color: var(--pico-primary);
+    }
+
+    .message {
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+      display: none;
+    }
+
+    .message.visible {
+      display: block;
+    }
+
+    .message.error {
+      background: var(--pico-del-background-color);
+      color: var(--pico-del-color);
+    }
+
+    .message.success {
+      background: var(--pico-ins-background-color);
+      color: var(--pico-ins-color);
+    }
+
+    .loading {
+      opacity: 0.7;
+      pointer-events: none;
+      position: relative;
+    }
+
+    .loading::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--pico-primary);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spinner 0.6s linear infinite;
+    }
+
+    @keyframes spinner {
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    .loading button {
+      color: transparent !important;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--pico-muted-border-color);
+    }
+
+    .tab {
+      flex: 1;
+      padding: 0.75rem;
+      text-align: center;
+      cursor: pointer;
+      color: var(--pico-muted-color);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.2s;
+    }
+
+    .tab:hover {
+      color: var(--pico-color);
+    }
+
+    .tab.active {
+      color: var(--pico-primary);
+      border-bottom-color: var(--pico-primary);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .back-link {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      color: var(--pico-muted-color);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .back-link:hover {
+      color: var(--pico-color);
+    }
+
+    .nda-checkbox {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      margin: 1rem 0;
+      font-size: 0.875rem;
+    }
+
+    .nda-checkbox input[type="checkbox"] {
+      margin: 0;
+      margin-top: 0.15rem;
+      flex-shrink: 0;
+    }
+
+    .nda-checkbox label {
+      margin: 0;
+      color: var(--pico-muted-color);
+      line-height: 1.4;
+    }
+
+    .nda-checkbox a {
+      color: var(--pico-primary);
+      text-decoration: underline;
+    }
+
+    .nda-checkbox a:hover {
+      color: var(--pico-primary-hover);
+    }
+  </style>
+</head>
+<body>
+  <a href="/" class="back-link">
+    <i data-lucide="arrow-left" style="width: 1rem; height: 1rem;"></i>
+    Back
+  </a>
+
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <h1>
+          <span id="logo-emoji" style="font-size: 1.5rem;">🎨</span>
+          VibeFeed
+        </h1>
+        <p id="login-tagline">Create and share interactive content</p>
+      </div>
+
+      <div id="message" class="message"></div>
+
+      <!-- Google OAuth - uncomment when configured in Supabase dashboard
+      <button class="oauth-btn google-btn" onclick="signInWithGoogle()">
+        <svg viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Continue with Google
+      </button>
+      <div class="divider"><span>or</span></div>
+      -->
+
+      <div class="tabs">
+        <div class="tab active" data-tab="login" onclick="switchTab('login')">Log In</div>
+        <div class="tab" data-tab="signup" onclick="switchTab('signup')">Sign Up</div>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" class="tab-content active" onsubmit="handleLogin(event)">
+        <label>
+          Email
+          <input type="email" name="email" placeholder="you@example.com" required>
+        </label>
+        <label>
+          Password
+          <input type="password" name="password" placeholder="Your password" required>
+        </label>
+        <button type="submit" class="contrast">Log In</button>
+      </form>
+
+      <!-- Signup Form -->
+      <form id="signup-form" class="tab-content" onsubmit="handleSignup(event)">
+        <label>
+          Email
+          <input type="email" name="email" placeholder="you@example.com" required>
+        </label>
+        <label>
+          Password
+          <input type="password" name="password" placeholder="Create a password" minlength="6" required>
+        </label>
+        <label>
+          Confirm Password
+          <input type="password" name="confirm" placeholder="Confirm password" minlength="6" required>
+        </label>
+
+        <div class="nda-checkbox">
+          <input type="checkbox" id="nda-agree" name="nda-agree" required>
+          <label for="nda-agree">
+            I understand that VibeFeed is a proprietary alpha platform and agree to maintain confidentiality of any non-public features, content, or information I access.
+            <a href="#" onclick="showDisclaimer(event)">View full disclaimer</a>
+          </label>
+        </div>
+
+        <button type="submit" class="contrast">Create Account</button>
+      </form>
+
+      <div class="form-footer">
+        <a href="forgot-password">Forgot your password?</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>

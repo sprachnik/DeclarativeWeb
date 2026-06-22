@@ -1,0 +1,2824 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeclarativeWeb Chat - AI Component Generator</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <!-- Pico CSS with colors -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.colors.min.css">
+
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .chat-container {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Chat Panel (Left) */
+    .chat-panel {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: 400px;
+      min-width: 33%;
+      max-width: 60%;
+      border-right: 1px solid var(--pico-muted-border-color);
+      background: var(--pico-card-background-color);
+    }
+
+    .chat-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--pico-muted-border-color);
+      background: var(--pico-background-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .chat-header h2 {
+      margin: 0;
+      font-size: 1.125rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .chat-header-actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .chat-header-actions button {
+      padding: 0.5rem;
+      min-width: auto;
+      width: 2.5rem;
+      height: 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+    }
+
+    .chat-header-actions [data-lucide] {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    .chat-header-actions select {
+      padding: 0.4rem 0.75rem;
+      font-size: 0.8rem;
+      margin: 0;
+      min-width: 140px;
+      height: 2.5rem;
+    }
+
+    /* Messages Area */
+    .messages-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .message {
+      max-width: 85%;
+      padding: 0.75rem 1rem;
+      border-radius: 1rem;
+      line-height: 1.5;
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background: var(--pico-primary);
+      color: var(--pico-primary-inverse);
+      border-bottom-right-radius: 0.25rem;
+    }
+
+    .message.assistant {
+      align-self: flex-start;
+      background: var(--pico-secondary-background);
+      border-bottom-left-radius: 0.25rem;
+    }
+
+    .message.system {
+      align-self: center;
+      background: var(--pico-muted-border-color);
+      color: var(--pico-muted-color);
+      font-size: 0.875rem;
+      padding: 0.5rem 1rem;
+    }
+
+    .message.error {
+      background: var(--pico-del-background-color);
+      color: var(--pico-del-color);
+    }
+
+    .message.assistant {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .message.assistant.active {
+      border: 2px solid var(--pico-primary);
+    }
+
+    .message.assistant.streaming {
+      opacity: 0.8;
+    }
+
+    .message-version {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--pico-primary);
+      background: var(--pico-primary-focus);
+      padding: 0.125rem 0.5rem;
+      border-radius: 1rem;
+      align-self: flex-start;
+    }
+
+    .retry-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-top: 0.5rem;
+      padding: 0.375rem 0.75rem;
+      font-size: 0.75rem;
+      background: var(--pico-primary);
+      color: var(--pico-primary-inverse);
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+    }
+
+    .retry-btn:hover {
+      opacity: 0.9;
+    }
+
+    .retry-btn [data-lucide] {
+      width: 0.875rem;
+      height: 0.875rem;
+    }
+
+    .cancel-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-top: 0.5rem;
+      padding: 0.375rem 0.75rem;
+      font-size: 0.75rem;
+      background: var(--pico-muted-border-color);
+      color: var(--pico-color);
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+    }
+
+    .cancel-btn:hover {
+      background: var(--pico-del-background-color);
+      color: var(--pico-del-color);
+    }
+
+    .cancel-btn [data-lucide] {
+      width: 0.75rem;
+      height: 0.75rem;
+    }
+
+    .stream-timer {
+      font-size: 0.75rem;
+      opacity: 0.7;
+      margin-left: 0.5rem;
+    }
+
+    .message.cancelled {
+      opacity: 0.6;
+    }
+
+    .message-time {
+      font-size: 0.75rem;
+      opacity: 0.7;
+      margin-top: 0.25rem;
+    }
+
+    .typing-indicator {
+      display: flex;
+      gap: 0.25rem;
+      padding: 0.75rem 1rem;
+      align-self: flex-start;
+      background: var(--pico-secondary-background);
+      border-radius: 1rem;
+    }
+
+    .typing-indicator span {
+      width: 8px;
+      height: 8px;
+      background: var(--pico-muted-color);
+      border-radius: 50%;
+      animation: typing 1.4s infinite;
+    }
+
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-4px); opacity: 1; }
+    }
+
+    /* Chat Input */
+    .chat-input-container {
+      padding: 1rem;
+      border-top: 1px solid var(--pico-muted-border-color);
+      background: var(--pico-background-color);
+    }
+
+    .chat-input-wrapper {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-end;
+    }
+
+    .chat-input-wrapper textarea {
+      flex: 1;
+      resize: none;
+      min-height: 2.75rem;
+      max-height: 150px;
+      padding: 0.625rem 1rem;
+      border-radius: 1.5rem;
+      margin: 0;
+    }
+
+    .chat-input-wrapper button {
+      width: 2.75rem;
+      height: 2.75rem;
+      padding: 0;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      flex-shrink: 0;
+    }
+
+    .chat-input-wrapper button [data-lucide] {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    /* Resize Handle */
+    .resize-handle {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 5px;
+      height: 100%;
+      background: transparent;
+      cursor: col-resize;
+      z-index: 10;
+      transition: background 0.2s;
+    }
+
+    .resize-handle:hover {
+      background: var(--pico-primary);
+    }
+
+    /* Preview Panel (Right) */
+    .preview-panel {
+      position: relative;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--pico-background-color);
+      overflow: hidden;
+    }
+
+    .preview-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--pico-muted-border-color);
+      background: var(--pico-card-background-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .preview-header h2 {
+      margin: 0;
+      font-size: 1.125rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .preview-header-actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .preview-header-actions button {
+      padding: 0.375rem 0.75rem;
+      font-size: 0.875rem;
+      margin: 0;
+    }
+
+    .preview-header-actions select {
+      padding: 0.375rem 0.75rem;
+      font-size: 0.8rem;
+      margin: 0;
+      min-width: 100px;
+    }
+
+    .preview-header-actions .icon-btn {
+      padding: 0.5rem;
+      min-width: auto;
+      width: 2.25rem;
+      height: 2.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .preview-header-actions .icon-btn [data-lucide] {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    .preview-content {
+      flex: 1;
+      padding: 2rem;
+      overflow-y: auto;
+    }
+
+    .preview-placeholder {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--pico-muted-color);
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .preview-placeholder [data-lucide] {
+      width: 3rem;
+      height: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    /* Streaming indicator */
+    .streaming-incomplete {
+      position: relative;
+      opacity: 0.9;
+    }
+
+    .streaming-incomplete::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--pico-primary) 0%, transparent 50%, var(--pico-primary) 100%);
+      background-size: 200% 100%;
+      animation: streaming-indicator 1.5s ease-in-out infinite;
+    }
+
+    @keyframes streaming-indicator {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Updated block highlight */
+    .block-updated {
+      animation: block-highlight 2s ease-out;
+    }
+
+    @keyframes block-highlight {
+      0% {
+        outline: 3px solid var(--pico-primary);
+        outline-offset: 4px;
+        background-color: var(--pico-primary-focus);
+      }
+      100% {
+        outline: 3px solid transparent;
+        outline-offset: 4px;
+        background-color: transparent;
+      }
+    }
+
+    /* Console Panel */
+    .console-panel {
+      position: relative;
+      border-top: 1px solid var(--pico-muted-border-color);
+      background: #1e1e1e;
+      color: #d4d4d4;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 0.8rem;
+      max-height: 200px;
+      overflow: visible;
+      flex-shrink: 0;
+    }
+
+    .console-panel .console-content {
+      max-height: 200px;
+      overflow-y: auto;
+      transition: max-height 0.2s ease;
+    }
+
+    .console-panel.hidden .console-content {
+      max-height: 0;
+      overflow: hidden;
+    }
+
+    .console-header {
+      position: sticky;
+      top: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      background: #2d2d2d;
+      border-bottom: 1px solid #3d3d3d;
+      z-index: 1;
+    }
+
+    .console-header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      color: #9cdcfe;
+    }
+
+    .console-header-left [data-lucide] {
+      width: 14px;
+      height: 14px;
+    }
+
+    .console-header-right {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .console-header button {
+      background: transparent;
+      border: none;
+      color: #9cdcfe;
+      cursor: pointer;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.7rem;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .console-header button:hover {
+      background: #3d3d3d;
+    }
+
+    .console-header button [data-lucide] {
+      width: 12px;
+      height: 12px;
+    }
+
+    .console-badge {
+      background: #dc3545;
+      color: white;
+      font-size: 0.65rem;
+      padding: 0.1rem 0.35rem;
+      border-radius: 10px;
+      min-width: 16px;
+      text-align: center;
+    }
+
+    .console-badge.hidden {
+      display: none;
+    }
+
+    .console-messages {
+      padding: 0.5rem;
+    }
+
+    .console-entry {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.25rem 0.5rem;
+      border-bottom: 1px solid #2d2d2d;
+    }
+
+    .console-entry:last-child {
+      border-bottom: none;
+    }
+
+    .console-entry.log {
+      color: #d4d4d4;
+    }
+
+    .console-entry.warn {
+      color: #dcdcaa;
+      background: rgba(220, 220, 170, 0.1);
+    }
+
+    .console-entry.error {
+      color: #f48771;
+      background: rgba(244, 135, 113, 0.1);
+    }
+
+    .console-entry-icon {
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .console-entry-icon [data-lucide] {
+      width: 12px;
+      height: 12px;
+    }
+
+    .console-entry-text {
+      flex: 1;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+
+    .console-entry-actions {
+      flex-shrink: 0;
+    }
+
+    .console-fix-btn {
+      background: #dc3545 !important;
+      color: white !important;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem !important;
+    }
+
+    .console-fix-btn:hover {
+      background: #c82333 !important;
+    }
+
+    .console-toggle-btn {
+      position: absolute;
+      bottom: 0;
+      right: 1rem;
+      background: #2d2d2d;
+      color: #9cdcfe;
+      border: 1px solid #3d3d3d;
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      z-index: 10;
+      transform: translateY(-100%);
+    }
+
+    .console-toggle-btn:hover {
+      background: #3d3d3d;
+    }
+
+    .console-toggle-btn [data-lucide] {
+      width: 12px;
+      height: 12px;
+    }
+
+    /* When console is open, hide the floating toggle (header has its own hide button) */
+    .console-panel:not(.hidden) + .console-toggle-btn {
+      display: none;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-backdrop.hidden {
+      display: none;
+    }
+
+    .modal {
+      background: var(--pico-card-background-color);
+      border-radius: 1rem;
+      padding: 2rem;
+      max-width: 450px;
+      width: 90%;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    .modal h3 {
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .modal p {
+      color: var(--pico-muted-color);
+      font-size: 0.9rem;
+    }
+
+    .modal input {
+      margin-bottom: 1rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+    }
+
+    .api-key-hint {
+      font-size: 0.8rem;
+      color: var(--pico-muted-color);
+      margin-top: -0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .api-key-hint a {
+      color: var(--pico-primary);
+    }
+
+    /* Template list items */
+    .template-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+      background: var(--pico-secondary-background);
+      border: 1px solid var(--pico-muted-border-color);
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .template-item:hover {
+      background: var(--pico-primary-focus);
+      border-color: var(--pico-primary);
+    }
+
+    .template-item-info {
+      flex: 1;
+    }
+
+    .template-item-name {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .template-item-meta {
+      font-size: 0.75rem;
+      opacity: 0.7;
+    }
+
+    .template-item-actions {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .template-item-actions button {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+      margin: 0;
+    }
+
+    .empty-templates {
+      text-align: center;
+      padding: 2rem;
+      color: var(--pico-muted-color);
+    }
+
+    /* Welcome message */
+    .welcome-message {
+      padding: 1.5rem;
+      background: var(--pico-card-background-color);
+      border-radius: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .welcome-message h3 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+    }
+
+    .welcome-message p {
+      margin-bottom: 0.75rem;
+      color: var(--pico-muted-color);
+    }
+
+    .suggestion-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .suggestion-chip {
+      padding: 0.5rem 1rem;
+      background: var(--pico-secondary-background);
+      border: 1px solid var(--pico-muted-border-color);
+      border-radius: 2rem;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .suggestion-chip:hover {
+      background: var(--pico-primary);
+      color: var(--pico-primary-inverse);
+      border-color: var(--pico-primary);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .chat-container {
+        flex-direction: column;
+      }
+
+      .chat-panel {
+        width: 100% !important;
+        min-width: 0;
+        max-width: 100%;
+        height: 50vh;
+        border-right: none;
+        border-bottom: 1px solid var(--pico-muted-border-color);
+      }
+
+      .resize-handle {
+        display: none;
+      }
+
+      .preview-panel {
+        height: 50vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Info Modal -->
+  <div class="modal-backdrop hidden" id="api-modal">
+    <div class="modal" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
+      <h3><i data-lucide="info"></i> DeclarativeWeb Chat Info</h3>
+
+      <h4>API Setup</h4>
+      <p class="api-key-hint">
+        Add <code>ANTHROPIC_API_KEY</code> as an environment variable in your
+        <a href="https://app.netlify.com/" target="_blank">Netlify dashboard</a>
+        (Site settings &rarr; Environment variables).
+      </p>
+
+      <h4>How It Works</h4>
+      <ol style="font-size: 0.85rem; line-height: 1.6;">
+        <li><strong>Initial request:</strong> LLM generates full array of blocks with <code>_seq</code> ordering</li>
+        <li><strong>Updates:</strong> LLM uses patch protocol - returns ONLY changed blocks</li>
+        <li><strong>Patching:</strong> Blocks matched by <code>_uid</code>, merged into existing content</li>
+        <li><strong>Rendering:</strong> Changed blocks highlighted and scrolled into view</li>
+      </ol>
+
+      <h4>Patch Protocol</h4>
+      <ul style="font-size: 0.85rem; line-height: 1.6;">
+        <li><code>_uid</code>: existing ID = update, "NEW" = insert</li>
+        <li><code>_seq</code>: position in final array (0, 1, 2...)</li>
+        <li><code>_delete: true</code>: remove the block</li>
+      </ul>
+
+      <h4>System Prompt</h4>
+      <div style="position: relative;">
+        <button onclick="copySystemPrompt()" class="outline" style="position: absolute; top: 0.5rem; right: 0.5rem; padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+          <i data-lucide="copy" style="width: 12px; height: 12px;"></i> Copy
+        </button>
+        <pre id="system-prompt-display" style="font-size: 0.7rem; max-height: 300px; overflow-y: auto; background: var(--pico-code-background-color); padding: 1rem; border-radius: 0.5rem; white-space: pre-wrap; word-break: break-word;"></pre>
+      </div>
+
+      <div class="modal-actions">
+        <button onclick="closeApiModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Save Template Modal -->
+  <div class="modal-backdrop hidden" id="save-modal">
+    <div class="modal">
+      <h3><i data-lucide="save"></i> Save Template</h3>
+      <p>Save your current template to browser storage</p>
+      <input type="text" id="save-template-name" placeholder="Template name (e.g., Landing Page)">
+      <div class="modal-actions">
+        <button class="outline" onclick="closeSaveModal()">Cancel</button>
+        <button onclick="saveTemplateToStorage()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load Template Modal -->
+  <div class="modal-backdrop hidden" id="load-modal">
+    <div class="modal">
+      <h3><i data-lucide="folder-open"></i> Load Template</h3>
+      <p>Choose a saved template to load</p>
+      <div id="saved-templates-list" style="max-height: 300px; overflow-y: auto;">
+        <!-- Template list will be populated here -->
+      </div>
+      <div class="modal-actions">
+        <button onclick="closeLoadModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share Template Modal -->
+  <div class="modal-backdrop hidden" id="share-modal">
+    <div class="modal">
+      <h3><i data-lucide="link"></i> Share Template</h3>
+      <p>Copy this URL to share your template</p>
+      <input type="text" id="share-url" readonly style="font-size: 0.8rem; font-family: monospace;">
+      <div class="modal-actions">
+        <button class="outline" onclick="closeShareModal()">Close</button>
+        <button onclick="copyShareUrl()">Copy URL</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-container">
+    <!-- Chat Panel (Left) -->
+    <div class="chat-panel" id="chat-panel">
+      <div class="resize-handle" id="resize-handle"></div>
+
+      <div class="chat-header">
+        <h2><i data-lucide="sparkles"></i> DeclarativeWeb Chat</h2>
+        <div class="chat-header-actions">
+          <select id="model-select" onchange="saveModelChoice()" title="Select AI model">
+            <option value="claude-opus-4-7">Claude Opus 4.7</option>
+            <option value="claude-sonnet-4-6">Claude Sonnet 4.6</option>
+            <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5</option>
+          </select>
+          <button class="outline" onclick="clearChat()" title="Clear chat">
+            <i data-lucide="trash-2"></i>
+          </button>
+          <button class="outline" onclick="openApiModal()" title="API Setup Info">
+            <i data-lucide="info"></i>
+          </button>
+          <button class="outline" onclick="toggleTheme()" title="Toggle theme">
+            <i data-lucide="sun" class="icon-light"></i>
+            <i data-lucide="moon" class="icon-dark"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="messages-container" id="messages">
+        <div class="welcome-message">
+          <h3>Welcome!</h3>
+          <p>I can generate DeclarativeWeb components for you. Try asking for:</p>
+          <div class="suggestion-chips">
+            <span class="suggestion-chip" onclick="sendSuggestion(this)">A hero section</span>
+            <span class="suggestion-chip" onclick="sendSuggestion(this)">Feature cards</span>
+            <span class="suggestion-chip" onclick="sendSuggestion(this)">A pricing table</span>
+            <span class="suggestion-chip" onclick="sendSuggestion(this)">A quiz app</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input-container">
+        <div class="chat-input-wrapper">
+          <textarea
+            id="chat-input"
+            placeholder="Describe the component you want..."
+            rows="1"
+            onkeydown="handleKeyDown(event)"
+            oninput="autoResize(this)"
+          ></textarea>
+          <button onclick="sendMessage()" id="send-btn" title="Send message">
+            <i data-lucide="send"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preview Panel (Right) -->
+    <div class="preview-panel">
+      <div class="preview-header">
+        <h2><i data-lucide="eye"></i> Live Preview</h2>
+        <div class="preview-header-actions">
+          <select id="color-theme-select" onchange="changeColorTheme()" title="Color theme">
+            <option value="">Default</option>
+            <option value="red">Red</option>
+            <option value="pink">Pink</option>
+            <option value="fuchsia">Fuchsia</option>
+            <option value="purple">Purple</option>
+            <option value="violet">Violet</option>
+            <option value="indigo">Indigo</option>
+            <option value="blue">Blue</option>
+            <option value="azure">Azure</option>
+            <option value="cyan">Cyan</option>
+            <option value="jade">Jade</option>
+            <option value="green">Green</option>
+            <option value="lime">Lime</option>
+            <option value="yellow">Yellow</option>
+            <option value="amber">Amber</option>
+            <option value="pumpkin">Pumpkin</option>
+            <option value="orange">Orange</option>
+            <option value="sand">Sand</option>
+            <option value="grey">Grey</option>
+            <option value="zinc">Zinc</option>
+            <option value="slate">Slate</option>
+          </select>
+          <button class="outline icon-btn" onclick="shareTemplate()" title="Share via URL">
+            <i data-lucide="link"></i>
+          </button>
+          <button class="outline icon-btn" onclick="openSaveModal()" title="Save Template">
+            <i data-lucide="save"></i>
+          </button>
+          <button class="outline icon-btn" onclick="openLoadModal()" title="Load Template">
+            <i data-lucide="folder-open"></i>
+          </button>
+          <button class="outline icon-btn" onclick="downloadTemplate()" title="Download JSON">
+            <i data-lucide="download"></i>
+          </button>
+          <button class="outline icon-btn" onclick="document.getElementById('upload-input').click()" title="Upload JSON">
+            <i data-lucide="upload"></i>
+          </button>
+          <input type="file" id="upload-input" accept=".json" style="display: none;" onchange="uploadTemplate(event)">
+          <button class="outline icon-btn" onclick="forceRefresh()" title="Refresh Preview">
+            <i data-lucide="refresh-cw"></i>
+          </button>
+          <button class="outline icon-btn" onclick="copyJSON()" title="Copy JSON">
+            <i data-lucide="copy"></i>
+          </button>
+        </div>
+      </div>
+      <div id="preview" class="preview-content">
+        <div class="preview-placeholder">
+          <i data-lucide="layout"></i>
+          <p>Your generated components will appear here</p>
+          <small>Start chatting to create something!</small>
+        </div>
+      </div>
+
+      <!-- Console Panel -->
+      <div id="console-panel" class="console-panel hidden">
+        <div class="console-content">
+          <div class="console-header">
+            <div class="console-header-left">
+              <i data-lucide="terminal"></i>
+              <span>Console</span>
+            </div>
+            <div class="console-header-right">
+              <button onclick="clearConsole()" title="Clear console">
+                <i data-lucide="trash-2"></i>
+                Clear
+              </button>
+              <button onclick="toggleConsole()" title="Hide console">
+                <i data-lucide="chevron-down"></i>
+                Hide
+              </button>
+            </div>
+          </div>
+          <div id="console-messages" class="console-messages">
+            <!-- Console entries will be added here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Console Toggle Button (always visible when console is hidden) -->
+      <button class="console-toggle-btn" onclick="toggleConsole()">
+        <i data-lucide="terminal"></i>
+        <span>Console</span>
+        <span id="console-error-badge" class="console-badge hidden">0</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Hidden element for DeclarativeWeb initialization -->
+  <div id="render-dummy" style="display: none;"></div>
+
+  <!-- Dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/frappe-charts@1.2.4/dist/frappe-charts.min.iife.js"></script>
+
+  <!-- DeclarativeWeb Bundle -->
+  <script src="dist/declarativeweb.min.js"></script>
+
+  <script>
+    // State
+    // API key is now handled server-side via Netlify Function
+    let selectedModel = localStorage.getItem('claude-model') || 'claude-sonnet-4-6'
+    let currentInjection = null
+    let isGenerating = false
+    let activeStreamReader = null  // For cancelling streams
+    let streamTimer = null
+    let streamStartTime = null
+
+    // Version history - each entry is { version: number, content: array, timestamp: Date }
+    let versionHistory = []
+    let currentVersion = 0
+    let currentContent = [] // The accumulated site content
+
+    // Console interception state
+    let consoleErrorCount = 0
+    const originalConsole = {
+      log: console.log.bind(console),
+      warn: console.warn.bind(console),
+      error: console.error.bind(console)
+    }
+
+    // Intercept console methods to display in our panel
+    function interceptConsole() {
+      const addEntry = (type, args) => {
+        const messagesEl = document.getElementById('console-messages')
+        const panelEl = document.getElementById('console-panel')
+        const badgeEl = document.getElementById('console-error-badge')
+        if (!messagesEl) return
+
+        // Format message
+        const message = args.map(arg => {
+          if (typeof arg === 'object') {
+            try {
+              return JSON.stringify(arg, null, 2)
+            } catch (e) {
+              return String(arg)
+            }
+          }
+          return String(arg)
+        }).join(' ')
+
+        // Skip some internal render.js messages unless they're errors
+        if (type !== 'error' && (
+          message.includes('[Render] Re-rendering') ||
+          message.includes('[Render] Processing') ||
+          message.includes('[Render] Scrolled')
+        )) {
+          return // Skip noisy internal messages
+        }
+
+        // Get icon based on type
+        const icons = {
+          log: 'info',
+          warn: 'alert-triangle',
+          error: 'x-circle'
+        }
+
+        // Create entry element
+        const entry = document.createElement('div')
+        entry.className = `console-entry ${type}`
+
+        let html = `
+          <div class="console-entry-icon">
+            <i data-lucide="${icons[type]}"></i>
+          </div>
+          <div class="console-entry-text">${escapeHtml(message)}</div>
+        `
+
+        // Add "Fix in chat!" button for errors
+        if (type === 'error') {
+          consoleErrorCount++
+          badgeEl.textContent = consoleErrorCount
+          badgeEl.classList.remove('hidden')
+          // Auto-show console on error
+          panelEl.classList.remove('hidden')
+
+          html += `
+            <div class="console-entry-actions">
+              <button class="console-fix-btn" onclick="fixInChat(this)">
+                Fix in chat!
+              </button>
+            </div>
+          `
+        }
+
+        entry.innerHTML = html
+        entry.dataset.message = message // Store for "Fix in chat!"
+        messagesEl.appendChild(entry)
+
+        // Update Lucide icons
+        if (window.lucide) lucide.createIcons({ nodes: [entry] })
+
+        // Scroll to bottom
+        messagesEl.scrollTop = messagesEl.scrollHeight
+      }
+
+      console.log = (...args) => {
+        originalConsole.log(...args)
+        addEntry('log', args)
+      }
+
+      console.warn = (...args) => {
+        originalConsole.warn(...args)
+        addEntry('warn', args)
+      }
+
+      console.error = (...args) => {
+        originalConsole.error(...args)
+        addEntry('error', args)
+      }
+    }
+
+    // Helper function to escape HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div')
+      div.textContent = text
+      return div.innerHTML
+    }
+
+    // Toggle console visibility
+    function toggleConsole() {
+      const panelEl = document.getElementById('console-panel')
+      panelEl.classList.toggle('hidden')
+    }
+
+    // Clear console
+    function clearConsole() {
+      const messagesEl = document.getElementById('console-messages')
+      const badgeEl = document.getElementById('console-error-badge')
+      messagesEl.innerHTML = ''
+      consoleErrorCount = 0
+      badgeEl.textContent = '0'
+      badgeEl.classList.add('hidden')
+    }
+
+    // Fix in chat - sends error to chat input and submits
+    function fixInChat(btn) {
+      const entry = btn.closest('.console-entry')
+      const errorMessage = entry.dataset.message
+
+      // Set chat input
+      const input = document.getElementById('chat-input')
+      input.value = `Fix this error:\n${errorMessage}`
+
+      // Focus and send
+      input.focus()
+      sendMessage()
+    }
+
+    // Initialize console interception
+    interceptConsole()
+
+    // System prompt for Claude - with patch protocol for efficient updates
+    const SYSTEM_PROMPT = `You are a DeclarativeWeb component generator. Generate rich, detailed UI blocks as JSON.
+
+## IMPORTANT: CSS Framework
+This project uses **Pico CSS** (NOT Tailwind). Do not use Tailwind classes like bg-blue-500, p-4, etc.
+Use Pico classes: .secondary, .contrast, .outline, .grid, or inline styles.
+
+## Block Types
+
+HERO: { "type": "hero", "headline": "Main Title", "subhead": "Subtitle text" }
+
+SECTION with cards:
+{
+  "type": "section",
+  "title": "Section Title",
+  "columns": 3,
+  "resources": [
+    { "title": "Card 1", "description": "Details here", "icon": "zap" },
+    { "title": "Card 2", "description": "More details", "icon": "star" }
+  ]
+}
+
+MARKDOWN: { "type": "markdown", "content": "## Heading\\n\\nParagraph text" }
+
+BUTTON (supports safe declarative actions or string expressions):
+{ "type": "button", "label": "Click", "action": "Render.state.count++", "variant": "contrast" }
+
+BUTTON with safe action:
+{ "type": "button", "label": "Toggle", "action": { "type": "toggleState", "key": "showMore" }, "variant": "outline" }
+
+Safe button actions (declarative, no code execution):
+- setState: { "type": "setState", "updates": { "key": "value" } }
+- toggleState: { "type": "toggleState", "key": "booleanKey" }
+- navigate: { "type": "navigate", "path": "/route" }
+- resetState: { "type": "resetState", "keys": ["key1", "key2"] }
+
+HTML (simple only): { "type": "html", "html": "<p style='text-align:center'>Text</p>" }
+
+MERMAID diagram:
+{
+  "type": "mermaid",
+  "content": "graph TD\\n  A[Start] --> B{Decision}\\n  B -->|Yes| C[Process]\\n  B -->|No| D[End]",
+  "theme": "neutral"
+}
+
+Diagram types: graph TD (flowchart), sequenceDiagram, erDiagram, stateDiagram-v2, gantt
+Themes: neutral (default), dark, forest, default
+
+FRAPPE-CHART visualization:
+{
+  "type": "frappe-chart",
+  "chartType": "bar",
+  "title": "Sales Data",
+  "labels": ["Q1", "Q2", "Q3", "Q4"],
+  "datasets": [{ "name": "Revenue", "values": [120, 180, 140, 220] }]
+}
+
+Chart types: line, bar, pie, percentage, heatmap
+- labels.length MUST equal values.length
+- Max 6 datasets for readability
+- Optional: colors (hex array), height (150-600, default 300)
+
+P5JS creative coding (animations, games, art):
+{
+  "type": "p5js",
+  "code": "function setup() { createCanvas(400, 400); } function draw() { background(220); ellipse(mouseX, mouseY, 50, 50); }",
+  "width": 400,
+  "height": 400
+}
+
+QUIZ (interactive quiz with auto state management):
+{
+  "type": "quiz",
+  "title": "Quick Quiz",
+  "questions": [
+    { "question": "What is 2+2?", "options": ["3", "4", "5"], "correct": 1 }
+  ]
+}
+
+## Conditional Rendering
+
+### Inline "if" (SIMPLEST - use this!)
+Add "if" to ANY block to show/hide it:
+{ "type": "markdown", "content": "Welcome!", "if": "state.loggedIn" }
+{ "type": "button", "label": "Next", "action": "Render.state.step++", "if": "state.step < 5" }
+
+### if/then/else (for branching)
+{
+  "if": "state.step === 0",
+  "then": { "type": "markdown", "content": "## Step 1" },
+  "else": { "type": "markdown", "content": "## Step {{state.step + 1}}" }
+}
+
+## State Management
+
+FIRST block initializes state:
+{
+  "type": "state",
+  "init": { "step": 0, "score": 0, "answer": -1 }
+}
+
+Button actions use Render.state:
+- "Render.state.step++"
+- "Render.state.score++; Render.state.step++"
+- "Render.state.answer = 0; checkAnswer()"
+
+Display state: {{state.propName}}, {{state.step + 1}}
+
+## Loop Syntax
+
+Iterate arrays with "each" at TOP LEVEL (not nested in then):
+{
+  "each": "state.items",
+  "as": "item",
+  "template": { "type": "markdown", "content": "- {{item.name}}" }
+}
+
+Loop vars: {{item}}, {{loop.index}}, {{loop.number}}
+
+## Watch Block (Callbacks/API Calls)
+
+Execute actions when condition becomes true:
+{
+  "type": "watch",
+  "if": "state.step >= state.totalQ",
+  "once": true,
+  "actions": [
+    { "type": "fetch", "url": "/api/submit", "method": "POST", "body": { "score": "{{state.score}}" } },
+    { "type": "setState", "updates": { "submitted": true } }
+  ]
+}
+
+Action types: fetch, setState, navigate, resetState
+- once: true = fire only first time condition is met
+- Supports {{interpolation}} in action parameters
+
+## Quiz Pattern (REQUIRED - READ THIS!)
+
+⚠️ **CRITICAL: For ANY quiz, trivia, or question-answer content, you MUST use the quiz block type.**
+⚠️ **NEVER use inline JavaScript, onclick handlers, or manual state for quizzes.**
+⚠️ **The quiz block handles ALL state management automatically. Do NOT write custom quiz logic.**
+
+### Quiz Block (ALWAYS USE THIS FOR QUIZZES!)
+For quizzes, use the quiz block with automatic state management:
+
+[
+  {
+    "type": "quiz",
+    "title": "JavaScript Fundamentals",
+    "questions": [
+      {
+        "question": "What is the capital of France?",
+        "options": ["London", "Paris", "Berlin"],
+        "correct": 1
+      },
+      {
+        "question": "What is 2 + 2?",
+        "options": ["3", "4", "5"],
+        "correct": 1
+      }
+    ]
+  }
+]
+
+The quiz block automatically:
+- Tracks current question and score
+- Shows progress bar
+- Displays results when complete
+- Provides retry functionality
+
+### Manual State Management (ONLY if quiz block is insufficient - RARE)
+⚠️ **DO NOT USE THIS for normal quizzes!** The quiz block above handles 99% of quiz use cases.
+Only use this pattern if you need a completely custom UI that the quiz block cannot provide:
+
+[
+  {
+    "type": "state",
+    "init": {
+      "step": 0,
+      "score": 0,
+      "q0": { "text": "Capital of France?", "opts": ["London", "Paris", "Berlin"], "answer": 1 },
+      "q1": { "text": "2 + 2 = ?", "opts": ["3", "4", "5"], "answer": 1 },
+      "totalQ": 2
+    }
+  },
+  { "type": "hero", "headline": "Quiz", "subhead": "Question {{state.step + 1}} of {{state.totalQ}}", "if": "state.step < state.totalQ" },
+  { "type": "hero", "headline": "Done!", "subhead": "Score: {{state.score}}/{{state.totalQ}}", "if": "state.step >= state.totalQ" },
+  { "type": "markdown", "content": "### {{state.q0.text}}", "if": "state.step === 0" },
+  { "type": "button", "label": "London", "action": "Render.state.step++", "variant": "outline", "if": "state.step === 0" },
+  { "type": "button", "label": "Paris", "action": "Render.state.score++; Render.state.step++", "variant": "outline", "if": "state.step === 0" },
+  { "type": "button", "label": "Berlin", "action": "Render.state.step++", "variant": "outline", "if": "state.step === 0" },
+  { "type": "markdown", "content": "### {{state.q1.text}}", "if": "state.step === 1" },
+  { "type": "button", "label": "3", "action": "Render.state.step++", "variant": "outline", "if": "state.step === 1" },
+  { "type": "button", "label": "4", "action": "Render.state.score++; Render.state.step++", "variant": "outline", "if": "state.step === 1" },
+  { "type": "button", "label": "5", "action": "Render.state.step++", "variant": "outline", "if": "state.step === 1" },
+  { "type": "button", "label": "Play Again", "action": "Render.state.step = 0; Render.state.score = 0", "variant": "contrast", "if": "state.step >= state.totalQ" }
+]
+
+## Icons (Lucide)
+zap, star, heart, check, user, mail, settings, search, home, arrow-right, plus, edit, trash, award, rocket
+
+## Patch Protocol
+
+When CURRENT BLOCKS provided, return ONLY changed blocks:
+- **_uid**: existing ID = update, "NEW" = insert new
+- **_seq**: position (0, 1, 2...)
+- **_delete: true**: remove block
+
+## Rules
+1. Return JSON array of blocks ONLY - no markdown fences or explanations
+2. Use inline "if" on blocks for conditionals (e.g. "if": "state.show")
+3. Use Pico CSS or inline styles, NOT Tailwind
+4. Keep HTML blocks simple - prefer semantic block types
+5. Initialize state with "type": "state" block as FIRST block
+6. **FOR QUIZZES: ALWAYS use "type": "quiz" block - NEVER use inline JavaScript or manual state management for quizzes!**`
+
+    // JSON Schema for array of blocks
+    const JSON_SCHEMA = {
+      type: "array",
+      description: "Complete array of DeclarativeWeb blocks",
+      items: {
+        type: "object",
+        properties: {
+          type: {
+            type: "string",
+            enum: ["hero", "section", "markdown", "code", "table", "button", "html", "state", "watch", "mermaid", "frappe-chart"]
+          },
+          headline: { type: "string" },
+          subhead: { type: "string" },
+          title: { type: "string" },
+          description: { type: "string" },
+          content: { type: "string" },
+          html: { type: "string" },
+          columns: { type: "integer" },
+          resources: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                title: { type: "string" },
+                description: { type: "string" },
+                icon: { type: "string" },
+                tags: { type: "array", items: { type: "string" } }
+              },
+              required: ["title", "description"]
+            }
+          },
+          language: { type: "string" },
+          code: { type: "string" },
+          data: {
+            type: "array",
+            items: { type: "array", items: { type: "string" } }
+          },
+          caption: { type: "string" },
+          striped: { type: "boolean" },
+          label: { type: "string" },
+          action: { type: "string" },
+          variant: { type: "string", enum: ["contrast", "outline"] },
+          icon: { type: "string" },
+          cta: {
+            type: "object",
+            properties: {
+              label: { type: "string" },
+              path: { type: "string" }
+            }
+          }
+        },
+        required: ["type"]
+      }
+    }
+
+    // Generate a unique ID for blocks
+    function generateUID() {
+      return 'block-' + Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 9)
+    }
+
+    // Strip markdown code fences from LLM responses
+    function stripMarkdownFences(text) {
+      return text
+        .replace(/^```(?:json)?\s*\n?/gm, '')  // Opening fence
+        .replace(/\n?```\s*$/gm, '')            // Closing fence
+        .trim()
+    }
+
+    // Assign UIDs and sequence numbers to blocks that don't have them
+    function assignUIDs(blocks) {
+      return blocks.map((block, index) => {
+        const updated = { ...block }
+        if (!updated._uid || updated._uid === 'NEW') {
+          updated._uid = generateUID()
+        }
+        if (typeof updated._seq !== 'number') {
+          updated._seq = index
+        }
+        return updated
+      })
+    }
+
+    /**
+     * Patch blocks into existing content using UID matching
+     * - Matching _uid: update the block
+     * - New _uid or "NEW": insert new block
+     * - _delete: true: remove the block
+     * Returns: { result: patchedArray, changed: [uids of changed blocks] }
+     */
+    function patchBlocks(existing, patches) {
+      const existingMap = new Map()
+      existing.forEach(block => {
+        if (block._uid) existingMap.set(block._uid, { ...block })
+      })
+
+      const changedUIDs = []
+      const toDelete = new Set()
+
+      // Process patches
+      patches.forEach(patch => {
+        if (patch._delete && patch._uid) {
+          // Delete operation
+          toDelete.add(patch._uid)
+          existingMap.delete(patch._uid)
+          changedUIDs.push(patch._uid)
+        } else if (patch._uid && patch._uid !== 'NEW' && existingMap.has(patch._uid)) {
+          // Update existing block
+          const updated = { ...existingMap.get(patch._uid), ...patch }
+          existingMap.set(patch._uid, updated)
+          changedUIDs.push(patch._uid)
+        } else {
+          // New block - assign UID if needed
+          const newBlock = { ...patch }
+          if (!newBlock._uid || newBlock._uid === 'NEW') {
+            newBlock._uid = generateUID()
+          }
+          existingMap.set(newBlock._uid, newBlock)
+          changedUIDs.push(newBlock._uid)
+        }
+      })
+
+      // Convert back to array and sort by _seq
+      let result = Array.from(existingMap.values())
+      result.sort((a, b) => (a._seq ?? 999) - (b._seq ?? 999))
+
+      // Re-assign sequential _seq values
+      result = result.map((block, index) => ({ ...block, _seq: index }))
+
+      return { result, changedUIDs }
+    }
+
+    // Diff two arrays of blocks and return changes
+    function diffBlocks(oldBlocks, newBlocks) {
+      const changes = { added: [], removed: [], modified: [], unchanged: [] }
+
+      // Create map of old blocks by UID
+      const oldMap = new Map()
+      oldBlocks.forEach((block, index) => {
+        if (block._uid) oldMap.set(block._uid, { block, index })
+      })
+
+      // Check each new block
+      newBlocks.forEach((newBlock, newIndex) => {
+        if (newBlock._uid && oldMap.has(newBlock._uid)) {
+          // Block exists - check if modified
+          const old = oldMap.get(newBlock._uid)
+          const oldJson = JSON.stringify({ ...old.block, _uid: undefined })
+          const newJson = JSON.stringify({ ...newBlock, _uid: undefined })
+
+          if (oldJson === newJson) {
+            changes.unchanged.push({ block: newBlock, oldIndex: old.index, newIndex })
+          } else {
+            changes.modified.push({ block: newBlock, oldIndex: old.index, newIndex })
+          }
+          oldMap.delete(newBlock._uid)
+        } else {
+          // New block
+          changes.added.push({ block: newBlock, newIndex })
+        }
+      })
+
+      // Remaining old blocks were removed
+      oldMap.forEach((value, uid) => {
+        changes.removed.push({ block: value.block, oldIndex: value.index })
+      })
+
+      return changes
+    }
+
+    // Initialize Render.js
+    Render.init({
+      data: {
+        site: { title: 'Chat Demo' },
+        state: { count: 0, score: 0, answered: false },
+        pages: [{ path: '/', content: [] }]
+      },
+      target: '#render-dummy',
+      showJsonButton: false
+    })
+
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) lucide.createIcons()
+
+      // Load saved model
+      const modelSelect = document.getElementById('model-select')
+      if (modelSelect) {
+        modelSelect.value = selectedModel
+      }
+
+      // Load saved theme (light/dark)
+      const savedTheme = localStorage.getItem('chat-theme')
+      if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme)
+      }
+
+      // Load saved color theme
+      loadColorTheme()
+    })
+
+    // Info Modal functions
+    function openApiModal() {
+      document.getElementById('api-modal').classList.remove('hidden')
+      // Populate system prompt display
+      document.getElementById('system-prompt-display').textContent = SYSTEM_PROMPT
+      if (window.lucide) lucide.createIcons()
+    }
+
+    function closeApiModal() {
+      document.getElementById('api-modal').classList.add('hidden')
+    }
+
+    function copySystemPrompt() {
+      navigator.clipboard.writeText(SYSTEM_PROMPT).then(() => {
+        const btn = document.querySelector('#api-modal button[onclick="copySystemPrompt()"]')
+        const originalHTML = btn.innerHTML
+        btn.innerHTML = '<i data-lucide="check" style="width: 12px; height: 12px;"></i> Copied!'
+        if (window.lucide) lucide.createIcons()
+        setTimeout(() => {
+          btn.innerHTML = originalHTML
+          if (window.lucide) lucide.createIcons()
+        }, 2000)
+      })
+    }
+
+    // Message functions
+    function addMessage(type, content, versionData) {
+      const container = document.getElementById('messages')
+      const welcome = container.querySelector('.welcome-message')
+      if (welcome) welcome.remove()
+
+      const msg = document.createElement('div')
+      msg.className = `message ${type}`
+
+      if (type === 'assistant' && versionData) {
+        // Make assistant messages clickable with version number
+        msg.innerHTML = `
+          <div class="message-content">${content}</div>
+          <div class="message-version" data-version="${versionData.version}">v${versionData.version}</div>
+        `
+        msg.style.cursor = 'pointer'
+        msg.onclick = () => loadVersion(versionData.version)
+        msg.title = 'Click to load this version'
+      } else {
+        msg.textContent = content
+      }
+
+      container.appendChild(msg)
+      container.scrollTop = container.scrollHeight
+
+      return msg
+    }
+
+    // Load a specific version
+    async function loadVersion(version) {
+      const historyEntry = versionHistory.find(h => h.version === version)
+      if (historyEntry) {
+        currentContent = JSON.parse(JSON.stringify(historyEntry.content)) // Deep clone
+
+        await forceRefresh()
+
+        // Update active state on messages
+        document.querySelectorAll('.message.assistant').forEach(msg => {
+          const versionEl = msg.querySelector('.message-version')
+          if (versionEl) {
+            const v = parseInt(versionEl.dataset.version)
+            msg.classList.toggle('active', v === version)
+          }
+        })
+      }
+    }
+
+    function showTypingIndicator() {
+      const container = document.getElementById('messages')
+      const indicator = document.createElement('div')
+      indicator.className = 'typing-indicator'
+      indicator.id = 'typing-indicator'
+      indicator.innerHTML = '<span></span><span></span><span></span>'
+      container.appendChild(indicator)
+      container.scrollTop = container.scrollHeight
+    }
+
+    function hideTypingIndicator() {
+      const indicator = document.getElementById('typing-indicator')
+      if (indicator) indicator.remove()
+    }
+
+    // Send message
+    async function sendMessage() {
+      const input = document.getElementById('chat-input')
+      const message = input.value.trim()
+
+      if (!message || isGenerating) return
+
+      // Add user message
+      addMessage('user', message, null)
+      input.value = ''
+      autoResize(input)
+
+      // Generate component
+      isGenerating = true
+      showTypingIndicator()
+
+      try {
+        await streamClaude(message)
+      } catch (e) {
+        hideTypingIndicator()
+        addMessage('error', `Error: ${e.message}`, null)
+      }
+
+      isGenerating = false
+    }
+
+    // Save model choice
+    function saveModelChoice() {
+      const select = document.getElementById('model-select')
+      selectedModel = select.value
+      localStorage.setItem('claude-model', selectedModel)
+    }
+
+    // Track last error for retry
+    let lastError = null
+
+    // Stream Claude API with SSE (via Netlify Function proxy)
+    async function streamClaude(userMessage, isRetry = false) {
+      // Use the Netlify Function proxy to avoid CORS and keep API key server-side
+      const url = '/api/claude'
+
+      // Build the prompt with current content (include _uid and _seq for patch protocol)
+      const currentContentJson = JSON.stringify(currentContent, null, 2)
+      let userPrompt
+      if (currentContent.length > 0) {
+        userPrompt = `CURRENT BLOCKS:\n${currentContentJson}\n\nREQUEST: ${userMessage}\n\nUse PATCH PROTOCOL: Return ONLY blocks that need to change (updates, new blocks, or deletions). Include _uid and _seq on each block.`
+      } else {
+        userPrompt = `REQUEST: ${userMessage}\n\nReturn a JSON array of blocks. Include _seq (0, 1, 2...) on each block for ordering.`
+      }
+
+      const body = {
+        model: selectedModel,
+        max_tokens: 4096,
+        system: SYSTEM_PROMPT,
+        messages: [
+          {
+            role: "user",
+            content: userPrompt + "\n\nIMPORTANT: Return ONLY a valid JSON array of blocks. No markdown fences, no explanations."
+          }
+        ],
+        stream: true
+      }
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      })
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: { message: response.statusText } }))
+        hideTypingIndicator()
+        const errorMsg = error.error?.message || error.error || 'Unknown error'
+        if (errorMsg.includes('API key not configured')) {
+          addMessage('error', 'API key not configured. Click the info button for setup instructions.', null)
+          openApiModal()
+        } else {
+          addMessage('error', `API Error: ${errorMsg}`, null)
+        }
+        return
+      }
+
+      // Process SSE stream
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+      let fullText = ''
+
+      hideTypingIndicator()
+
+      // Create a streaming message placeholder with timer and cancel
+      const streamMsg = document.createElement('div')
+      streamMsg.className = 'message assistant streaming'
+      streamMsg.innerHTML = `
+        <div class="message-content">
+          <span class="stream-status">Generating...</span>
+          <span class="stream-timer">0s</span>
+        </div>
+        <button class="cancel-btn" onclick="cancelStream()">
+          <i data-lucide="x"></i> Cancel
+        </button>
+      `
+      document.getElementById('messages').appendChild(streamMsg)
+      if (window.lucide) lucide.createIcons()
+
+      // Start timer
+      streamStartTime = Date.now()
+      activeStreamReader = reader
+      const MAX_STREAM_TIME = 60000  // 60 second timeout
+      const MAX_CHARS = 50000  // Max characters before auto-stop
+      let streamAborted = false
+      let lastChunkForLoopDetection = ''
+      let loopCount = 0
+
+      // Show streaming code window in preview area
+      const preview = document.getElementById('preview')
+      preview.innerHTML = `
+        <div style="height: 100%; display: flex; flex-direction: column; background: #1e1e1e; border-radius: 0.5rem; overflow: hidden;">
+          <div style="display: flex; align-items: center; gap: 0.5rem; padding: 1rem; background: #2d2d2d; border-bottom: 1px solid #3d3d3d;">
+            <div style="display: flex; gap: 0.5rem;">
+              <div style="width: 12px; height: 12px; border-radius: 50%; background: #ff5f56;"></div>
+              <div style="width: 12px; height: 12px; border-radius: 50%; background: #ffbd2e;"></div>
+              <div style="width: 12px; height: 12px; border-radius: 50%; background: #27c93f;"></div>
+            </div>
+            <div style="flex: 1; text-align: center; font-family: 'Consolas', 'Monaco', monospace; font-size: 0.8rem; color: #9cdcfe; font-weight: 600;">
+              <span class="streaming-indicator" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                <span style="display: inline-block; width: 8px; height: 8px; background: #27c93f; border-radius: 50%; animation: pulse 1.5s ease-in-out infinite;"></span>
+                Streaming JSON...
+              </span>
+            </div>
+          </div>
+          <div id="streaming-code" style="flex: 1; overflow-y: auto; padding: 1rem; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.85rem; color: #d4d4d4; white-space: pre-wrap; word-break: break-all; line-height: 1.5;"></div>
+        </div>
+        <style>
+          @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+          }
+        </style>
+      `
+
+      // Create streaming JSON parser (no progressive rendering)
+      const jsonParser = StreamingJSONParser.create({
+        debug: false
+      })
+
+      streamTimer = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - streamStartTime) / 1000)
+        const timerEl = streamMsg.querySelector('.stream-timer')
+        if (timerEl) timerEl.textContent = `${elapsed}s`
+
+        // Auto-cancel if too long
+        if (Date.now() - streamStartTime > MAX_STREAM_TIME) {
+          console.warn('[Stream] Timeout - auto-cancelling after 60s')
+          streamAborted = true
+          reader.cancel()
+        }
+      }, 1000)
+
+      let chunkIndex = 0
+      let sseLineIndex = 0
+      let extractedChunkIndex = 0
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read()
+
+          if (done || streamAborted) {
+            break
+          }
+
+          // Check character limit
+          if (fullText.length > MAX_CHARS) {
+            console.warn('[Stream] Max chars reached - auto-cancelling at', fullText.length, 'chars')
+            streamAborted = true
+            reader.cancel()
+            break
+          }
+
+          const rawChunk = decoder.decode(value, { stream: true })
+          buffer += rawChunk
+          chunkIndex++
+
+          // Normalize line endings (Windows \r\n -> \n) and split
+          buffer = buffer.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+          const lines = buffer.split('\n')
+          buffer = lines.pop() || '' // Keep incomplete line in buffer
+
+          for (const line of lines) {
+            const trimmedLine = line.trim()
+            if (!trimmedLine) continue // Skip empty lines
+
+            sseLineIndex++
+
+            // Claude sends events in format:
+            // event: content_block_delta
+            // data: {"type":"content_block_delta","delta":{"type":"text_delta","text":"..."}}
+
+            // Extract data lines
+            if (trimmedLine.startsWith('data:')) {
+              const jsonData = trimmedLine.slice(5).trim()
+
+              if (!jsonData || jsonData === '[DONE]') continue
+
+              try {
+                const parsed = JSON.parse(jsonData)
+
+                // Claude streaming format: check for text delta
+                let textChunk = null
+
+                if (parsed.type === 'content_block_delta' && parsed.delta?.type === 'text_delta') {
+                  textChunk = parsed.delta.text
+                }
+
+                if (textChunk) {
+                  extractedChunkIndex++
+                  fullText += textChunk
+
+                  // Filter out markdown fences before feeding to JSON parser
+                  const cleanedChunk = textChunk
+                    .replace(/```json\n?/g, '')
+                    .replace(/```\n?/g, '')
+
+                  // Feed to streaming JSON parser (for validation, not rendering)
+                  if (cleanedChunk) jsonParser.append(cleanedChunk)
+
+                  // Update streaming code display
+                  const streamingCodeEl = document.getElementById('streaming-code')
+                  if (streamingCodeEl) {
+                    // Pretty format if valid JSON so far, otherwise show raw
+                    try {
+                      const cleanedFull = stripMarkdownFences(fullText)
+                      const parsed = JSON.parse(cleanedFull)
+                      streamingCodeEl.textContent = JSON.stringify(parsed, null, 2)
+                    } catch (e) {
+                      // Not valid JSON yet, just show what we have
+                      streamingCodeEl.textContent = stripMarkdownFences(fullText)
+                    }
+                    // Auto-scroll to bottom
+                    streamingCodeEl.scrollTop = streamingCodeEl.scrollHeight
+                  }
+
+                  // Loop detection
+                  if (textChunk.length > 20 && textChunk === lastChunkForLoopDetection) {
+                    loopCount++
+                    if (loopCount > 5) {
+                      console.error('[Stream] Loop detected - model is repeating. Auto-cancelling.')
+                      streamAborted = true
+                      reader.cancel()
+                    }
+                  } else {
+                    loopCount = 0
+                  }
+                  lastChunkForLoopDetection = textChunk
+
+                  // Update UI with char count
+                  const statusEl = streamMsg.querySelector('.stream-status')
+                  if (statusEl) statusEl.textContent = `Streaming... (${fullText.length} chars)`
+                }
+              } catch (e) {
+                // SSE JSON parse error - skip this line
+              }
+            }
+          }
+        }
+
+        // Clean up timer
+        clearInterval(streamTimer)
+        streamTimer = null
+        activeStreamReader = null
+
+        // Finalize the streaming parser
+        // Get final result from streaming parser
+        const finalResult = jsonParser.complete()
+
+        // Determine final blocks to use
+        let newBlocks = null
+
+        if (Array.isArray(finalResult) && finalResult.length > 0) {
+          newBlocks = finalResult
+        } else if (fullText.length > 0) {
+          // Fallback: try to parse fullText directly (strip markdown fences first)
+          try {
+            const cleanedText = stripMarkdownFences(fullText)
+            let parsed = JSON.parse(cleanedText)
+            // Handle wrapped responses
+            if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+              for (const key of ['blocks', 'content', 'items', 'data', 'components']) {
+                if (Array.isArray(parsed[key])) {
+                  parsed = parsed[key]
+                  break
+                }
+              }
+            }
+            if (Array.isArray(parsed)) {
+              newBlocks = parsed
+            }
+          } catch (e) {
+            console.warn('[Finalize] Direct parse failed:', e.message)
+          }
+        }
+
+        if (newBlocks && newBlocks.length > 0) {
+          let finalContent
+          let changedUIDs = []
+
+          // Use patch protocol if we have existing content
+          if (currentContent.length > 0) {
+            // Patch mode: merge incoming blocks with existing
+            const patchResult = patchBlocks(currentContent, newBlocks)
+            finalContent = patchResult.result
+            changedUIDs = patchResult.changedUIDs
+          } else {
+            // Initial mode: assign UIDs to all new blocks
+            finalContent = assignUIDs(newBlocks)
+            changedUIDs = finalContent.map(b => b._uid)
+          }
+
+          // Diff for summary message
+          const changes = diffBlocks(currentContent, finalContent)
+
+          // Update current content
+          currentContent = finalContent
+          currentVersion++
+
+          // Save to version history
+          versionHistory.push({
+            version: currentVersion,
+            content: JSON.parse(JSON.stringify(currentContent)),
+            timestamp: new Date()
+          })
+
+          // Generate summary of changes
+          const summary = []
+          if (changes.added.length) summary.push(`+${changes.added.length} added`)
+          if (changes.modified.length) summary.push(`${changes.modified.length} modified`)
+          if (changes.removed.length) summary.push(`${changes.removed.length} removed`)
+          if (changes.unchanged.length && !changes.added.length && !changes.modified.length && !changes.removed.length) {
+            summary.push('No changes')
+          }
+
+          // Update the streaming message to final state
+          streamMsg.classList.remove('streaming')
+          streamMsg.innerHTML = `
+            <div class="message-content">${summary.join(', ') || `${newBlocks.length} blocks`}</div>
+            <div class="message-version" data-version="${currentVersion}">v${currentVersion}</div>
+          `
+          streamMsg.style.cursor = 'pointer'
+          streamMsg.onclick = () => loadVersion(currentVersion)
+          streamMsg.title = 'Click to load this version'
+          streamMsg.classList.add('active')
+
+          // Remove active from other messages
+          document.querySelectorAll('.message.assistant').forEach(msg => {
+            if (msg !== streamMsg) msg.classList.remove('active')
+          })
+
+          // Final clean render - this will replace the streaming code window
+          await forceRefresh()
+          lastError = null
+        } else {
+          // No valid blocks found
+          streamMsg.classList.remove('streaming')
+          streamMsg.classList.add('error')
+
+          const preview = fullText.length > 200 ? fullText.substring(0, 200) + '...' : fullText
+          streamMsg.innerHTML = `
+            <div class="message-content">
+              <strong>No valid content</strong><br>
+              <small style="opacity: 0.7; word-break: break-all;">${preview.replace(/</g, '&lt;') || 'Empty response'}</small>
+            </div>
+            <button class="retry-btn" onclick="retryWithError()">
+              <i data-lucide="refresh-cw"></i> Retry
+            </button>
+          `
+          if (window.lucide) lucide.createIcons()
+          lastError = { message: 'No valid blocks', response: fullText, userMessage }
+        }
+
+      } catch (e) {
+        // Stream-level error
+        console.error('[Stream] Error:', e.message)
+        clearInterval(streamTimer)
+        streamTimer = null
+        activeStreamReader = null
+
+        lastError = { message: e.message, response: fullText, userMessage }
+        streamMsg.classList.remove('streaming')
+        streamMsg.classList.add('error')
+        streamMsg.innerHTML = `
+          <div class="message-content">Stream error: ${e.message}</div>
+          <button class="retry-btn" onclick="retryWithError()">
+            <i data-lucide="refresh-cw"></i> Retry
+          </button>
+        `
+        if (window.lucide) lucide.createIcons()
+      }
+
+      document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight
+    }
+
+    // Retry with error context
+    async function retryWithError() {
+      if (!lastError || isGenerating) return
+
+      const errorPrompt = `The previous response had an error. Please fix it.
+
+ERROR: ${lastError.message}
+
+FAILED RESPONSE:
+${lastError.response}
+
+ORIGINAL REQUEST: ${lastError.userMessage}
+
+Please return a valid operations object.`
+
+      isGenerating = true
+      showTypingIndicator()
+
+      try {
+        await streamClaude(errorPrompt, true)
+      } catch (e) {
+        hideTypingIndicator()
+        addMessage('error', `Retry failed: ${e.message}`, null)
+      }
+
+      isGenerating = false
+    }
+
+    // Cancel active stream
+    function cancelStream() {
+      if (activeStreamReader) {
+        activeStreamReader.cancel()
+        activeStreamReader = null
+      }
+      if (streamTimer) {
+        clearInterval(streamTimer)
+        streamTimer = null
+      }
+      isGenerating = false
+
+      // Update the streaming message to cancelled state
+      const streamingMsg = document.querySelector('.message.assistant.streaming')
+      if (streamingMsg) {
+        streamingMsg.classList.remove('streaming')
+        streamingMsg.classList.add('cancelled')
+        streamingMsg.innerHTML = `
+          <div class="message-content">Cancelled</div>
+        `
+      }
+    }
+
+    // Render preview
+    // Track which blocks changed for scrolling
+    let lastChangedUIDs = []
+
+    async function renderPreview(json, isStreaming = false, changedUIDs = []) {
+      lastChangedUIDs = changedUIDs
+
+      if (!Array.isArray(json)) {
+        if (!isStreaming) {
+          console.error('[Render] ERROR: json is not an array!', typeof json, json)
+        }
+        return
+      }
+
+      const preview = document.getElementById('preview')
+
+      try {
+        // Safely destroy previous injection (may not exist)
+        if (currentInjection) {
+          try {
+            Render.destroyInjection(currentInjection)
+          } catch (e) {
+            // Silently fail during streaming to reduce console spam
+            if (!isStreaming) {
+              console.warn('[Render] Failed to destroy previous injection:', e.message)
+            }
+          }
+          currentInjection = null
+        }
+
+        preview.innerHTML = ''
+
+        if (json.length === 0) {
+          preview.innerHTML = `
+            <div class="preview-placeholder">
+              <i data-lucide="layout"></i>
+              <p>Your generated components will appear here</p>
+              <small>Start chatting to create something!</small>
+            </div>
+          `
+          if (window.lucide) lucide.createIcons()
+          return
+        }
+
+        currentInjection = await Render.inject('#preview', json)
+
+        // Add anchor IDs to each block wrapper for scrolling
+        const blockElements = preview.querySelectorAll('[data-block-index]')
+        json.forEach((block, index) => {
+          const el = blockElements[index] || preview.children[index]
+          if (el && block._uid) {
+            el.id = `block-${block._uid}`
+            el.dataset.uid = block._uid
+            // Highlight changed blocks
+            if (changedUIDs.includes(block._uid)) {
+              el.classList.add('block-updated')
+            }
+          }
+        })
+
+        // Add streaming indicator if still streaming
+        if (isStreaming && preview.firstElementChild) {
+          preview.firstElementChild.classList.add('streaming-incomplete')
+        }
+
+        if (window.lucide) lucide.createIcons()
+
+        // Auto-scroll to first changed block, or bottom if streaming
+        setTimeout(() => {
+          if (changedUIDs.length > 0 && !isStreaming) {
+            const firstChanged = document.getElementById(`block-${changedUIDs[0]}`)
+            if (firstChanged) {
+              firstChanged.scrollIntoView({ behavior: 'smooth', block: 'center' })
+              return
+            }
+          }
+          preview.scrollTop = preview.scrollHeight
+        }, 100)
+
+      } catch (e) {
+        // Suppress error logging during streaming - transient errors are common
+        if (!isStreaming) {
+          console.error('[Render] EXCEPTION in renderPreview:', e.message)
+          console.error('[Render] Stack:', e.stack)
+          console.error('[Render] JSON that caused error:', JSON.stringify(json, null, 2).substring(0, 500))
+        }
+
+        // Suppress error UI during streaming - transient errors are common
+        if (isStreaming) {
+          return
+        }
+
+        // Store render error for potential retry
+        lastError = {
+          message: `Render error: ${e.message}`,
+          response: JSON.stringify(currentContent, null, 2),
+          userMessage: 'Fix the JSON that caused this render error'
+        }
+
+        preview.innerHTML = `
+          <div class="error-message" style="padding: 1.5rem; background: var(--pico-del-background-color); border-radius: 0.5rem;">
+            <strong>Render Error</strong>
+            <p>${e.message}</p>
+            <button class="retry-btn" onclick="retryWithError()" style="margin-top: 1rem;">
+              <i data-lucide="refresh-cw"></i> Ask AI to fix
+            </button>
+          </div>
+        `
+        if (window.lucide) lucide.createIcons()
+      }
+    }
+
+    // Send suggestion
+    function sendSuggestion(chip) {
+      const input = document.getElementById('chat-input')
+      input.value = `Add ${chip.textContent.toLowerCase()}`
+      sendMessage()
+    }
+
+    // Force refresh - clean re-render matching streaming-demo.html pattern
+    async function forceRefresh() {
+      if (currentContent.length === 0) {
+        return
+      }
+
+      const preview = document.getElementById('preview')
+      if (!preview) {
+        console.error('[Refresh] Preview element not found')
+        return
+      }
+
+      // Destroy previous injection
+      if (currentInjection) {
+        try {
+          Render.destroyInjection(currentInjection)
+        } catch (e) {
+          console.warn('[Refresh] Failed to destroy injection:', e.message)
+        }
+        currentInjection = null
+      }
+
+      // Clear and re-inject fresh (same as streaming-demo.html renderComponent)
+      preview.innerHTML = ''
+
+      // Strip internal properties (_uid, _seq, _delete) for clean render
+      const cleanBlocks = currentContent.map(block => {
+        const { _uid, _seq, _delete, ...cleanBlock } = block
+        return cleanBlock
+      })
+
+      // Reset state from state block before rendering (so quiz restarts from beginning)
+      const stateBlock = cleanBlocks.find(b => b.type === 'state' && b.init)
+      if (stateBlock && stateBlock.init) {
+        for (const [key, value] of Object.entries(stateBlock.init)) {
+          Render.state[key] = value
+        }
+      }
+
+      try {
+        currentInjection = await Render.inject('#preview', cleanBlocks)
+      } catch (e) {
+        console.error('[Refresh] Inject failed:', e.message, e.stack)
+        preview.innerHTML = `
+          <div class="error-message" style="padding: 1.5rem; background: var(--pico-del-background-color); border-radius: 0.5rem;">
+            <strong>Render Error</strong>
+            <p>${e.message}</p>
+          </div>
+        `
+      }
+
+      // Initialize icons
+      if (window.lucide) lucide.createIcons()
+    }
+
+    // Copy JSON
+    function copyJSON() {
+      if (currentContent.length === 0) {
+        alert('No JSON to copy yet!')
+        return
+      }
+
+      navigator.clipboard.writeText(JSON.stringify(currentContent, null, 2))
+        .then(() => {
+          const btn = document.querySelector('.preview-header-actions .icon-btn')
+          const originalHTML = btn.innerHTML
+          btn.innerHTML = '<i data-lucide="check"></i>'
+          if (window.lucide) lucide.createIcons()
+          setTimeout(() => {
+            btn.innerHTML = originalHTML
+            if (window.lucide) lucide.createIcons()
+          }, 2000)
+        })
+    }
+
+    // Clear chat
+    function clearChat() {
+      // Reset state
+      currentContent = []
+      versionHistory = []
+      currentVersion = 0
+
+      const container = document.getElementById('messages')
+      container.innerHTML = `
+        <div class="welcome-message">
+          <h3>Welcome!</h3>
+          <p>I can generate DeclarativeWeb components for you. Try asking for:</p>
+          <div class="suggestion-chips">
+            <span class="suggestion-chip" onclick="sendSuggestion(this)">A hero section</span>
+            <span class="suggestion-chip" onclick="sendSuggestion(this)">Feature cards</span>
+            <span class="suggestion-chip" onclick="sendSuggestion(this)">A pricing table</span>
+            <span class="suggestion-chip" onclick="sendSuggestion(this)">A quiz app</span>
+          </div>
+        </div>
+      `
+
+      // Clear preview
+      const preview = document.getElementById('preview')
+      preview.innerHTML = `
+        <div class="preview-placeholder">
+          <i data-lucide="layout"></i>
+          <p>Your generated components will appear here</p>
+          <small>Start chatting to create something!</small>
+        </div>
+      `
+
+      if (currentInjection) {
+        Render.destroyInjection(currentInjection)
+        currentInjection = null
+      }
+
+      if (window.lucide) lucide.createIcons()
+    }
+
+    // Handle keyboard
+    function handleKeyDown(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault()
+        sendMessage()
+      }
+    }
+
+    // Auto-resize textarea
+    function autoResize(el) {
+      el.style.height = 'auto'
+      el.style.height = Math.min(el.scrollHeight, 150) + 'px'
+    }
+
+    // Theme toggle (light/dark)
+    function toggleTheme() {
+      const html = document.documentElement
+      const currentTheme = html.getAttribute('data-theme')
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light'
+      html.setAttribute('data-theme', newTheme)
+      localStorage.setItem('chat-theme', newTheme)
+
+      setTimeout(() => {
+        if (window.lucide) lucide.createIcons()
+      }, 100)
+    }
+
+    // Color theme map (same as render.js)
+    const colorThemeMap = {
+      default: { h: 205, s: '85%', l: '55%' },  // Azure blue
+      red: { h: 0, s: '85%', l: '55%' },
+      pink: { h: 330, s: '85%', l: '65%' },
+      fuchsia: { h: 300, s: '85%', l: '60%' },
+      purple: { h: 270, s: '85%', l: '60%' },
+      violet: { h: 250, s: '85%', l: '60%' },
+      indigo: { h: 230, s: '85%', l: '55%' },
+      blue: { h: 210, s: '85%', l: '55%' },
+      azure: { h: 205, s: '85%', l: '55%' },
+      cyan: { h: 185, s: '85%', l: '50%' },
+      jade: { h: 160, s: '70%', l: '45%' },
+      green: { h: 140, s: '70%', l: '45%' },
+      lime: { h: 80, s: '75%', l: '50%' },
+      yellow: { h: 50, s: '95%', l: '55%' },
+      amber: { h: 35, s: '95%', l: '55%' },
+      pumpkin: { h: 25, s: '95%', l: '55%' },
+      orange: { h: 20, s: '95%', l: '55%' },
+      sand: { h: 40, s: '30%', l: '50%' },
+      grey: { h: 0, s: '0%', l: '50%' },
+      zinc: { h: 0, s: '0%', l: '45%' },
+      slate: { h: 215, s: '15%', l: '40%' }
+    }
+
+    // Apply color theme CSS variables
+    function applyColorTheme(colorName) {
+      const root = document.documentElement
+      const color = colorThemeMap[colorName] || colorThemeMap.default
+      const { h, s, l } = color
+
+      root.style.setProperty('--pico-primary', `hsl(${h}, ${s}, ${l})`)
+      root.style.setProperty('--pico-primary-hover', `hsl(${h}, ${s}, calc(${l} - 5%))`)
+      root.style.setProperty('--pico-primary-focus', `hsla(${h}, ${s}, ${l}, 0.25)`)
+      root.style.setProperty('--pico-primary-inverse', `hsl(${h}, ${s}, 95%)`)
+    }
+
+    // Color theme change (Pico CSS colors)
+    function changeColorTheme() {
+      const select = document.getElementById('color-theme-select')
+      const color = select.value
+      applyColorTheme(color || 'default')
+      localStorage.setItem('chat-color-theme', color)
+    }
+
+    // Load saved color theme
+    function loadColorTheme() {
+      const savedColor = localStorage.getItem('chat-color-theme')
+      if (savedColor) {
+        const select = document.getElementById('color-theme-select')
+        if (select) {
+          select.value = savedColor
+        }
+        applyColorTheme(savedColor)
+      }
+    }
+
+    // Resize functionality
+    let isResizing = false
+    let startX = 0
+    let startWidth = 0
+
+    const resizeHandle = document.getElementById('resize-handle')
+    const chatPanel = document.getElementById('chat-panel')
+
+    resizeHandle.addEventListener('mousedown', (e) => {
+      isResizing = true
+      startX = e.clientX
+      startWidth = chatPanel.offsetWidth
+      document.body.style.cursor = 'col-resize'
+      document.body.style.userSelect = 'none'
+    })
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isResizing) return
+
+      const diff = e.clientX - startX
+      const newWidth = startWidth + diff
+      const minWidth = 300
+      const maxWidth = window.innerWidth * 0.6
+
+      if (newWidth >= minWidth && newWidth <= maxWidth) {
+        chatPanel.style.width = newWidth + 'px'
+      }
+    })
+
+    document.addEventListener('mouseup', () => {
+      if (isResizing) {
+        isResizing = false
+        document.body.style.cursor = ''
+        document.body.style.userSelect = ''
+      }
+    })
+
+    // ========================================
+    // TEMPLATE SAVE/SHARE FUNCTIONALITY
+    // ========================================
+
+    // URL Hash Encoding Functions
+    function encodeTemplateToHash(blocks) {
+      try {
+        const json = JSON.stringify(blocks)
+        const compressed = pako.deflate(json, { level: 9 })
+        const uint8Array = new Uint8Array(compressed)
+        let binary = ''
+        uint8Array.forEach(byte => binary += String.fromCharCode(byte))
+        return btoa(binary)
+      } catch (e) {
+        console.error('[Template] Encode error:', e)
+        throw new Error('Failed to encode template')
+      }
+    }
+
+    function decodeTemplateFromHash(encoded) {
+      try {
+        const binary = atob(encoded)
+        const uint8Array = new Uint8Array(binary.length)
+        for (let i = 0; i < binary.length; i++) {
+          uint8Array[i] = binary.charCodeAt(i)
+        }
+        const decompressed = pako.inflate(uint8Array, { to: 'string' })
+        return JSON.parse(decompressed)
+      } catch (e) {
+        console.error('[Template] Decode error:', e)
+        throw new Error('Failed to decode template')
+      }
+    }
+
+    // Share Template - Create shareable URL
+    function shareTemplate() {
+      if (currentContent.length === 0) {
+        alert('No template to share yet! Generate something first.')
+        return
+      }
+
+      try {
+        const encoded = encodeTemplateToHash(currentContent)
+        const url = `${window.location.origin}${window.location.pathname}#template=${encoded}`
+
+        // Show share modal with URL
+        document.getElementById('share-url').value = url
+        document.getElementById('share-modal').classList.remove('hidden')
+        if (window.lucide) lucide.createIcons()
+
+        console.log('[Template] Share URL created:', url.substring(0, 100) + '...')
+      } catch (e) {
+        alert('Failed to create share URL: ' + e.message)
+      }
+    }
+
+    function closeShareModal() {
+      document.getElementById('share-modal').classList.add('hidden')
+    }
+
+    function copyShareUrl() {
+      const input = document.getElementById('share-url')
+      input.select()
+      navigator.clipboard.writeText(input.value).then(() => {
+        const btn = event.target.closest('button')
+        const originalHTML = btn.innerHTML
+        btn.innerHTML = '<i data-lucide="check"></i> Copied!'
+        if (window.lucide) lucide.createIcons()
+        setTimeout(() => {
+          btn.innerHTML = originalHTML
+          if (window.lucide) lucide.createIcons()
+        }, 2000)
+      })
+    }
+
+    // Load template from URL hash on page load
+    function loadTemplateFromHash() {
+      const hash = window.location.hash
+      if (hash.startsWith('#template=')) {
+        try {
+          const encoded = hash.substring(10)
+          console.log('[Template] Loading from URL hash...')
+          const blocks = decodeTemplateFromHash(encoded)
+
+          if (Array.isArray(blocks) && blocks.length > 0) {
+            currentContent = assignUIDs(blocks)
+            currentVersion = 1
+            versionHistory.push({
+              version: currentVersion,
+              content: JSON.parse(JSON.stringify(currentContent)),
+              timestamp: new Date()
+            })
+
+            console.log('[Template] Loaded', blocks.length, 'blocks from URL')
+            forceRefresh()
+
+            // Add system message to chat
+            addMessage('system', `Loaded template from URL (${blocks.length} blocks)`, null)
+
+            // Clear hash so it doesn't reload on refresh
+            // history.replaceState(null, null, ' ')
+          }
+        } catch (e) {
+          console.error('[Template] Failed to load from hash:', e)
+          addMessage('error', 'Failed to load template from URL: ' + e.message, null)
+        }
+      }
+    }
+
+    // localStorage Functions
+    function getSavedTemplates() {
+      try {
+        return JSON.parse(localStorage.getItem('declarativeweb-templates') || '{}')
+      } catch (e) {
+        console.error('[Template] Failed to load saved templates:', e)
+        return {}
+      }
+    }
+
+    function saveTemplateToStorage() {
+      const nameInput = document.getElementById('save-template-name')
+      const name = nameInput.value.trim()
+
+      if (!name) {
+        alert('Please enter a template name')
+        return
+      }
+
+      if (currentContent.length === 0) {
+        alert('No template to save yet!')
+        return
+      }
+
+      try {
+        const templates = getSavedTemplates()
+        templates[name] = {
+          blocks: currentContent,
+          timestamp: Date.now(),
+          blockCount: currentContent.length
+        }
+        localStorage.setItem('declarativeweb-templates', JSON.stringify(templates))
+
+        console.log('[Template] Saved template:', name)
+        closeSaveModal()
+
+        // Show success message
+        addMessage('system', `Template "${name}" saved successfully`, null)
+      } catch (e) {
+        alert('Failed to save template: ' + e.message)
+      }
+    }
+
+    function loadTemplateFromStorage(name) {
+      try {
+        const templates = getSavedTemplates()
+        const template = templates[name]
+
+        if (!template) {
+          alert('Template not found')
+          return
+        }
+
+        currentContent = assignUIDs(template.blocks)
+        currentVersion++
+        versionHistory.push({
+          version: currentVersion,
+          content: JSON.parse(JSON.stringify(currentContent)),
+          timestamp: new Date()
+        })
+
+        console.log('[Template] Loaded template:', name)
+        forceRefresh()
+        closeLoadModal()
+
+        addMessage('system', `Loaded template "${name}" (${template.blockCount} blocks)`, null)
+      } catch (e) {
+        alert('Failed to load template: ' + e.message)
+      }
+    }
+
+    function deleteTemplateFromStorage(name) {
+      if (!confirm(`Delete template "${name}"?`)) return
+
+      try {
+        const templates = getSavedTemplates()
+        delete templates[name]
+        localStorage.setItem('declarativeweb-templates', JSON.stringify(templates))
+
+        console.log('[Template] Deleted template:', name)
+        populateTemplateList()
+      } catch (e) {
+        alert('Failed to delete template: ' + e.message)
+      }
+    }
+
+    function populateTemplateList() {
+      const listEl = document.getElementById('saved-templates-list')
+      const templates = getSavedTemplates()
+      const names = Object.keys(templates)
+
+      if (names.length === 0) {
+        listEl.innerHTML = '<div class="empty-templates"><i data-lucide="inbox"></i><p>No saved templates yet</p></div>'
+        if (window.lucide) lucide.createIcons()
+        return
+      }
+
+      // Sort by timestamp (newest first)
+      names.sort((a, b) => templates[b].timestamp - templates[a].timestamp)
+
+      listEl.innerHTML = names.map(name => {
+        const template = templates[name]
+        const date = new Date(template.timestamp).toLocaleDateString()
+        return `
+          <div class="template-item">
+            <div class="template-item-info" onclick="loadTemplateFromStorage('${name.replace(/'/g, "\\'")}')">
+              <div class="template-item-name">${name}</div>
+              <div class="template-item-meta">${template.blockCount} blocks · ${date}</div>
+            </div>
+            <div class="template-item-actions">
+              <button class="outline" onclick="event.stopPropagation(); deleteTemplateFromStorage('${name.replace(/'/g, "\\'")}')">
+                <i data-lucide="trash-2"></i>
+              </button>
+            </div>
+          </div>
+        `
+      }).join('')
+
+      if (window.lucide) lucide.createIcons()
+    }
+
+    // Modal Functions
+    function openSaveModal() {
+      if (currentContent.length === 0) {
+        alert('No template to save yet! Generate something first.')
+        return
+      }
+
+      document.getElementById('save-template-name').value = ''
+      document.getElementById('save-modal').classList.remove('hidden')
+      document.getElementById('save-template-name').focus()
+      if (window.lucide) lucide.createIcons()
+    }
+
+    function closeSaveModal() {
+      document.getElementById('save-modal').classList.add('hidden')
+    }
+
+    function openLoadModal() {
+      populateTemplateList()
+      document.getElementById('load-modal').classList.remove('hidden')
+      if (window.lucide) lucide.createIcons()
+    }
+
+    function closeLoadModal() {
+      document.getElementById('load-modal').classList.add('hidden')
+    }
+
+    // Download/Upload Functions
+    function downloadTemplate() {
+      if (currentContent.length === 0) {
+        alert('No template to download yet!')
+        return
+      }
+
+      try {
+        const json = JSON.stringify(currentContent, null, 2)
+        const blob = new Blob([json], { type: 'application/json' })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `declarativeweb-template-${Date.now()}.json`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+
+        console.log('[Template] Downloaded template')
+        addMessage('system', 'Template downloaded', null)
+      } catch (e) {
+        alert('Failed to download template: ' + e.message)
+      }
+    }
+
+    function uploadTemplate(event) {
+      const file = event.target.files[0]
+      if (!file) return
+
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        try {
+          const blocks = JSON.parse(e.target.result)
+
+          if (!Array.isArray(blocks)) {
+            alert('Invalid template file: must be a JSON array')
+            return
+          }
+
+          currentContent = assignUIDs(blocks)
+          currentVersion++
+          versionHistory.push({
+            version: currentVersion,
+            content: JSON.parse(JSON.stringify(currentContent)),
+            timestamp: new Date()
+          })
+
+          console.log('[Template] Uploaded template:', file.name)
+          forceRefresh()
+
+          addMessage('system', `Template "${file.name}" uploaded (${blocks.length} blocks)`, null)
+        } catch (e) {
+          alert('Failed to load template file: ' + e.message)
+        }
+      }
+      reader.readAsText(file)
+
+      // Reset input so same file can be uploaded again
+      event.target.value = ''
+    }
+
+    // Load template from URL hash on page load (call after DOMContentLoaded)
+    window.addEventListener('load', () => {
+      loadTemplateFromHash()
+    })
+  </script>
+</body>
+</html>

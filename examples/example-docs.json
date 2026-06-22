@@ -1,0 +1,311 @@
+{
+  "$schema": "../schema.json",
+  "site": {
+    "title": "ClassAPI Documentation",
+    "description": "Complete API documentation for ClassAPI education platform",
+    "defaultTheme": "dark",
+    "state": {
+      "apiVersion": "v2.1"
+    }
+  },
+  "nav": {
+    "layout": "vertical",
+    "logo": {
+      "text": "ClassAPI",
+      "icon": "code",
+      "url": "/"
+    },
+    "links": [
+      { "label": "Getting Started", "path": "/", "icon": "home" },
+      { "label": "Authentication", "path": "/auth", "icon": "key" },
+      { "label": "Courses", "path": "/courses", "icon": "book-open" },
+      { "label": "Students", "path": "/students", "icon": "users" },
+      { "label": "Enrollments", "path": "/enrollments", "icon": "user-plus" },
+      { "label": "Webhooks", "path": "/webhooks", "icon": "zap" },
+      { "label": "SDKs", "path": "/sdks", "icon": "package" },
+      { "label": "Errors", "path": "/errors", "icon": "alert-circle" }
+    ],
+    "actions": [
+      { "type": "theme-toggle" },
+      {
+        "type": "link",
+        "label": "API Console",
+        "url": "https://console.classapi.dev",
+        "icon": "external-link",
+        "external": true
+      }
+    ]
+  },
+  "footer": {
+    "text": "ClassAPI {{state.apiVersion}} · © {{year()}}",
+    "links": [
+      { "label": "Status", "path": "https://status.classapi.dev" },
+      { "label": "Support", "path": "https://support.classapi.dev" },
+      { "label": "GitHub", "path": "https://github.com/classapi" }
+    ]
+  },
+  "functions": {
+    "year": "() => new Date().getFullYear()"
+  },
+  "pages": [
+    {
+      "path": "/",
+      "meta": {
+        "title": "Getting Started",
+        "description": "Quick start guide for ClassAPI"
+      },
+      "content": [
+        {
+          "type": "markdown",
+          "content": "# Getting Started\n\nWelcome to ClassAPI! This guide will help you integrate our education platform API into your application.\n\n## Overview\n\nClassAPI provides RESTful endpoints for managing courses, students, enrollments, and more. Our API is designed to be simple, predictable, and easy to integrate.\n\n### Base URL\n\nAll API requests should be made to:\n\n```\nhttps://api.classapi.dev/v2\n```\n\n### Key Features\n\n- **RESTful Design**: Intuitive resource-based URLs\n- **JSON Responses**: All responses in JSON format\n- **Webhooks**: Real-time event notifications\n- **Rate Limiting**: 1000 requests per hour on free tier\n- **Comprehensive SDKs**: Official libraries for JavaScript, Python, Ruby, PHP"
+        },
+        {
+          "type": "code",
+          "title": "Quick Start Example",
+          "language": "javascript",
+          "description": "Make your first API request",
+          "code": "const ClassAPI = require('@classapi/sdk');\n\nconst client = new ClassAPI({\n  apiKey: 'sk_test_abc123'\n});\n\n// Create a new course\nconst course = await client.courses.create({\n  title: 'Introduction to JavaScript',\n  description: 'Learn the fundamentals',\n  duration: '6 weeks',\n  price: 4999 // in cents\n});\n\nconsole.log('Course created:', course.id);"
+        },
+        {
+          "type": "section",
+          "id": "resources",
+          "title": "Core Resources",
+          "columns": 2,
+          "resources": [
+            {
+              "title": "Courses",
+              "description": "Create and manage course offerings, including metadata, pricing, and curriculum structure.",
+              "icon": "book-open",
+              "url": "/courses"
+            },
+            {
+              "title": "Students",
+              "description": "Manage student accounts, profiles, and authentication credentials.",
+              "icon": "users",
+              "url": "/students"
+            },
+            {
+              "title": "Enrollments",
+              "description": "Handle student course registrations, track progress, and manage completions.",
+              "icon": "user-plus",
+              "url": "/enrollments"
+            },
+            {
+              "title": "Webhooks",
+              "description": "Receive real-time notifications for events like new enrollments and course completions.",
+              "icon": "zap",
+              "url": "/webhooks"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/auth",
+      "meta": {
+        "title": "Authentication"
+      },
+      "content": [
+        {
+          "type": "markdown",
+          "content": "# Authentication\n\nClassAPI uses API keys to authenticate requests. You can create and manage API keys in your [dashboard](https://dashboard.classapi.dev).\n\n## API Keys\n\nYour API key should be included in the `Authorization` header of every request:\n\n```\nAuthorization: Bearer YOUR_API_KEY\n```\n\n### Key Types\n\n- **Secret keys** (starting with `sk_`): Use for server-side requests. Keep these secure!\n- **Publishable keys** (starting with `pk_`): Safe to use in client-side code for limited operations.\n\n### Security Best Practices\n\n1. Never commit API keys to version control\n2. Use environment variables to store keys\n3. Rotate keys regularly\n4. Use different keys for development and production\n5. Immediately revoke compromised keys"
+        },
+        {
+          "type": "code",
+          "title": "Authentication Example",
+          "language": "bash",
+          "code": "curl https://api.classapi.dev/v2/courses \\\n  -H \"Authorization: Bearer sk_test_abc123\" \\\n  -H \"Content-Type: application/json\""
+        },
+        {
+          "type": "code",
+          "title": "Using Environment Variables",
+          "language": "javascript",
+          "code": "// Load from environment\nrequire('dotenv').config();\n\nconst client = new ClassAPI({\n  apiKey: process.env.CLASSAPI_SECRET_KEY\n});"
+        }
+      ]
+    },
+    {
+      "path": "/courses",
+      "meta": {
+        "title": "Courses API"
+      },
+      "content": [
+        {
+          "type": "markdown",
+          "content": "# Courses\n\nThe Courses API allows you to create, retrieve, update, and delete course offerings.\n\n## The Course Object\n\n### Attributes\n\n- `id` (string): Unique identifier for the course\n- `title` (string): Course title\n- `description` (string): Course description\n- `duration` (string): Course length (e.g., \"6 weeks\")\n- `price` (integer): Price in cents\n- `published` (boolean): Whether the course is visible to students\n- `created_at` (timestamp): Creation timestamp\n- `updated_at` (timestamp): Last update timestamp"
+        },
+        {
+          "type": "code",
+          "title": "Create a Course",
+          "language": "javascript",
+          "description": "POST /v2/courses",
+          "code": "const course = await client.courses.create({\n  title: 'Advanced Python Programming',\n  description: 'Deep dive into Python internals',\n  duration: '8 weeks',\n  price: 9999,\n  published: true\n});"
+        },
+        {
+          "type": "code",
+          "title": "List All Courses",
+          "language": "javascript",
+          "description": "GET /v2/courses",
+          "code": "const courses = await client.courses.list({\n  limit: 10,\n  published: true,\n  sort: '-created_at'\n});\n\ncourses.data.forEach(course => {\n  console.log(course.title);\n});"
+        },
+        {
+          "type": "code",
+          "title": "Retrieve a Course",
+          "language": "javascript",
+          "description": "GET /v2/courses/:id",
+          "code": "const course = await client.courses.retrieve('crs_abc123');\nconsole.log(course.title);"
+        },
+        {
+          "type": "code",
+          "title": "Update a Course",
+          "language": "javascript",
+          "description": "PATCH /v2/courses/:id",
+          "code": "const course = await client.courses.update('crs_abc123', {\n  price: 7999,\n  published: false\n});"
+        },
+        {
+          "type": "code",
+          "title": "Delete a Course",
+          "language": "javascript",
+          "description": "DELETE /v2/courses/:id",
+          "code": "const result = await client.courses.delete('crs_abc123');\n// Returns: { id: 'crs_abc123', deleted: true }"
+        }
+      ]
+    },
+    {
+      "path": "/students",
+      "meta": {
+        "title": "Students API"
+      },
+      "content": [
+        {
+          "type": "markdown",
+          "content": "# Students\n\nManage student accounts and profiles.\n\n## The Student Object\n\n### Attributes\n\n- `id` (string): Unique identifier\n- `email` (string): Student email address\n- `name` (string): Full name\n- `avatar_url` (string): Profile picture URL\n- `metadata` (object): Custom key-value data\n- `created_at` (timestamp): Account creation time"
+        },
+        {
+          "type": "code",
+          "title": "Create a Student",
+          "language": "python",
+          "description": "POST /v2/students",
+          "code": "import classapi\n\nclient = classapi.Client(api_key='sk_test_abc123')\n\nstudent = client.students.create(\n    email='alice@example.com',\n    name='Alice Johnson',\n    metadata={'school_id': '12345'}\n)\n\nprint(student.id)"
+        },
+        {
+          "type": "code",
+          "title": "Search Students",
+          "language": "python",
+          "description": "GET /v2/students with filters",
+          "code": "students = client.students.list(\n    email='alice@example.com',\n    limit=1\n)\n\nif students.data:\n    print(f'Found: {students.data[0].name}')"
+        }
+      ]
+    },
+    {
+      "path": "/enrollments",
+      "meta": {
+        "title": "Enrollments API"
+      },
+      "content": [
+        {
+          "type": "markdown",
+          "content": "# Enrollments\n\nEnrollments represent a student's registration in a specific course.\n\n## The Enrollment Object\n\n### Attributes\n\n- `id` (string): Unique identifier\n- `student_id` (string): ID of enrolled student\n- `course_id` (string): ID of the course\n- `status` (enum): `active`, `completed`, `dropped`\n- `progress` (integer): Completion percentage (0-100)\n- `enrolled_at` (timestamp): Enrollment timestamp\n- `completed_at` (timestamp): Completion timestamp (if applicable)"
+        },
+        {
+          "type": "code",
+          "title": "Enroll a Student",
+          "language": "ruby",
+          "description": "POST /v2/enrollments",
+          "code": "require 'classapi'\n\nclient = ClassAPI::Client.new(api_key: 'sk_test_abc123')\n\nenrollment = client.enrollments.create(\n  student_id: 'stu_xyz789',\n  course_id: 'crs_abc123'\n)\n\nputs \"Enrolled: #{enrollment.id}\""
+        },
+        {
+          "type": "code",
+          "title": "Update Progress",
+          "language": "ruby",
+          "description": "PATCH /v2/enrollments/:id",
+          "code": "enrollment = client.enrollments.update('enr_123', {\n  progress: 75,\n  status: 'active'\n})"
+        }
+      ]
+    },
+    {
+      "path": "/webhooks",
+      "meta": {
+        "title": "Webhooks"
+      },
+      "content": [
+        {
+          "type": "markdown",
+          "content": "# Webhooks\n\nWebhooks allow you to receive real-time notifications when events occur in your ClassAPI account.\n\n## Supported Events\n\n- `course.created`\n- `course.updated`\n- `course.deleted`\n- `student.created`\n- `enrollment.created`\n- `enrollment.completed`\n\n## Setting Up Webhooks\n\n1. Configure your endpoint URL in the dashboard\n2. Implement a handler to receive POST requests\n3. Verify the webhook signature\n4. Return a 200 status code\n\n### Webhook Payload\n\nAll webhooks include:\n\n```json\n{\n  \"id\": \"evt_abc123\",\n  \"type\": \"enrollment.created\",\n  \"created_at\": \"2025-01-03T12:00:00Z\",\n  \"data\": {\n    // Event-specific data\n  }\n}\n```"
+        },
+        {
+          "type": "code",
+          "title": "Webhook Handler Example",
+          "language": "javascript",
+          "description": "Express.js webhook endpoint",
+          "code": "const express = require('express');\nconst app = express();\n\napp.post('/webhooks/classapi', express.json(), (req, res) => {\n  const event = req.body;\n  \n  // Verify signature (recommended)\n  const signature = req.headers['classapi-signature'];\n  // ... verify signature logic\n  \n  // Handle event\n  switch (event.type) {\n    case 'enrollment.created':\n      console.log('New enrollment:', event.data.id);\n      // Send welcome email, etc.\n      break;\n    case 'enrollment.completed':\n      console.log('Course completed:', event.data.id);\n      // Generate certificate, etc.\n      break;\n  }\n  \n  res.status(200).send('OK');\n});"
+        }
+      ]
+    },
+    {
+      "path": "/sdks",
+      "meta": {
+        "title": "SDKs & Libraries"
+      },
+      "content": [
+        {
+          "type": "markdown",
+          "content": "# SDKs & Libraries\n\nOfficial SDKs for popular programming languages.\n\n## Installation"
+        },
+        {
+          "type": "section",
+          "id": "sdk-list",
+          "columns": 2,
+          "resources": [
+            {
+              "title": "JavaScript / Node.js",
+              "description": "Official SDK for JavaScript and Node.js applications. Supports TypeScript.",
+              "icon": "code",
+              "tags": ["npm install @classapi/sdk"]
+            },
+            {
+              "title": "Python",
+              "description": "Official Python SDK with async support. Compatible with Python 3.7+.",
+              "icon": "code",
+              "tags": ["pip install classapi"]
+            },
+            {
+              "title": "Ruby",
+              "description": "Official Ruby gem. Works with Ruby 2.6 and higher.",
+              "icon": "code",
+              "tags": ["gem install classapi"]
+            },
+            {
+              "title": "PHP",
+              "description": "Official PHP library. Requires PHP 7.4 or higher.",
+              "icon": "code",
+              "tags": ["composer require classapi/classapi-php"]
+            }
+          ]
+        },
+        {
+          "type": "markdown",
+          "content": "## Community SDKs\n\nCommunity-maintained libraries for additional languages:\n\n- **Go**: [github.com/classapi/classapi-go](https://github.com/classapi/classapi-go)\n- **Java**: [github.com/classapi/classapi-java](https://github.com/classapi/classapi-java)\n- **.NET**: [github.com/classapi/classapi-dotnet](https://github.com/classapi/classapi-dotnet)"
+        }
+      ]
+    },
+    {
+      "path": "/errors",
+      "meta": {
+        "title": "Error Handling"
+      },
+      "content": [
+        {
+          "type": "markdown",
+          "content": "# Error Handling\n\nClassAPI uses conventional HTTP response codes to indicate success or failure.\n\n## HTTP Status Codes\n\n- **200 OK**: Request succeeded\n- **201 Created**: Resource created successfully\n- **400 Bad Request**: Invalid parameters\n- **401 Unauthorized**: Invalid API key\n- **403 Forbidden**: API key lacks permissions\n- **404 Not Found**: Resource doesn't exist\n- **429 Too Many Requests**: Rate limit exceeded\n- **500 Internal Server Error**: Something went wrong on our end\n\n## Error Response Format\n\nAll errors return JSON with the following structure:\n\n```json\n{\n  \"error\": {\n    \"type\": \"validation_error\",\n    \"message\": \"Invalid email format\",\n    \"param\": \"email\",\n    \"code\": \"invalid_email\"\n  }\n}\n```"
+        },
+        {
+          "type": "code",
+          "title": "Error Handling Example",
+          "language": "javascript",
+          "code": "try {\n  const student = await client.students.create({\n    email: 'invalid-email',\n    name: 'John Doe'\n  });\n} catch (error) {\n  if (error.type === 'validation_error') {\n    console.error('Validation failed:', error.message);\n    console.error('Invalid parameter:', error.param);\n  } else if (error.type === 'rate_limit_error') {\n    console.error('Rate limit exceeded. Retry after:', error.retry_after);\n  } else {\n    console.error('Unexpected error:', error);\n  }\n}"
+        }
+      ]
+    }
+  ]
+}

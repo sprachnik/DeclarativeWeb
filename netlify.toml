@@ -1,0 +1,39 @@
+# Netlify configuration for SPA routing and functions
+
+# Build settings
+[build]
+  command = "npm run build"
+  publish = "."
+
+# Pretty URLs - removes .html extension
+[build.processing]
+  skip_processing = false
+[build.processing.html]
+  pretty_urls = true
+
+# Functions directory
+[functions]
+  directory = "netlify/functions"
+
+# API proxy for Claude - must come before catch-all
+[[redirects]]
+  from = "/api/claude"
+  to = "/.netlify/functions/claude-proxy"
+  status = 200
+
+# VibeFeed clean URLs
+[[redirects]]
+  from = "/vibefeed/@:username"
+  to = "/vibefeed/profile?u=:username"
+  status = 200
+
+[[redirects]]
+  from = "/vibefeed/v/:id"
+  to = "/vibefeed/vibe?id=:id"
+  status = 200
+
+# Redirects all routes to index.html for client-side routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
