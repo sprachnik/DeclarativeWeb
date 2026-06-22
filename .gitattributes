@@ -1,0 +1,2 @@
+# Force LF line endings on commit so dist/ artifacts match Linux CI builds.
+* text=auto eol=lf
