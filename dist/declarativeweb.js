@@ -3074,9 +3074,9 @@ const Render = (() => {
         </a></li>`
       }
       if (action.type === 'coffee-modal') {
-        const url = action.url || 'https://buymeacoffee.com/jamesstalleymoores'
+        const url = String(action.url || 'https://buymeacoffee.com/jamesstalleymoores').replace(/'/g, "\\'")
         const label = action.label || 'Buy me a coffee'
-        return `<li><button class="coffee-toggle outline" onclick="Render.showCoffeeModal(${JSON.stringify(url)})" aria-label="${label}" title="${label}">
+        return `<li><button class="coffee-toggle outline" onclick="Render.showCoffeeModal('${url}')" aria-label="${label}" title="${label}">
           <i data-lucide="${action.icon || 'coffee'}"></i>
         </button></li>`
       }
